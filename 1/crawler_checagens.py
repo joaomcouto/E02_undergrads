@@ -27,10 +27,11 @@ def crawler_lupa():
         try:
             #button = driver.find_element_by_xpath("//a[@class='btn-mais btnvermais']")
             button = driver.find_element_by_css_selector(".btn-mais")
-            driver.execute_script("arguments[0].click();", button)
+            driver.get(button.get_attribute("href"))
+            #driver.execute_script("arguments[0].click();", button)
             time.sleep(1)
         except NoSuchElementException:
-            break   
+            break
     driver.close
     return set(url_list)
 
