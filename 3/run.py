@@ -40,43 +40,74 @@ def printURLs(lista):
     for URL in lista:
         print(URL, "\n")
 
-delay = 10 # seconds
-URLs = []
-for page in range(1140,1150):
-    start = time.time()
-    driver.get("https://g1.globo.com/bemestar/coronavirus/index/feed/pagina-" + str(page) + ".ghtml")
-    try:
-        myElem = WebDriverWait(driver, delay).until(EC.presence_of_element_located((By.ID, "feed-placeholder")))
-        print ("Feed encontrado, varrendo pagina", page, "...")
-    except TimeoutException:
-        print ("Feed não localizado! Indicativo de varredura completa ou erro de conexão..\n")
-        printURLs(URLs)
-        print (" !!!! Coletamos",len(URLs), "URLs")
-        sys.exit(0)
-    #driver.get("https://g1.globo.com/bemestar/coronavirus/index/feed/pagina-1147.ghtml")
-#driver.maximize_window()
-#driver.implicitly_wait(10)
+def crawler_g1_pages(startPage, endPage):
+    delay = 10 # seconds
+    URLs = []
+    for page in range(startPage,endPage):
+        start = time.time()
+        driver.get("https://g1.globo.com/bemestar/coronavirus/index/feed/pagina-" + str(page) + ".ghtml")
+        try:
+            myElem = WebDriverWait(driver, delay).until(EC.presence_of_element_located((By.ID, "feed-placeholder")))
+            print ("Feed encontrado, varrendo pagina", page, "...")
+        except TimeoutException:
+            print ("Feed não localizado! Indicativo de varredura completa ou erro de conexão..\n")
+            printURLs(URLs)
+            print (" !!!! Coletamos",len(URLs), "URLs")
+            driver.close()
+            sys.exit(0)
+
+        
+        feedElement = driver.find_element_by_id("feed-placeholder")
+
+        materias = feedElement.find_elements_by_xpath('//div[@data-type ="materia"]')
+
+        URLCount = 0
+        for materia in materias:
+            URLs.append(materia.find_element_by_tag_name('a').get_attribute('href'))
+            URLCount +=1 
+        print("\t", URLCount, "URLs encontradas em" , round(time.time() - start ,2) ,"segundos" )
+
+        f=open('G1_1140_a_1150.txt','w')
+        for u in URLs:
+            f.write(u +'\n')
+        f.close()
+
+#crawler_g1_pages(1140,1150)
+
+def crawler_uol():
+    delay = 10 # seconds
+    URLs = []
+    driver.get("https://noticias.uol.com.br/coronavirus/")
+    feedElement = driver.find_element_by_class_name("results-index")
+    for i in range (1, 5):
+        for page in range(1,50):
+            start = time.time()
+            try:
+                myElem = WebDriverWait(feedElement, delay).until(EC.presence_of_element_located((By.XPATH, "//*[contains(text(), 'ver mais')]")))
+                print ("Ver Mais encontrado! Clicando pela" , page)
+            except TimeoutException:
+                print ("Ver mais não encontrado\n")
+                printURLs(URLs)
+                print (" !!!! Coletamos",len(URLs), "URLs")
+                driver.close()
+                sys.exit(0)      
+
+            verMaisElement = feedElement.find_element_by_xpath("//button[contains(text(), 'ver mais')]")
+            driver.execute_script("arguments[0].click();", verMaisElement)
+
+        materias = feedElement.find_elements_by_xpath('//div[@class ="thumbnails-wrapper"]')
+        URLCount = 0
+        for materia in materias:
+            URLs.append(materia.find_element_by_tag_name('a').get_attribute('href'))
+            URLCount +=1 
+        print("\t", URLCount, "URLs encontradas") # em" , round(time.time() - start ,2) ,"segundos" )
+
+        # f=open('G1_1140_a_1150.txt','w')
+        # for u in URLs:
+        #     f.write(u +'\n')
+        # f.close()
+    driver.close()
+
+crawler_uol()
 
 
-
-    
-    feedElement = driver.find_element_by_id("feed-placeholder")
-
-    materias = feedElement.find_elements_by_xpath('//div[@data-type ="materia"]')
-
-    URLCount = 0
-    for materia in materias:
-        URLs.append(materia.find_element_by_tag_name('a').get_attribute('href'))
-        URLCount +=1 
-    print("\t", URLCount, "URLs encontradas em" , round(time.time() - start ,2) ,"segundos" )
-
-
-    #link = materia.find_element_by_xpath('//a')
-    #print(link.get_attribute('href'))
-
-#self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-#time.sleep(4)
-
-
-
-driver.close()
