@@ -36,27 +36,39 @@ chrome_options.add_argument('--disable-software-rasterizer')
 
 driver = webdriver.Chrome(PATH,options=chrome_options)
 
+def printURLs(lista):
+    for URL in lista:
+        print(URL, "\n")
 
-driver.get("https://g1.globo.com/bemestar/coronavirus/index/feed/pagina-1147.ghtml")
+delay = 10 # seconds
+URLs = []
+for page in range(1140,1150):
+    start = time.time()
+    driver.get("https://g1.globo.com/bemestar/coronavirus/index/feed/pagina-" + str(page) + ".ghtml")
+    try:
+        myElem = WebDriverWait(driver, delay).until(EC.presence_of_element_located((By.ID, "feed-placeholder")))
+        print ("Feed encontrado, varrendo pagina", page, "...")
+    except TimeoutException:
+        print ("Feed não localizado! Indicativo de varredura completa ou erro de conexão..\n")
+        printURLs(URLs)
+        print (" !!!! Coletamos",len(URLs), "URLs")
+        sys.exit(0)
+    #driver.get("https://g1.globo.com/bemestar/coronavirus/index/feed/pagina-1147.ghtml")
 #driver.maximize_window()
 #driver.implicitly_wait(10)
 
-delay = 10 # seconds
-try:
-    myElem = WebDriverWait(driver, delay).until(EC.presence_of_element_located((By.ID, "feed-placeholder")))
-    print ("Feed encontrado, fazendo varredura...")
-except TimeoutException:
-    print ("Feed não localizado! Indicativo de varredura completa ou erro de conexão..\n")
-    print ("Coletamos",len(URLs), "URLs")
-    sys.exit(0)
 
-feedElement = driver.find_element_by_id("feed-placeholder")
 
-materias = feedElement.find_elements_by_xpath('//div[@data-type="materia"]')
+    
+    feedElement = driver.find_element_by_id("feed-placeholder")
 
-URLs = []
-for materia in materias:
-    URLs.append(materia.find_element_by_tag_name('a').get_attribute('href'))
+    materias = feedElement.find_elements_by_xpath('//div[@data-type ="materia"]')
+
+    URLCount = 0
+    for materia in materias:
+        URLs.append(materia.find_element_by_tag_name('a').get_attribute('href'))
+        URLCount +=1 
+    print("\t", URLCount, "URLs encontradas em" , round(time.time() - start ,2) ,"segundos" )
 
 
     #link = materia.find_element_by_xpath('//a')
@@ -65,6 +77,6 @@ for materia in materias:
 #self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
 #time.sleep(4)
 
-print(URLs)
+
 
 driver.close()
