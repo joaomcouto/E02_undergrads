@@ -84,35 +84,52 @@ def crawler_comprova():
 		for el in elements:
 			url = el.find_element_by_class_name("answer__title__link").get_attribute("href")
 			url_list.add(url)
+			print(url)
 	driver.close()
 	return url_list
 
 def crawler_e_farsas():
-	base_url = 'https://www.e-farsas.com/'
+	base_urls = ['https://www.e-farsas.com/secoes/falso-2','https://www.e-farsas.com/secoes/verdadeiro-2']
 	url_list = set()
 	driver = webdriver.Firefox()
-	driver.get(base_url)
-	wait = WebDriverWait(driver, 15)
-	while True:
-		notices = driver.find_elements_by_css_selector(".infinite-content>li")
-		for notice in notices:
-			elements = driver.find_elements_by_class_name("mvp-main-blog-out")
-		for el in elements:
-			url = el.find_element_by_tag_name("a").get_attribute("href")
-			url_list.add(url)
-			print(url)
-		try:
-			time.sleep(1)
-			button = driver.find_element_by_css_selector(".pagination > a:nth-child(10)")
-			button.click()
-			#driver.execute_script("arguments[0].click();", button)
-			time.sleep(1)
-		except NoSuchElementException:
-			break
-	driver.close()
+	for base_url in base_urls:
+		driver.get(base_url)
+		wait = WebDriverWait(driver, 15)
+		f = True
+		while True:
+			notices = driver.find_elements_by_css_selector(".mvp-main-blog-story>li")
+			for notice in notices:
+				elements = driver.find_elements_by_class_name("mvp-main-blog-in")
+			for el in elements:
+				url = el.find_element_by_tag_name("a").get_attribute("href")
+				url_list.add(url)
+				print(url)
+			try:
+				if f:
+					button = driver.find_element_by_css_selector(".pagination > a:nth-child(7)")
+					f = False
+				else:
+					button = driver.find_element_by_xpath("//*[contains(text(), 'Próxima ›')]")
+				#driver.execute_script("arguments[0].click();", button)
+				new_page = button.get_attribute("href")
+				driver.get(new_page)
+				time.sleep(3)
+			except NoSuchElementException:
+				break
+
+	driver.close()	
 	return url_list
 
 
+urls_e_farsas = crawler_e_farsas()
+
+e_farsas_file = open("urls/urls_e_farsas.txt","w")
+e_farsas_file.write(str(len(urls_e_farsas))+'\n')
+for u in urls_e_farsas:
+	e_farsas_file.write(u+'\n')
+e_farsas_file.close()
+
+"""
 urls_lupa = list(crawler_lupa())
 urls_aos_fatos = list(crawler_aos_fatos())
 urls_comprova = list(crawler_comprova())
@@ -134,5 +151,5 @@ comprova_file.write(str(len(urls_comprova))+'\n')
 for u in urls_comprova:
 	comprova_file.write(u+'\n')
 comprova_file.close()
-
+"""
 
