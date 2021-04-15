@@ -39,16 +39,25 @@ def crawler_lupa():
 
 def crawler_fato_fake():
 	base_url = 'https://g1.globo.com/fato-ou-fake/'
-	url_list = []
+	url_list = set()
 	driver = webdriver.Firefox()
 	driver.get(base_url)
-	class_block = driver.find_elements_by_xpath("/html/body/div[2]/main/div[4]/div[2]/div/div/div/div/div/div/div")
-	for block in class_block:
-		elements = driver.find_elements_by_tag_name("a")    
-	for el in elements:
-		url_list.append(el.get_attribute("href"))
-	return url_list
+	wait = WebDriverWait(driver, 15)
+	while True:
+		try:
+			time.sleep(1)
+			button = driver.find_element_by_xpath("//*[contains(text(), 'Veja mais')]")
+			driver.execute_script("arguments[0].click();", button)
+			time.sleep(1)
 
+		except NoSuchElementException:
+			break
+	elements = driver.find_elements_by_class_name('feed-media-wrapper')
+	for el in elements:
+		url = el.find_element_by_tag_name("a").get_attribute("href")
+		url_list.add(url)
+	driver.close()
+	return url_list
 def crawler_aos_fatos():
 	base_url = 'https://www.aosfatos.org/noticias/'
 	url_list = set()
@@ -103,7 +112,6 @@ def crawler_e_farsas():
 			for el in elements:
 				url = el.find_element_by_tag_name("a").get_attribute("href")
 				url_list.add(url)
-				print(url)
 			try:
 				if f:
 					button = driver.find_element_by_css_selector(".pagination > a:nth-child(7)")
@@ -121,18 +129,20 @@ def crawler_e_farsas():
 	return url_list
 
 
-urls_e_farsas = crawler_e_farsas()
 
-e_farsas_file = open("urls/urls_e_farsas.txt","w")
-e_farsas_file.write(str(len(urls_e_farsas))+'\n')
-for u in urls_e_farsas:
-	e_farsas_file.write(u+'\n')
-e_farsas_file.close()
+urls_fato_ou_fake = crawler_fato_fake()
+
+fato_ou_fake_file = open("urls/fato_ou_fake.txt","w")
+fato_ou_fake_file.write(str(len(urls_fato_ou_fake))+'\n')
+for u in urls_fato_ou_fake:
+	fato_ou_fake_file.write(u+'\n')
+fato_ou_fake_file.close()
 
 """
 urls_lupa = list(crawler_lupa())
 urls_aos_fatos = list(crawler_aos_fatos())
 urls_comprova = list(crawler_comprova())
+urls_e_farsas = crawler_e_farsas()
 
 lupa_file = open("urls/urls_lupa.txt","w")
 lupa_file.write(str(len(urls_lupa)) + '\n')
@@ -151,5 +161,12 @@ comprova_file.write(str(len(urls_comprova))+'\n')
 for u in urls_comprova:
 	comprova_file.write(u+'\n')
 comprova_file.close()
+
+e_farsas_file = open("urls/urls_e_farsas.txt","w")
+e_farsas_file.write(str(len(urls_e_farsas))+'\n')
+for u in urls_e_farsas:
+	e_farsas_file.write(u+'\n')
+e_farsas_file.close()
+
 """
 
