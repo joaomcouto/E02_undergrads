@@ -84,7 +84,6 @@ def crawler_comprova():
 		for el in elements:
 			url = el.find_element_by_class_name("answer__title__link").get_attribute("href")
 			url_list.add(url)
-			print(url)
 	driver.close()
 	return url_list
 
