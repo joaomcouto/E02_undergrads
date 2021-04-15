@@ -43,19 +43,20 @@ def crawler_fato_fake():
 	driver = webdriver.Firefox()
 	driver.get(base_url)
 	wait = WebDriverWait(driver, 15)
+	i=0
 	while True:
 		try:
-			time.sleep(1)
+			time.sleep(2)
 			button = driver.find_element_by_xpath("//*[contains(text(), 'Veja mais')]")
-			driver.execute_script("arguments[0].click();", button)
-			time.sleep(1)
+			#driver.execute_script("arguments[0].click();", button)
+			driver.get(button.get_attribute("href"))
 
 		except NoSuchElementException:
 			break
-	elements = driver.find_elements_by_class_name('feed-media-wrapper')
-	for el in elements:
-		url = el.find_element_by_tag_name("a").get_attribute("href")
-		url_list.add(url)
+		elements = driver.find_elements_by_class_name('feed-media-wrapper')
+		for el in elements:
+			url = el.find_element_by_tag_name("a").get_attribute("href")
+			url_list.add(url)
 	driver.close()
 	return url_list
 def crawler_aos_fatos():
@@ -128,7 +129,9 @@ def crawler_e_farsas():
 	driver.close()	
 	return url_list
 
-
+def crawler_boatos():
+	base_url = 'https://www.boatos.org/'
+	urls_list = set()
 
 urls_fato_ou_fake = crawler_fato_fake()
 
