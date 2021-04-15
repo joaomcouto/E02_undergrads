@@ -46,7 +46,7 @@ def crawler_fato_fake():
 	i=0
 	while True:
 		try:
-			time.sleep(2)
+			time.sleep(1)
 			button = driver.find_element_by_xpath("//*[contains(text(), 'Veja mais')]")
 			#driver.execute_script("arguments[0].click();", button)
 			driver.get(button.get_attribute("href"))
@@ -159,7 +159,7 @@ def crawler_boatos():
 
 	driver.close()
 
-urls_boatos = crawler_boatos()
+
 
 boatos_file = open("urls/boatos.txt","w")
 boatos_file.write(str(len(urls_boatos)))
@@ -173,6 +173,7 @@ urls_aos_fatos = list(crawler_aos_fatos())
 urls_comprova = list(crawler_comprova())
 urls_e_farsas = crawler_e_farsas()
 urls_fato_ou_fake = crawler_fato_fake()
+urls_boatos = crawler_boatos()
 
 lupa_file = open("urls/urls_lupa.txt","w")
 lupa_file.write(str(len(urls_lupa)) + '\n')
