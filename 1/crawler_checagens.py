@@ -130,22 +130,49 @@ def crawler_e_farsas():
 	return url_list
 
 def crawler_boatos():
-	base_url = 'https://www.boatos.org/'
+	base_url = 'https://www.boatos.org/contato'
 	urls_list = set()
+	urls_archive =[]
+	driver = webdriver.Firefox()
+	driver.get(base_url)
+	archive = driver.find_elements_by_css_selector("#archives-4 > ul:nth-child(2) > li")
 
-urls_fato_ou_fake = crawler_fato_fake()
+	for element in archive:
+		ar = element.find_element_by_tag_name("a").get_attribute("href")
+		urls_archive.append(ar)
 
-fato_ou_fake_file = open("urls/fato_ou_fake.txt","w")
-fato_ou_fake_file.write(str(len(urls_fato_ou_fake))+'\n')
-for u in urls_fato_ou_fake:
-	fato_ou_fake_file.write(u+'\n')
-fato_ou_fake_file.close()
+	for url in urls_archive:
+		driver.get(url)
+		while True:
+			time.sleep(1)
+			titles = driver.find_elements_by_class_name("entry-title")
+			for title in titles:
+				link = title.find_element_by_tag_name("a").get_attribute("href")
+				urls_list.add(link)
+				print(link)
+			try:
+				button = driver.find_element_by_css_selector(".previous")
+				next_page = button.find_element_by_tag_name("a").get_attribute("href")
+				driver.get(next_page)
+			except NoSuchElementException:
+				break
+
+	driver.close()
+
+urls_boatos = crawler_boatos()
+
+boatos_file = open("urls/boatos.txt","w")
+boatos_file.write(str(len(urls_boatos)))
+for u in url_boatos:
+	boatos_file.write(u+'\n')
+boatos_file.close()
 
 """
 urls_lupa = list(crawler_lupa())
 urls_aos_fatos = list(crawler_aos_fatos())
 urls_comprova = list(crawler_comprova())
 urls_e_farsas = crawler_e_farsas()
+urls_fato_ou_fake = crawler_fato_fake()
 
 lupa_file = open("urls/urls_lupa.txt","w")
 lupa_file.write(str(len(urls_lupa)) + '\n')
@@ -170,6 +197,12 @@ e_farsas_file.write(str(len(urls_e_farsas))+'\n')
 for u in urls_e_farsas:
 	e_farsas_file.write(u+'\n')
 e_farsas_file.close()
+
+fato_ou_fake_file = open("urls/fato_ou_fake.txt","w")
+fato_ou_fake_file.write(str(len(urls_fato_ou_fake))+'\n')
+for u in urls_fato_ou_fake:
+	fato_ou_fake_file.write(u+'\n')
+fato_ou_fake_file.close()
 
 """
 
