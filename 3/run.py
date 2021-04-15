@@ -80,7 +80,7 @@ def crawler_uol():
     driver.get("https://noticias.uol.com.br/coronavirus/")
     feedElement = driver.find_element_by_class_name("results-index")
     for i in range (1, 5):
-        for page in range(1,50):
+        for page in range(1,25):
             start = time.time()
             try:
                 myElem = WebDriverWait(feedElement, delay).until(EC.presence_of_element_located((By.XPATH, "//*[contains(text(), 'ver mais')]")))
@@ -95,7 +95,8 @@ def crawler_uol():
             verMaisElement = feedElement.find_element_by_xpath("//button[contains(text(), 'ver mais')]")
             driver.execute_script("arguments[0].click();", verMaisElement)
 
-        materias = feedElement.find_elements_by_xpath('//div[@class ="thumbnails-wrapper"]')
+        #materias = feedElement.find_elements_by_xpath('//div/div/div/div/div[@class ="thumbnails-wrapper"]')
+        materias = feedElement.find_elements_by_class_name('thumbnails-wrapper')
         URLCount = 0
         for materia in materias:
             URLs.append(materia.find_element_by_tag_name('a').get_attribute('href'))
@@ -108,6 +109,45 @@ def crawler_uol():
         # f.close()
     driver.close()
 
-crawler_uol()
+#crawler_uol()
+
+def crawler_bbc(startPage, endPage):
+    delay = 10 # seconds
+    URLs = []
+    for page in range(startPage,endPage+1):
+        start = time.time()
+        driver.get("https://www.bbc.com/portuguese/topics/c340q430z4vt/page/" + str(page))
+        try:
+            myElem = WebDriverWait(driver, delay).until(EC.presence_of_element_located((By.ID, "lx-stream")))
+            print ("Feed encontrado, varrendo pagina", page, "...")
+        except TimeoutException:
+            print ("Feed não localizado! Indicativo de varredura completa ou erro de conexão..\n")
+            printURLs(URLs)
+            print (" !!!! Coletamos",len(URLs), "URLs")
+            driver.close()
+            sys.exit(0)
+        time.sleep(1)
+        
+        feedElement = driver.find_element_by_id("lx-stream")
+
+        materiasHeaders = feedElement.find_elements_by_xpath('//header[@class ="lx-stream-post__header gs-o-media gs-u-mb-alt"]')
+
+        URLCount = 0
+        for materia in materiasHeaders:
+            URLs.append(materia.find_element_by_tag_name('a').get_attribute('href'))
+            URLCount +=1 
+        print("\t", URLCount, "URLs encontradas em" , round(time.time() - start ,2) ,"segundos" )
+
+        #f=open('G1_1140_a_1150.txt','w')
+        #for u in URLs:
+        #    f.write(u +'\n')
+        #f.close()
+
+    printURLs(URLs)
+    print (" !!!! Coletamos",len(URLs), "URLs")
+    driver.close()
+    sys.exit(0)
+
+crawler_bbc(98,101)
 
 
