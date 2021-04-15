@@ -144,12 +144,11 @@ def crawler_boatos():
 	for url in urls_archive:
 		driver.get(url)
 		while True:
-			time.sleep(1)
+			#time.sleep(1)
 			titles = driver.find_elements_by_class_name("entry-title")
 			for title in titles:
 				link = title.find_element_by_tag_name("a").get_attribute("href")
 				urls_list.add(link)
-				print(link)
 			try:
 				button = driver.find_element_by_css_selector(".previous")
 				next_page = button.find_element_by_tag_name("a").get_attribute("href")
@@ -158,14 +157,11 @@ def crawler_boatos():
 				break
 
 	driver.close()
+	return urls_list
 
-urls_boatos = crawler_boatos()
 
-boatos_file = open("urls/boatos.txt","w")
-boatos_file.write(str(len(urls_boatos)))
-for u in url_boatos:
-	boatos_file.write(u+'\n')
-boatos_file.close()
+
+
 
 """
 urls_lupa = list(crawler_lupa())
@@ -173,6 +169,7 @@ urls_aos_fatos = list(crawler_aos_fatos())
 urls_comprova = list(crawler_comprova())
 urls_e_farsas = crawler_e_farsas()
 urls_fato_ou_fake = crawler_fato_fake()
+urls_boatos = crawler_boatos()
 
 lupa_file = open("urls/urls_lupa.txt","w")
 lupa_file.write(str(len(urls_lupa)) + '\n')
@@ -203,6 +200,12 @@ fato_ou_fake_file.write(str(len(urls_fato_ou_fake))+'\n')
 for u in urls_fato_ou_fake:
 	fato_ou_fake_file.write(u+'\n')
 fato_ou_fake_file.close()
+
+boatos_file = open("urls/boatos.txt","w")
+boatos_file.write(str(len(urls_boatos))+'\n')
+for u in urls_boatos:
+	boatos_file.write(u+'\n')
+boatos_file.close()
 
 """
 
