@@ -31,63 +31,51 @@ def printURLs(lista):
 
 class G1Crawler(BaseCrawler):
     def __init__(self, interface):
-        """
-        Create chosen base crawler driver 
-        """
-        # Choosing browser based on iterface parameter
         if interface:
             super(G1Crawler, self).__init__("firefox")
         else:
             super(G1Crawler, self).__init__()
 
-        # Parameters:
-        #self.wait_rate = 180
-        #self.outline_url = "https://outline.com/"
+        self.feedLocator = (By.ID, "feed-placeholder")
+        self.materiaLocator = (By.XPATH, '//div[@data-type ="materia"]')
+        self.UrlLocator = (By.TAG_NAME , 'a')
+
+        self.delay = 30
+        self.retry = 5
+
+        #self.
 
         # Set wait limit time for elements search
         #self.wait = WebDriverWait(self.driver, self.wait_rate)
 
     def g1_crawl_pages(self,startPage, endPage, feedUrl):
-        delay = 30 # seconds
-        retry = 5
         URLs = []
         page = startPage
-        #for page in range(startPage,endPage+1):
         while (page <= endPage):
             start = time.time()
             self.driver.get(feedUrl + "index/feed/pagina-" + str(page) + ".ghtml")
-            #self.driver.get("https://g1.globo.com/bemestar/coronavirus/index/feed/pagina-" + str(page) + ".ghtml")
             try:
-                myElem = WebDriverWait(self.driver, delay).until(EC.presence_of_element_located((By.ID, "feed-placeholder")))
+                feedElement = WebDriverWait(self.driver, self.delay).until(EC.presence_of_element_located(self.feedLocator))
                 print ("Feed encontrado, varrendo pagina", page, "...")
             except TimeoutException:
-                #if (page < 1148 or page < endPage):
-                if (retry == 0):
+                if (self.retry == 0):
                     print ("Feed não localizado! Indicativo de varredura completa até a última página do feed ou erro de conexão..\n")
-                    print ("Waited for"
-                #printURLs(URLs)
-
                     break
                 else:
-                    retry = retry -1
+                    self.retry = self.retry -1
                     print ("Feed não localizado, tentando novamente") 
                     continue
-
-            
-            feedElement = myElem
-
-            materias = feedElement.find_elements_by_xpath('//div[@data-type ="materia"]')
-
-            URLCount = 0
+            materias = feedElement.find_elements(*self.materiaLocator)
+            URLCountOnPage = 0
             for materia in materias:
-                URLs.append(materia.find_element_by_tag_name('a').get_attribute('href'))
-                URLCount +=1 
-            print("\t", URLCount, "URLs encontradas em" , round(time.time() - start ,2) ,"segundos" )
-
+                URLs.append(materia.find_element(*self.UrlLocator).get_attribute('href'))
+                URLCountOnPage +=1 
+            print("\t", URLCountOnPage, "URLs encontradas em" , round(time.time() - start ,2) ,"segundos" )
             page = page + 1
-            retry = 3
+            self.retry = 3
 
-        f=open('G1_' + str(startPage) + '_a_' + str(page) + ".txt",'w')
+        fileNameG1 = "G1_" + feedUrl.split('.com/')[1].replace('/' , '_') + str(startPage) + '_a_' + str(page) + ".txt"
+        f=open(fileNameG1,'w')
         for u in URLs:
             f.write(u +'\n')
         f.close()
@@ -99,23 +87,19 @@ class G1Crawler(BaseCrawler):
         self.g1_crawl_pages(1,10000,feedUrl)
 
 g1 = G1Crawler(0)
-g1.g1_crawl_all("https://g1.globo.com/bemestar/coronavirus/")
-#g1.g1_crawl_pages(1150,1152,"https://g1.globo.com/bemestar/coronavirus/" )
+#g1.g1_crawl_all("https://g1.globo.com/bemestar/coronavirus/")
+#g1.g1_crawl_pages(1150,1153,"https://g1.globo.com/economia/dolar/" )
+g1.g1_crawl_pages(1150,1153,"https://g1.globo.com/bemestar/coronavirus/" )
 
 
-class UolCrawler(BaseCrawler):
+class UolCrawler(BaseCrawler): #Problema: como escolher o numero de cliques? como saber o que acontece quando nao tem mais pra ver?
     def __init__(self, interface):
         if interface:
             super(UolCrawler, self).__init__("firefox")
         else:
             super(UolCrawler, self).__init__()
 
-    # Parameters:
-    #self.wait_rate = 180
-    #self.outline_url = "https://outline.com/"
 
-    # Set wait limit time for elements search
-    #self.wait = WebDriverWait(self.driver, self.wait_rate)
 
     def uol_crawl_feed(self, feedUrl):
         delay = 10 # seconds
@@ -138,18 +122,19 @@ class UolCrawler(BaseCrawler):
                 verMaisElement = feedElement.find_element_by_xpath("//button[contains(text(), 'ver mais')]")
                 self.driver.execute_script("arguments[0].click();", verMaisElement)
 
-            #materias = feedElement.find_elements_by_xpath('//div/div/div/div/div[@class ="thumbnails-wrapper"]')
             materias = feedElement.find_elements_by_class_name('thumbnails-wrapper')
-            URLCount = 0
+            URLCountOnPage = 0
             for materia in materias:
                 URLs.append(materia.find_element_by_tag_name('a').get_attribute('href'))
-                URLCount +=1 
-            print("\t", URLCount, "URLs encontradas") # em" , round(time.time() - start ,2) ,"segundos" )
+                URLCountOnPage +=1 
+            print("\t", URLCountOnPage, "URLs encontradas") # em" , round(time.time() - start ,2) ,"segundos" )
 
-            # f=open('G1_1140_a_1150.txt','w')
-            # for u in URLs:
-            #     f.write(u +'\n')
-            # f.close()
+
+
+        f=open('Uol_1140_a_1150.txt','w')
+        for u in URLs:
+            f.write(u +'\n')
+        f.close()
         self.driver.close()
 
 #uol = UolCrawler(1)
@@ -185,11 +170,11 @@ class BbcCrawler(BaseCrawler):
 
             materiasHeaders = feedElement.find_elements_by_xpath('//header[@class ="lx-stream-post__header gs-o-media gs-u-mb-alt"]')
 
-            URLCount = 0
+            URLCountOnPage = 0
             for materia in materiasHeaders:
                 URLs.append(materia.find_element_by_tag_name('a').get_attribute('href'))
-                URLCount +=1 
-            print("\t", URLCount, "URLs encontradas em" , round(time.time() - start ,2) ,"segundos" )
+                URLCountOnPage +=1 
+            print("\t", URLCountOnPage, "URLs encontradas em" , round(time.time() - start ,2) ,"segundos" )
 
             f=open('BCC_1_a_100.txt','w')
             for u in URLs:
