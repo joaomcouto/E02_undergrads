@@ -5,6 +5,12 @@
 # for article in cnn_paper.articles:
 #     print(article.url)
 
+import os
+import env
+
+
+from news_crawler.base_crawler import BaseCrawler
+
 import sys
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
@@ -17,137 +23,169 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.chrome.options import Options
 
-PATH = "/home/joaomcouto/chromedriver"
-chrome_options = Options()
-chrome_options.add_argument("--headless")
-chrome_options.add_argument("--window-size=1920x1080")
-chrome_options.add_argument("--disable-notifications")
-chrome_options.add_argument('--no-sandbox')
-chrome_options.add_argument('--verbose')
-chrome_options.add_experimental_option("prefs", {
-    "download.default_directory": "",
-    "download.prompt_for_download": False,
-    "download.directory_upgrade": True,
-    "safebrowsing_for_trusted_sources_enabled": False,
-    "safebrowsing.enabled": False
-})
-chrome_options.add_argument('--disable-gpu')
-chrome_options.add_argument('--disable-software-rasterizer')
-
-driver = webdriver.Chrome(PATH,options=chrome_options)
 
 def printURLs(lista):
     for URL in lista:
         print(URL, "\n")
 
-def crawler_g1_pages(startPage, endPage):
-    delay = 10 # seconds
-    URLs = []
-    for page in range(startPage,endPage):
-        start = time.time()
-        driver.get("https://g1.globo.com/bemestar/coronavirus/index/feed/pagina-" + str(page) + ".ghtml")
-        try:
-            myElem = WebDriverWait(driver, delay).until(EC.presence_of_element_located((By.ID, "feed-placeholder")))
-            print ("Feed encontrado, varrendo pagina", page, "...")
-        except TimeoutException:
-            print ("Feed não localizado! Indicativo de varredura completa ou erro de conexão..\n")
-            printURLs(URLs)
-            print (" !!!! Coletamos",len(URLs), "URLs")
-            driver.close()
-            sys.exit(0)
 
-        
-        feedElement = driver.find_element_by_id("feed-placeholder")
+class G1Crawler(BaseCrawler):
+    def __init__(self, interface):
+        """
+        Create chosen base crawler driver 
+        """
+        # Choosing browser based on iterface parameter
+        if interface:
+            super(G1Crawler, self).__init__("firefox")
+        else:
+            super(G1Crawler, self).__init__()
 
-        materias = feedElement.find_elements_by_xpath('//div[@data-type ="materia"]')
+        # Parameters:
+        #self.wait_rate = 180
+        #self.outline_url = "https://outline.com/"
 
-        URLCount = 0
-        for materia in materias:
-            URLs.append(materia.find_element_by_tag_name('a').get_attribute('href'))
-            URLCount +=1 
-        print("\t", URLCount, "URLs encontradas em" , round(time.time() - start ,2) ,"segundos" )
+        # Set wait limit time for elements search
+        #self.wait = WebDriverWait(self.driver, self.wait_rate)
 
-        f=open('G1_1140_a_1150.txt','w')
-        for u in URLs:
-            f.write(u +'\n')
-        f.close()
-
-#crawler_g1_pages(1140,1150)
-
-def crawler_uol():
-    delay = 10 # seconds
-    URLs = []
-    driver.get("https://noticias.uol.com.br/coronavirus/")
-    feedElement = driver.find_element_by_class_name("results-index")
-    for i in range (1, 5):
-        for page in range(1,25):
+    def g1_crawl_pages(self,startPage, endPage, feedUrl):
+        delay = 10 # seconds
+        URLs = []
+        for page in range(startPage,endPage+1):
             start = time.time()
+            self.driver.get(feedUrl + "index/feed/pagina-" + str(page) + ".ghtml")
+            #self.driver.get("https://g1.globo.com/bemestar/coronavirus/index/feed/pagina-" + str(page) + ".ghtml")
             try:
-                myElem = WebDriverWait(feedElement, delay).until(EC.presence_of_element_located((By.XPATH, "//*[contains(text(), 'ver mais')]")))
-                print ("Ver Mais encontrado! Clicando pela" , page)
+                myElem = WebDriverWait(self.driver, delay).until(EC.presence_of_element_located((By.ID, "feed-placeholder")))
+                print ("Feed encontrado, varrendo pagina", page, "...")
             except TimeoutException:
-                print ("Ver mais não encontrado\n")
+                print ("Feed não localizado! Indicativo de varredura completa ou erro de conexão..\n")
+                #printURLs(URLs)
+                print (" !!!! Coletamos",len(URLs), "URLs")
+                self.driver.close()
+                sys.exit(0)
+
+            
+            feedElement = self.driver.find_element_by_id("feed-placeholder")
+
+            materias = feedElement.find_elements_by_xpath('//div[@data-type ="materia"]')
+
+            URLCount = 0
+            for materia in materias:
+                URLs.append(materia.find_element_by_tag_name('a').get_attribute('href'))
+                URLCount +=1 
+            print("\t", URLCount, "URLs encontradas em" , round(time.time() - start ,2) ,"segundos" )
+
+            f=open('G1_' + str(startPage) + '_a_' + str(endPage) + ".txt",'w')
+            for u in URLs:
+                f.write(u +'\n')
+            f.close()
+
+    def g1_crawl_all(self,feedUrl):
+        self.g1_crawl_pages(1,10000,feedUrl)
+
+g1 = G1Crawler(0)
+g1.g1_crawl_all("https://g1.globo.com/bemestar/coronavirus/")
+
+
+class UolCrawler(BaseCrawler):
+    def __init__(self, interface):
+        if interface:
+            super(UolCrawler, self).__init__("firefox")
+        else:
+            super(UolCrawler, self).__init__()
+
+    # Parameters:
+    #self.wait_rate = 180
+    #self.outline_url = "https://outline.com/"
+
+    # Set wait limit time for elements search
+    #self.wait = WebDriverWait(self.driver, self.wait_rate)
+
+    def uol_crawl_feed(self):
+        delay = 10 # seconds
+        URLs = []
+        self.driver.get("https://noticias.uol.com.br/coronavirus/")
+        feedElement = self.driver.find_element_by_class_name("results-index")
+        for i in range (1, 5):
+            for page in range(1,5):
+                start = time.time()
+                try:
+                    myElem = WebDriverWait(feedElement, delay).until(EC.presence_of_element_located((By.XPATH, "//*[contains(text(), 'ver mais')]")))
+                    print ("Ver Mais encontrado! Clicando pela" , page)
+                except TimeoutException:
+                    print ("Ver mais não encontrado\n")
+                    printURLs(URLs)
+                    print (" !!!! Coletamos",len(URLs), "URLs")
+                    driver.close()
+                    sys.exit(0)      
+
+                verMaisElement = feedElement.find_element_by_xpath("//button[contains(text(), 'ver mais')]")
+                self.driver.execute_script("arguments[0].click();", verMaisElement)
+
+            #materias = feedElement.find_elements_by_xpath('//div/div/div/div/div[@class ="thumbnails-wrapper"]')
+            materias = feedElement.find_elements_by_class_name('thumbnails-wrapper')
+            URLCount = 0
+            for materia in materias:
+                URLs.append(materia.find_element_by_tag_name('a').get_attribute('href'))
+                URLCount +=1 
+            print("\t", URLCount, "URLs encontradas") # em" , round(time.time() - start ,2) ,"segundos" )
+
+            # f=open('G1_1140_a_1150.txt','w')
+            # for u in URLs:
+            #     f.write(u +'\n')
+            # f.close()
+        self.driver.close()
+
+#uol = UolCrawler(1)
+#uol.uol_crawl_feed()
+
+class BbcCrawler(BaseCrawler):
+    def __init__(self, interface):
+        if interface:
+            super(BbcCrawler, self).__init__("firefox")
+        else:
+            super(BbcCrawler, self).__init__()
+
+    def bbc_crawl_pages(self, startPage, endPage):
+        delay = 10 # seconds
+        URLs = []
+        for page in range(startPage,endPage+1):
+            start = time.time()
+            self.driver.get(feedUrl + "/page/" + str(page))
+            self.driver.get("https://www.bbc.com/portuguese/topics/c340q430z4vt/page/" + str(page))
+            try:
+                myElem = WebDriverWait(self.driver, delay).until(EC.presence_of_element_located((By.ID, "lx-stream")))
+                print ("Feed encontrado, varrendo pagina", page, "...")
+            except TimeoutException:
+                print ("Feed não localizado! Indicativo de varredura completa ou erro de conexão..\n")
                 printURLs(URLs)
                 print (" !!!! Coletamos",len(URLs), "URLs")
-                driver.close()
-                sys.exit(0)      
+                self.driver.close()
+                sys.exit(0)
+            time.sleep(2)
+            
+            #feedElement = self.driver.find_element_by_id("lx-stream")
+            feedElement = myElem
 
-            verMaisElement = feedElement.find_element_by_xpath("//button[contains(text(), 'ver mais')]")
-            driver.execute_script("arguments[0].click();", verMaisElement)
+            materiasHeaders = feedElement.find_elements_by_xpath('//header[@class ="lx-stream-post__header gs-o-media gs-u-mb-alt"]')
 
-        #materias = feedElement.find_elements_by_xpath('//div/div/div/div/div[@class ="thumbnails-wrapper"]')
-        materias = feedElement.find_elements_by_class_name('thumbnails-wrapper')
-        URLCount = 0
-        for materia in materias:
-            URLs.append(materia.find_element_by_tag_name('a').get_attribute('href'))
-            URLCount +=1 
-        print("\t", URLCount, "URLs encontradas") # em" , round(time.time() - start ,2) ,"segundos" )
+            URLCount = 0
+            for materia in materiasHeaders:
+                URLs.append(materia.find_element_by_tag_name('a').get_attribute('href'))
+                URLCount +=1 
+            print("\t", URLCount, "URLs encontradas em" , round(time.time() - start ,2) ,"segundos" )
 
-        # f=open('G1_1140_a_1150.txt','w')
-        # for u in URLs:
-        #     f.write(u +'\n')
-        # f.close()
-    driver.close()
+            f=open('BCC_1_a_100.txt','w')
+            for u in URLs:
+                f.write(u +'\n')
+            f.close()
 
-#crawler_uol()
+        printURLs(URLs)
+        print (" !!!! Coletamos",len(URLs), "URLs")
+        self.driver.close()
+        sys.exit(0)
 
-def crawler_bbc(startPage, endPage):
-    delay = 10 # seconds
-    URLs = []
-    for page in range(startPage,endPage+1):
-        start = time.time()
-        driver.get("https://www.bbc.com/portuguese/topics/c340q430z4vt/page/" + str(page))
-        try:
-            myElem = WebDriverWait(driver, delay).until(EC.presence_of_element_located((By.ID, "lx-stream")))
-            print ("Feed encontrado, varrendo pagina", page, "...")
-        except TimeoutException:
-            print ("Feed não localizado! Indicativo de varredura completa ou erro de conexão..\n")
-            printURLs(URLs)
-            print (" !!!! Coletamos",len(URLs), "URLs")
-            driver.close()
-            sys.exit(0)
-        time.sleep(1)
-        
-        feedElement = driver.find_element_by_id("lx-stream")
-
-        materiasHeaders = feedElement.find_elements_by_xpath('//header[@class ="lx-stream-post__header gs-o-media gs-u-mb-alt"]')
-
-        URLCount = 0
-        for materia in materiasHeaders:
-            URLs.append(materia.find_element_by_tag_name('a').get_attribute('href'))
-            URLCount +=1 
-        print("\t", URLCount, "URLs encontradas em" , round(time.time() - start ,2) ,"segundos" )
-
-        #f=open('G1_1140_a_1150.txt','w')
-        #for u in URLs:
-        #    f.write(u +'\n')
-        #f.close()
-
-    printURLs(URLs)
-    print (" !!!! Coletamos",len(URLs), "URLs")
-    driver.close()
-    sys.exit(0)
-
-crawler_bbc(98,101)
+bbc = BbcCrawler(0)
+bbc.bbc_crawl_pages(99,100)
 
 
