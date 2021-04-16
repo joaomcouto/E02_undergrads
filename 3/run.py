@@ -48,9 +48,12 @@ class G1Crawler(BaseCrawler):
         #self.wait = WebDriverWait(self.driver, self.wait_rate)
 
     def g1_crawl_pages(self,startPage, endPage, feedUrl):
-        delay = 10 # seconds
+        delay = 30 # seconds
+        retry = 5
         URLs = []
-        for page in range(startPage,endPage+1):
+        page = startPage
+        #for page in range(startPage,endPage+1):
+        while (page <= endPage):
             start = time.time()
             self.driver.get(feedUrl + "index/feed/pagina-" + str(page) + ".ghtml")
             #self.driver.get("https://g1.globo.com/bemestar/coronavirus/index/feed/pagina-" + str(page) + ".ghtml")
@@ -58,14 +61,20 @@ class G1Crawler(BaseCrawler):
                 myElem = WebDriverWait(self.driver, delay).until(EC.presence_of_element_located((By.ID, "feed-placeholder")))
                 print ("Feed encontrado, varrendo pagina", page, "...")
             except TimeoutException:
-                print ("Feed não localizado! Indicativo de varredura completa ou erro de conexão..\n")
+                #if (page < 1148 or page < endPage):
+                if (retry == 0):
+                    print ("Feed não localizado! Indicativo de varredura completa até a última página do feed ou erro de conexão..\n")
+                    print ("Waited for"
                 #printURLs(URLs)
-                print (" !!!! Coletamos",len(URLs), "URLs")
-                self.driver.close()
-                sys.exit(0)
+
+                    break
+                else:
+                    retry = retry -1
+                    print ("Feed não localizado, tentando novamente") 
+                    continue
 
             
-            feedElement = self.driver.find_element_by_id("feed-placeholder")
+            feedElement = myElem
 
             materias = feedElement.find_elements_by_xpath('//div[@data-type ="materia"]')
 
@@ -75,16 +84,23 @@ class G1Crawler(BaseCrawler):
                 URLCount +=1 
             print("\t", URLCount, "URLs encontradas em" , round(time.time() - start ,2) ,"segundos" )
 
-            f=open('G1_' + str(startPage) + '_a_' + str(endPage) + ".txt",'w')
-            for u in URLs:
-                f.write(u +'\n')
-            f.close()
+            page = page + 1
+            retry = 3
+
+        f=open('G1_' + str(startPage) + '_a_' + str(page) + ".txt",'w')
+        for u in URLs:
+            f.write(u +'\n')
+        f.close()
+        print (" !!!! Coletamos",len(URLs), "URLs", "em", page-startPage, "paginas")
+        self.driver.close()
+        sys.exit(0)
 
     def g1_crawl_all(self,feedUrl):
         self.g1_crawl_pages(1,10000,feedUrl)
 
 g1 = G1Crawler(0)
 g1.g1_crawl_all("https://g1.globo.com/bemestar/coronavirus/")
+#g1.g1_crawl_pages(1150,1152,"https://g1.globo.com/bemestar/coronavirus/" )
 
 
 class UolCrawler(BaseCrawler):
@@ -101,10 +117,10 @@ class UolCrawler(BaseCrawler):
     # Set wait limit time for elements search
     #self.wait = WebDriverWait(self.driver, self.wait_rate)
 
-    def uol_crawl_feed(self):
+    def uol_crawl_feed(self, feedUrl):
         delay = 10 # seconds
         URLs = []
-        self.driver.get("https://noticias.uol.com.br/coronavirus/")
+        self.driver.get(feedUrl)
         feedElement = self.driver.find_element_by_class_name("results-index")
         for i in range (1, 5):
             for page in range(1,5):
@@ -137,7 +153,7 @@ class UolCrawler(BaseCrawler):
         self.driver.close()
 
 #uol = UolCrawler(1)
-#uol.uol_crawl_feed()
+#uol.uol_crawl_feed("https://noticias.uol.com.br/coronavirus/"  )
 
 class BbcCrawler(BaseCrawler):
     def __init__(self, interface):
