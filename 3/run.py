@@ -86,10 +86,10 @@ class G1Crawler(BaseCrawler):
     def g1_crawl_all(self,feedUrl):
         self.g1_crawl_pages(1,10000,feedUrl)
 
-g1 = G1Crawler(0)
+#g1 = G1Crawler(0)
 #g1.g1_crawl_all("https://g1.globo.com/bemestar/coronavirus/")
 #g1.g1_crawl_pages(1150,1153,"https://g1.globo.com/economia/dolar/" )
-g1.g1_crawl_pages(1150,1153,"https://g1.globo.com/bemestar/coronavirus/" )
+#g1.g1_crawl_pages(1150,1153,"https://g1.globo.com/bemestar/coronavirus/" )
 
 
 class UolCrawler(BaseCrawler): #Problema: como escolher o numero de cliques? como saber o que acontece quando nao tem mais pra ver?
@@ -99,46 +99,57 @@ class UolCrawler(BaseCrawler): #Problema: como escolher o numero de cliques? com
         else:
             super(UolCrawler, self).__init__()
 
-
-
-    def uol_crawl_feed(self, feedUrl):
+        self.feedLocator = (By.CLASS_NAME , 'results-index')
+        self.verMaisLocator = (By.XPATH, "//*[contains(text(), 'ver mais')]")
+        self.materiaLocator = (By.CLASS_NAME, 'thumbnails-wrapper')
+        self.urlLocator = (By.TAG_NAME , 'a')
+    
+    def uol_crawl_feed(self, feedUrl, clickAmount):
         delay = 10 # seconds
         URLs = []
         self.driver.get(feedUrl)
-        feedElement = self.driver.find_element_by_class_name("results-index")
-        for i in range (1, 5):
-            for page in range(1,5):
+        #feedElement = self.driver.find_element_by_class_name("results-index")
+        feedElement = self.driver.find_element(*self.feedLocator)
+
+        clickAmountDebug = 0
+        if(clickAmountDebug == 1):
+            repeatRange = 5
+        else:
+            repeatRange = 2
+        for i in range (1, repeatRange):
+            for page in range(1,clickAmount):
                 start = time.time()
                 try:
-                    myElem = WebDriverWait(feedElement, delay).until(EC.presence_of_element_located((By.XPATH, "//*[contains(text(), 'ver mais')]")))
+                    verMaisElement = WebDriverWait(feedElement, delay).until(EC.presence_of_element_located(self.verMaisLocator))
                     print ("Ver Mais encontrado! Clicando pela" , page)
                 except TimeoutException:
                     print ("Ver mais não encontrado\n")
-                    printURLs(URLs)
+                    #printURLs(URLs)
                     print (" !!!! Coletamos",len(URLs), "URLs")
                     driver.close()
                     sys.exit(0)      
 
-                verMaisElement = feedElement.find_element_by_xpath("//button[contains(text(), 'ver mais')]")
                 self.driver.execute_script("arguments[0].click();", verMaisElement)
 
-            materias = feedElement.find_elements_by_class_name('thumbnails-wrapper')
+            #materias = feedElement.find_elements_by_class_name('thumbnails-wrapper')
+            materias = feedElement.find_elements(*self.materiaLocator)
             URLCountOnPage = 0
             for materia in materias:
-                URLs.append(materia.find_element_by_tag_name('a').get_attribute('href'))
+                #URLs.append(materia.find_element_by_tag_name('a').get_attribute('href'))
+                URLs.append(materia.find_element(*self.urlLocator).get_attribute('href'))
                 URLCountOnPage +=1 
             print("\t", URLCountOnPage, "URLs encontradas") # em" , round(time.time() - start ,2) ,"segundos" )
 
 
 
-        f=open('Uol_1140_a_1150.txt','w')
+        f=open('Uolteste.txt','w')
         for u in URLs:
             f.write(u +'\n')
         f.close()
         self.driver.close()
 
-#uol = UolCrawler(1)
-#uol.uol_crawl_feed("https://noticias.uol.com.br/coronavirus/"  )
+#uol = UolCrawler(0)
+#uol.uol_crawl_feed("https://noticias.uol.com.br/coronavirus/" , 300)
 
 class BbcCrawler(BaseCrawler):
     def __init__(self, interface):
@@ -147,15 +158,19 @@ class BbcCrawler(BaseCrawler):
         else:
             super(BbcCrawler, self).__init__()
 
-    def bbc_crawl_pages(self, startPage, endPage):
+        self.feedLocator = (By.ID, "lx-stream")
+        self.materiaLocator = (By.XPATH , '//header[@class ="lx-stream-post__header gs-o-media gs-u-mb-alt"]')
+        self.urlLocator = (By.TAG_NAME, 'a')
+
+    def bbc_crawl_pages(self, startPage, endPage, feedUrl):
         delay = 10 # seconds
         URLs = []
         for page in range(startPage,endPage+1):
             start = time.time()
             self.driver.get(feedUrl + "/page/" + str(page))
-            self.driver.get("https://www.bbc.com/portuguese/topics/c340q430z4vt/page/" + str(page))
+            #self.driver.get("https://www.bbc.com/portuguese/topics/c340q430z4vt/page/" + str(page))
             try:
-                myElem = WebDriverWait(self.driver, delay).until(EC.presence_of_element_located((By.ID, "lx-stream")))
+                feedElement = WebDriverWait(self.driver, delay).until(EC.presence_of_element_located(self.feedLocator))
                 print ("Feed encontrado, varrendo pagina", page, "...")
             except TimeoutException:
                 print ("Feed não localizado! Indicativo de varredura completa ou erro de conexão..\n")
@@ -166,13 +181,17 @@ class BbcCrawler(BaseCrawler):
             time.sleep(2)
             
             #feedElement = self.driver.find_element_by_id("lx-stream")
-            feedElement = myElem
+    
 
-            materiasHeaders = feedElement.find_elements_by_xpath('//header[@class ="lx-stream-post__header gs-o-media gs-u-mb-alt"]')
+            #materiasHeaders = feedElement.find_elements_by_xpath('//header[@class ="lx-stream-post__header gs-o-media gs-u-mb-alt"]')
+            materiasHeaders = feedElement.find_elements(*self.materiaLocator)
+
+
 
             URLCountOnPage = 0
             for materia in materiasHeaders:
-                URLs.append(materia.find_element_by_tag_name('a').get_attribute('href'))
+                #URLs.append(materia.find_element_by_tag_name('a').get_attribute('href'))
+                URLs.append(materia.find_element(*self.urlLocator).get_attribute('href'))
                 URLCountOnPage +=1 
             print("\t", URLCountOnPage, "URLs encontradas em" , round(time.time() - start ,2) ,"segundos" )
 
@@ -187,6 +206,6 @@ class BbcCrawler(BaseCrawler):
         sys.exit(0)
 
 bbc = BbcCrawler(0)
-bbc.bbc_crawl_pages(99,100)
+bbc.bbc_crawl_pages(98,100,"https://www.bbc.com/portuguese/topics/c340q430z4vt")
 
 
