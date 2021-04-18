@@ -53,44 +53,54 @@ class G1Crawler(BaseCrawler):
         page = startPage
         while (page <= endPage):
             start = time.time()
-            self.driver.get(feedUrl + "index/feed/pagina-" + str(page) + ".ghtml")
-            try:
-                feedElement = WebDriverWait(self.driver, self.delay).until(EC.presence_of_element_located(self.feedLocator))
-                print ("Feed encontrado, varrendo pagina", page, "...")
-            except TimeoutException:
-                if (self.retry == 0):
-                    print ("Feed não localizado! Indicativo de varredura completa até a última página do feed ou erro de conexão..\n")
-                    break
-                else:
-                    self.retry = self.retry -1
-                    print ("Feed não localizado, tentando novamente mais", self.retry +1, "vezes") 
-                    continue
-            materias = feedElement.find_elements(*self.materiaLocator)
-            URLCountOnPage = 0
-            for materia in materias:
-                URLs.append(materia.find_element(*self.UrlLocator).get_attribute('href'))
-                URLCountOnPage +=1 
-            print("\t", URLCountOnPage, "URLs encontradas em" , round(time.time() - start ,2) ,"segundos" )
+            pageURLs = self.g1_crawl_single_page(feedUrl,page)
+            if (pageURLs == -1):
+                print ("Feed não localizado! Indicativo de varredura completa até a última página do feed ou erro de conexão..\n")
+                break
+            if (pageURLs == 0):
+                self.retry = self.retry -1
+                print ("Feed não localizado, tentando novamente mais", self.retry +1, "vezes") 
+                continue
+            print("\t", len(pageURLs), "URLs encontradas em" , round(time.time() - start ,2) ,"segundos" )
+            URLs.extend(pageURLs)
             page = page + 1
             self.retry = 3
 
-        fileNameG1 = "G1_" + feedUrl.split('.com/')[1].replace('/' , '_') + str(startPage) + '_a_' + str(page) + ".txt"
-        f=open(fileNameG1,'w')
-        for u in URLs:
-            f.write(u +'\n')
-        f.close()
         print (" !!!! Coletamos",len(URLs), "URLs", "em", page-startPage, "paginas")
+        self.g1_urls_to_file(URLs,feedUrl,startPage,page)
         self.driver.close()
         sys.exit(0)
 
     def g1_crawl_all(self,feedUrl):
         self.g1_crawl_pages(1,10000,feedUrl)
 
-#g1 = G1Crawler(0)
+    def g1_urls_to_file(self,URLs, feedUrl, startPage,page):
+        fileNameG1 = "G1_" + feedUrl.split('.com/')[1].replace('/' , '_') + str(startPage) + '_a_' + str(page) + ".txt"
+        f=open(fileNameG1,'w')
+        for u in URLs:
+            f.write(u +'\n')
+        f.close()
+    
+    def g1_crawl_single_page(self,feedUrl, page):
+        pageURLs = []
+        self.driver.get(feedUrl + "index/feed/pagina-" + str(page) + ".ghtml")
+        try:
+            feedElement = WebDriverWait(self.driver, self.delay).until(EC.presence_of_element_located(self.feedLocator))
+            print ("Feed encontrado, varrendo pagina", page, "...")
+        except TimeoutException:
+            if (self.retry == 0):
+                return -1
+            else:
+                return 0
+        materias = feedElement.find_elements(*self.materiaLocator)
+        for materia in materias:
+            pageURLs.append(materia.find_element(*self.UrlLocator).get_attribute('href'))        
+        return pageURLs
+        
+g1 = G1Crawler(0)
 #g1.g1_crawl_all("https://g1.globo.com/bemestar/coronavirus/")
 #g1.g1_crawl_pages(1150,1153,"https://g1.globo.com/economia/dolar/" )
-#g1.g1_crawl_pages(1150,1153,"https://g1.globo.com/bemestar/coronavirus/" )
-
+g1.g1_crawl_pages(1145,1150,"https://g1.globo.com/bemestar/coronavirus/" )
 
 class UolCrawler(BaseCrawler): #Problema: como escolher o numero de cliques? como saber o que acontece quando nao tem mais pra ver?
     def __init__(self, interface):
@@ -115,18 +125,16 @@ class UolCrawler(BaseCrawler): #Problema: como escolher o numero de cliques? com
             repeatRange = 5
         else:
             repeatRange = 2
-
         for i in range (1, repeatRange+1):
             start = time.time()
             URLs = []
             for click in range(1,clickAmount+1):
-                try:
-                    verMaisElement = WebDriverWait(feedElement, self.delay).until(EC.presence_of_element_located(self.verMaisLocator))
-                    print ("Ver Mais encontrado! Clicando #" , click + ( (i -1) * (clickAmount+1) ))
-                except TimeoutException:
-                    print ("Ver mais não encontrado . iniciando varredura das materias carregadas\n")
+                clickRet = self.uol_ver_mais(feedElement)
+                if (clickRet == 0):
+                    print ("Ver mais não encontrado . Iniciando varredura das materias carregadas\n")
                     break
-                self.driver.execute_script("arguments[0].click();", verMaisElement)
+                else:
+                    print ("Ver Mais encontrado! Clicando #" , click + ( (i -1) * (clickAmount) ))
             print ("Cliques efetuados em", time.time() - start , "segundos")
             
             start = time.time()
@@ -135,18 +143,29 @@ class UolCrawler(BaseCrawler): #Problema: como escolher o numero de cliques? com
                 URLs.append(materia.find_element(*self.urlLocator).get_attribute('href'))
             print ("Crawl de materias feito em " , time.time() - start)
             print (" !!!! Coletamos",len(URLs), "URLs com" ,click * i, "cliques")
+        
+        self.uol_urls_to_file(clickAmount, repeatRange, feedUrl, URLs)
 
-        #fileNameG1 = "G1_" + feedUrl.split('.com/')[1].replace('/' , '_') + str(startPage) + '_a_' + str(page) + ".txt"
+        self.driver.close()
+        sys.exit(0) 
+
+    def uol_urls_to_file(self,clickAmount, repeatRange, feedUrl, URLs):
         uolFileName = "UOL_" + feedUrl.split('.br/')[1].replace('/' , '_') + str(clickAmount*repeatRange) + "_loads" + ".txt"
         f=open(uolFileName,'w')
         for u in URLs:
             f.write(u +'\n')
         f.close()
-        self.driver.close()
-        sys.exit(0) 
+
+    def uol_ver_mais(self,feedElement):
+        try:
+            verMaisElement = WebDriverWait(feedElement, self.delay).until(EC.presence_of_element_located(self.verMaisLocator))
+        except TimeoutException:
+            return 0
+        self.driver.execute_script("arguments[0].click();", verMaisElement)
+        return 1
 
 #uol = UolCrawler(0)
-#uol.uol_crawl_feed("https://noticias.uol.com.br/coronavirus/" , 2)
+#uol.uol_crawl_feed("https://noticias.uol.com.br/coronavirus/" , 1)
 
 class BbcCrawler(BaseCrawler):
     def __init__(self, interface):
@@ -159,7 +178,6 @@ class BbcCrawler(BaseCrawler):
         self.materiaLocator = (By.XPATH , '//header[@class ="lx-stream-post__header gs-o-media gs-u-mb-alt"]')
         self.urlLocator = (By.TAG_NAME, 'a')
 
-
         self.delay = 90
         self.retry = 5
 
@@ -167,44 +185,52 @@ class BbcCrawler(BaseCrawler):
         URLs = []
         page = startPage
         while (page <= endPage):
-            start = time.time()
-            self.driver.get(feedUrl + "/page/" + str(page))
-            try:
-                feedElement = WebDriverWait(self.driver, self.delay).until(EC.presence_of_element_located(self.feedLocator))
-                print ("Feed encontrado, varrendo pagina", page, "...")
-            except TimeoutException:
-                if (self.retry == 0):
-                    print ("Feed não localizado! Indicativo de varredura completa ou erro de conexão..\n")
-                    break
-                else:
-                    self.retry = self.retry  -1
-                    print ("Feed não localizado, tentando novamente mais", self.retry +1, "vezes") 
-                    continue
-                
-            time.sleep(1)
-            
-            materiasHeaders = feedElement.find_elements(*self.materiaLocator)
-
-            URLCountOnPage = 0
-            for materia in materiasHeaders:
-                URLs.append(materia.find_element(*self.urlLocator).get_attribute('href'))
-                URLCountOnPage +=1 
-            print("\t", URLCountOnPage, "URLs encontradas em" , round(time.time() - start ,2) ,"segundos" )
+            pageUrls = self.bbc_crawl_single_page(page, feedUrl)
+            if pageUrls == -1:
+                print ("Feed não localizado! Indicativo de varredura completa ou erro de conexão..\n")
+                break
+            if pageUrls == 0:
+                self.retry = self.retry  -1
+                print ("Feed não localizado, tentando novamente mais", self.retry +1, "vezes") 
+                continue
+            URLs.extend(pageUrls)
             page = page + 1
             self.retry = 3
-
         print (" !!!! Coletamos",len(URLs), "URLs")
-        bbcFileName = "BCC_" + feedUrl.split('portuguese/')[1].replace('/' , '_') + "_" + str(startPage) + '_a_' + str(page-1) + ".txt"
+        self.bbc_urls_to_file(startPage,page, URLs, feedUrl)
+        self.driver.close()
+        sys.exit(0)
+    
+    def bbc_urls_to_file(self,startPage, endPage, URLs,feedUrl):
+        bbcFileName = "BCC_" + feedUrl.split('portuguese/')[1].replace('/' , '_') + "_" + str(startPage) + '_a_' + str(endPage-1) + ".txt"
         f=open(bbcFileName,'w')
         for u in URLs:
             f.write(u +'\n')
         f.close()
+
+    def bbc_crawl_single_page(self, page, feedUrl):
+        pageUrls = []
+        start = time.time()
+        self.driver.get(feedUrl + "/page/" + str(page))
+        try:
+            feedElement = WebDriverWait(self.driver, self.delay).until(EC.presence_of_element_located(self.feedLocator))
+            print ("Feed encontrado, varrendo pagina", page, "...")
+        except TimeoutException:
+            if (self.retry == 0):
+                return -1
+            else:
+                return 0
+        time.sleep(1)
+        materiasHeaders = feedElement.find_elements(*self.materiaLocator)
+        URLCountOnPage = 0
+        for materia in materiasHeaders:
+            pageUrls.append(materia.find_element(*self.urlLocator).get_attribute('href'))
+            URLCountOnPage +=1 
+        print("\t", URLCountOnPage, "URLs encontradas em" , round(time.time() - start ,2) ,"segundos" )
+        return pageUrls
         
-        self.driver.close()
-        sys.exit(0)
-
-
-bbc = BbcCrawler(0)
-bbc.bbc_crawl_pages(99,104,"https://www.bbc.com/portuguese/topics/c340q430z4vt")
+        
+#bbc = BbcCrawler(0)
+#a = bbc.bbc_crawl_pages(99,104,"https://www.bbc.com/portuguese/topics/c340q430z4vt")
 
 
