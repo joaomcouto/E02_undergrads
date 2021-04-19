@@ -11,7 +11,7 @@ class BaseCrawler:
 
     def __init__(self, browser="chrome_headless"):
 
-        # Browser headless, for automatic executiond
+        # Browser headless, for automatic execution
         if browser == "chrome_headless":
             driver_dir = os.environ.get('CHROME')
             chrome_options = self.__set_chrome_options()
