@@ -28,9 +28,7 @@ def run(argv):
         url_news = argv[-1]
         outline = Outline(interface=True)
         data = outline.getNews(url_news)
-        file_path = os.environ.get('COLLECTED_DIR') + json.loads(data)['title'] + ".json"
-        with open(file_path, 'w', encoding='utf8') as json_file:
-            json.dump(data, json_file, ensure_ascii=False)
+        print(data)
 
     # Verify for routine execution
     if '--routine' in argv or '-r' in argv:
