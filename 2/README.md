@@ -1,5 +1,4 @@
 # News_Scraper
-## Execution:
 ### Initial requirements:
 * Pytho 3.8.2
 * Venv (sudo apt install python3.8-venv)
@@ -10,11 +9,11 @@
 2. Activate enviroment:  `source venv/bin/activate`
 3. Install requirements: `pip install -r requirements.txt`
 
-### Execute:
-1. Activate enviroment:  `cd news_scraper && source venv/bin/activate`
-2. Execute: `python3 run.py <arguments> <url>`
+### Execution:
+1. Activate enviroment:  `source venv/bin/activate && cd news_scraper`
+2. Execute: `python3 run.py <arguments>`
 	* Arguments:
-		* -I : execute firefox driver with visual execution
-		* -init: execute initial commands for enviroment
-	* URL: news url to be scraped.
+		* -I <URL>: execute firefox driver with visual execution and print data.
+		* -init: execute initial commands for enviroment (only execute once).
+		* -r: execute URL's on database for routine execution.
 3. Exit: `deactivate`
