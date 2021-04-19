@@ -13,7 +13,7 @@
 1. Activate enviroment:  `source venv/bin/activate && cd news_scraper`
 2. Execute: `python3 run.py <arguments>`
 	* Arguments:
-		* -I <URL>: execute firefox driver with visual execution and print data.
+		* -I \<URL\>: execute firefox driver with visual execution and print data.
 		* -init: execute initial commands for enviroment (only execute once).
 		* -r: execute URL's on database for routine execution.
 3. Exit: `deactivate`
