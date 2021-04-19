@@ -43,25 +43,29 @@ def crawler_fato_fake():
 	driver = webdriver.Firefox()
 	driver.get(base_url)
 	wait = WebDriverWait(driver, 15)
-	i=0
+	initial_scroll = 0
+	final_scroll = 10000
+	for i in range(0,4):
+		driver.execute_script("window.scrollTo("+str(initial_scroll)+", "+str(final_scroll) +")")
+		time.sleep(1)
+		initial_scroll = final_scroll
+		final_scroll += 1000
 	while True:
-		feed = driver.find_element_by_id('feed-placeholder')
-		elements = feed.find_elements_by_xpath('//div[@data-type ="materia"]')
+		elements = driver.find_elements_by_class_name("feed-media-wrapper")
 		for el in elements:
 			url = el.find_element_by_tag_name("a").get_attribute("href")
 			url_list.add(url)
-			print(url)
 		try:
 			time.sleep(1)
 			button = driver.find_element_by_xpath("//*[contains(text(), 'Veja mais')]")
-			#driver.execute_script("arguments[0].click();", button)
 			driver.get(button.get_attribute("href"))
-
 		except NoSuchElementException:
 			break
-
+			
 	driver.close()
 	return url_list
+
+
 def crawler_aos_fatos():
 	base_url = 'https://www.aosfatos.org/noticias/'
 	url_list = set()
@@ -97,7 +101,6 @@ def crawler_comprova():
 		for el in elements:
 			url = el.find_element_by_class_name("answer__title__link").get_attribute("href")
 			url_list.add(url)
-			print(url)
 	driver.close()
 	return url_list
 
@@ -152,7 +155,6 @@ def crawler_boatos():
 			for title in titles:
 				link = title.find_element_by_tag_name("a").get_attribute("href")
 				urls_list.add(link)
-				print(link)
 			try:
 				button = driver.find_element_by_css_selector(".previous")
 				next_page = button.find_element_by_tag_name("a").get_attribute("href")
@@ -161,6 +163,7 @@ def crawler_boatos():
 				break
 
 	driver.close()
+	return urls_list
 
 
 urls_fato_ou_fake = crawler_fato_fake()

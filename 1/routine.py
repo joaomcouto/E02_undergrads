@@ -12,7 +12,6 @@ def get_last_urls(agency):
 	urls = []
 	filename = "Dump/dump_" +agency+ ".txt"
 	db = open(filename,"r")
-	flag = False
 	for line in db:
 		urls.append(line)
 	db.close()
@@ -76,7 +75,7 @@ class Lupa():
 
 		#crawler 
 		url_news = self.crawler_news(url,date)
-		print(url_news)
+		return url_news
 		#return to DB
 
 class Comprova(): 
@@ -122,19 +121,170 @@ class Comprova():
 		url = line[0]
 		str_date = line[1].split("/")
 		date = datetime.date(int(str_date[2]),int(str_date[1]),int(str_date[0]))
-		print("ULTIMA-> ",url)
-		print("data: ", date)
 
 		#crawler 
 		url_news = self.crawler_news(url,date)
-		print(url_news)
 		#return to DB
+		return url_news
 
-#class E_Farsas()
+class E_farsas():
+	
+	def __init__(self):
+		self.__baseUrl = 'https://www.e-farsas.com/secoes/falso-2'
+		self.news_father_class = 'tdc_zone tdi_58  wpb_row td-pb-row'
+		self.news_class = 'tdb-module-title-wrap'
+		self.date_class ='entry-date updated td-module-date'
+		self.button_class = '?'
+
+	def execute_routine(self):
+		pass
+	def convert_date(self,text_date):
+		pass
+	def crawler_news(self,last_url):
+		pass
+
+class Boatos():
+	
+	def __init__(self):
+		self.__baseUrl = 'https://www.boatos.org/contato'
+		self.pagination_css_selector = '#archives-4 > ul:nth-child(2) > li'
+		self.news_class = "entry-title"
+		self.date_class = 'entry-date'
+		self.button_css_selector = '.previous'
+
+	def execute_routine(self):
+		urls  = get_last_urls('boatos')
+		line = urls[2].split()
+		last_url = line[0]
+
+		routine_urls = self.crawler_news(last_url)
+		return routine_urls
+
+	def convert_date(self,text_date):
+		pass
+	def crawler_news(self,last_url):
+		archive_list = []
+		urls_list = []
+		driver = webdriver.Firefox()
+		driver.get(self.__baseUrl)
+
+		archive = driver.find_elements_by_css_selector(self.pagination_css_selector)
+		for ar in archive:
+			ar_url = ar.find_element_by_tag_name("a").get_attribute("href")
+			archive_list.append(ar_url)
+		for page in archive_list:
+			driver.get(page)
+			while True:
+				time.sleep(1)
+				news = driver.find_elements_by_class_name(self.news_class)
+				for n in news:
+					url = n.find_element_by_tag_name("a").get_attribute("href")
+					if url == last_url:
+						driver.close()
+						return urls_list
+					urls_list.append(url)
+				try:
+					button = driver.find_element_by_css_selector(self.button_css_selector)
+					next_page = button.find_element_by_tag_name("a").get_attribute("href")
+					driver.get(next_page)
+					time.sleep(1)
+				except NoSuchElementException:
+					break
+		driver.close()
+		return urls_list
+
+class Aos_fatos():
+	
+	def __init__(self):
+		self.__baseUrl = 'https://www.aosfatos.org/noticias/'
+		self.news_css_selector ='.entry-card-list>a'
+		#self.date_class =
+		self.button_class = 'next-arrow'
+
+	def execute_routine(self):
+		urls = get_last_urls('aos_fatos')
+		line = urls[2]
+		routine_urls = self.crawler_news(line.strip())
+		return routine_urls
+
+
+
+	def convert_date(self,text_date):
+		pass
+	def crawler_news(self,last_url):
+		urls_list = []
+		driver = webdriver.Firefox()
+		driver.get(self.__baseUrl)
+		while True:
+			news = driver.find_elements_by_css_selector(self.news_css_selector)
+			for n in news:
+				url = n.get_attribute("href")
+				if url == last_url:
+					driver.close()
+					return urls_list
+				urls_list.append(url)
+			try:
+				button = driver.find_element_by_class_name(self.button_class)
+				next_page  = button.get_attribute("href")
+				driver.get(next_page)
+				time.sleep(1)
+			except NoSuchElementException:
+				break
+		driver.close()
+		return urls_list
+		
+class Fato_ou_fake():
+	
+	def __init__(self):
+		self.__baseUrl = 'https://g1.globo.com/fato-ou-fake/'
+		self.news_class ="feed-media-wrapper"
+		self.button_xpath = "//*[contains(text(), 'Veja mais')]"
+		self.scroll_initial = 0
+		self.scroll_final = 10000
+		self.scroll_add = 1000
+
+	def execute_routine(self):
+		urls = get_last_urls('fato_ou_fake')
+		line = urls[2]
+		routine_urls = self.crawler_news(line.strip())
+		return routine_urls
+	def convert_date(self,text_date):
+		pass
+	def crawler_news(self,last_url):
+		urls_list = []
+		driver = webdriver.Firefox()
+		driver.get(self.__baseUrl)
+		#scroll page
+		for i in range(0,4):
+			driver.execute_script("window.scrollTo("+str(self.scroll_initial)+", "+str(self.scroll_final) +")")
+			time.sleep(1)
+			self.scroll_initial = self.scroll_final
+			self.scroll_final += self.scroll_add
+		#crawl
+		while True:
+			news = driver.find_elements_by_class_name(self.news_class)
+			for n in news:
+				url = n.find_element_by_tag_name('a').get_attribute("href")
+				if url == last_url:
+					driver.close()
+					return urls_list
+				urls_list.append(url)
+			try:
+				button = driver.find_element_by_xpath(self.button_xpath)
+				next_page = button.get_attribute("href")
+				driver.get(next_page)
+			except NoSuchElementException:
+				break
+		driver.close()
+		return urls_list
 		
 
 L = Lupa()
 C = Comprova()
+B = Boatos()
+A = Aos_fatos()
+F = Fato_ou_fake()
+
 
 
 	
