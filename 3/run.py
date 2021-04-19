@@ -28,6 +28,17 @@ def printURLs(lista):
     for URL in lista:
         print(URL, "\n")
 
+def fetch_latest_5(fileName):
+    with open(fileName) as myfile:
+        head = [next(myfile).strip("\n") for x in range(5)]
+    return head
+
+def line_prepender(filename, line):
+    with open(filename, 'r+') as f:
+        content = f.read()
+        f.seek(0, 0)
+        f.write(line.rstrip('\r\n') + '\n' + content)
+
 
 class G1Crawler(BaseCrawler):
     def __init__(self, interface):
@@ -48,6 +59,22 @@ class G1Crawler(BaseCrawler):
         # Set wait limit time for elements search
         #self.wait = WebDriverWait(self.driver, self.wait_rate)
 
+    def update(self, feedUrl,fileName):
+        latest = fetch_latest_5(fileName)
+        latestFromFeed = self.g1_crawl_pages(1,5,feedUrl)
+        #print(latest[0:5])
+        #print(latestFromFeed[0:5])
+        toAdd = []
+        for materia in latestFromFeed:
+            print(materia)
+            if materia in latest:
+                break
+            toAdd.append(materia)
+            
+        for materia in reversed(toAdd):
+            line_prepender(fileName, materia)
+
+            
     def g1_crawl_pages(self,startPage, endPage, feedUrl):
         URLs = []
         page = startPage
@@ -68,8 +95,9 @@ class G1Crawler(BaseCrawler):
 
         print (" !!!! Coletamos",len(URLs), "URLs", "em", page-startPage, "paginas")
         self.g1_urls_to_file(URLs,feedUrl,startPage,page)
-        self.driver.close()
-        sys.exit(0)
+        return URLs
+        #self.driver.close()
+        #sys.exit(0)
 
     def g1_crawl_all(self,feedUrl):
         self.g1_crawl_pages(1,10000,feedUrl)
@@ -100,7 +128,9 @@ class G1Crawler(BaseCrawler):
 g1 = G1Crawler(0)
 #g1.g1_crawl_all("https://g1.globo.com/bemestar/coronavirus/")
 #g1.g1_crawl_pages(1150,1153,"https://g1.globo.com/economia/dolar/" )
-g1.g1_crawl_pages(1145,1150,"https://g1.globo.com/bemestar/coronavirus/" )
+#g1.g1_crawl_pages(1,10,"https://g1.globo.com/bemestar/coronavirus/" )
+g1.update("https://g1.globo.com/bemestar/coronavirus/", "G1_bemestar_coronavirus_1_a_11.txt")
+
 
 class UolCrawler(BaseCrawler): #Problema: como escolher o numero de cliques? como saber o que acontece quando nao tem mais pra ver?
     def __init__(self, interface):
@@ -228,9 +258,11 @@ class BbcCrawler(BaseCrawler):
             URLCountOnPage +=1 
         print("\t", URLCountOnPage, "URLs encontradas em" , round(time.time() - start ,2) ,"segundos" )
         return pageUrls
+
+
         
         
 #bbc = BbcCrawler(0)
-#a = bbc.bbc_crawl_pages(99,104,"https://www.bbc.com/portuguese/topics/c340q430z4vt")
+#x`a = bbc.bbc_crawl_pages(99,104,"https://www.bbc.com/portuguese/topics/c340q430z4vt")
 
 
