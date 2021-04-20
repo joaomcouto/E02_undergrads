@@ -17,6 +17,23 @@ def get_last_urls(agency):
 	db.close()
 	return urls
 
+def list_to_txt(urls,agency):
+	d_filename = "Dump/dump_"+agency+".txt"
+	#r_filename = "Routines/routine"+agency+".txt"
+	r_filename = "Urls/urls_"+agency+".txt"
+	r_file = open(r_filename,"a")
+	d_file = open(d_filename,"w")
+	r_file.write(str(len(urls))+'\n') 
+	#r_file.write(str(date.today())+'\n')
+	
+	last_url = urls[0]
+	d_file.write(last_url.strip()+'\n')
+	d_file.close()
+	for u in urls:
+		r_file.write(u+'\n')
+	r_file.close()
+
+
 
 class Lupa():
 	def __init__(self):
@@ -25,7 +42,6 @@ class Lupa():
 		self.button_css_selector = ".btn-mais"
 		self.news_css_selector = ".internaPGN > div"
 		
-
 	def convert_date(self,text_date):
 		text_date = text_date.split(" | ")
 		complete_date = text_date[0].split(".")
@@ -34,10 +50,8 @@ class Lupa():
 		year = int(complete_date[2])
 		date  = datetime.date(year,month,day)
 		return date
-
 	
-
-	def crawler_news(self,last_url,last_date):
+	def crawler_news(self,last_url):
 		driver = webdriver.Firefox()
 		driver.get(self.__baseUrl)
 		url_list = []
@@ -48,12 +62,12 @@ class Lupa():
 			for n in news:
 				url = n.find_element_by_tag_name('a').get_attribute("href")
 				raw_date = n.find_element_by_class_name(self.date_class).text
-				date = self.convert_date(raw_date)
-				if date >= last_date:
-					if (date == last_date ) and (url == last_url):
-						driver.close()
-						return url_list
-					url_list.append(url)
+				#date = self.convert_date(raw_date)
+				#if date >= last_date:
+				if url == last_url:
+					driver.close()
+					return url_list
+				url_list.append(url)
 			try:
 				time.sleep(1)
 				button = driver.find_element_by_css_selector(self.button_css_selector)
@@ -67,14 +81,13 @@ class Lupa():
 	def execute_routine(self):
 		#get from DB
 		urls = get_last_urls('lupa')
-
-		line = urls[0].split(" ")
-		url = line[0]
-		str_date = line[1].split("/")
-		date = datetime.date(int(str_date[2]),int(str_date[1]),int(str_date[0]))
+		url = urls[0]
+		#str_date = line[1].split("/")
+		#date = datetime.date(int(str_date[2]),int(str_date[1]),int(str_date[0]))
 
 		#crawler 
-		url_news = self.crawler_news(url,date)
+		url_news = self.crawler_news(url)
+		list_to_txt(url_news,'lupa')
 		return url_news
 		#return to DB
 
@@ -91,7 +104,7 @@ class Comprova():
 		complete_date = text_date.split("-")
 		date = datetime.date(int(complete_date[0]),int(complete_date[1]),int(complete_date[2]))
 		return date
-	def crawler_news(self,last_url,last_date):
+	def crawler_news(self,last_url):
 		page_list = []
 		url_list = []
 		driver = webdriver.Firefox()
@@ -104,9 +117,9 @@ class Comprova():
 			news = driver.find_elements_by_tag_name(self.news_father_tag)
 			for n in news:
 				url = n.find_element_by_class_name(self.news_child_class).get_attribute("href")
-				raw_date = n.find_element_by_class_name(self.date_class).text
-				date = self.convert_date(raw_date)
-				if (date >= last_date) and (url == last_url):
+				#raw_date = n.find_element_by_class_name(self.date_class).text
+				#date = self.convert_date(raw_date)
+				if url == last_url:
 					driver.close()
 					return url_list
 				url_list.append(url)
@@ -119,13 +132,14 @@ class Comprova():
 
 		line = urls[0].split(" ")
 		url = line[0]
-		str_date = line[1].split("/")
-		date = datetime.date(int(str_date[2]),int(str_date[1]),int(str_date[0]))
-
+		#str_date = line[1].split("/")
+		#date = datetime.date(int(str_date[2]),int(str_date[1]),int(str_date[0]))
+		
 		#crawler 
-		url_news = self.crawler_news(url,date)
+		urls_news = self.crawler_news(url)
+		list_to_txt(urls_news,'comprova')
 		#return to DB
-		return url_news
+		return urls_news
 
 class E_farsas():
 	
@@ -137,12 +151,14 @@ class E_farsas():
 
 	def execute_routine(self):
 		urls = get_last_urls('e_farsas')
-		line = urls[1]
+		line = urls[0]
 		urls_routine = self.crawler_news(line.strip())
+		list_to_txt(urls_routine,'e_farsas')
 		return urls_routine
 
 	def convert_date(self,text_date):
 		pass
+
 	def crawler_news(self,last_url):
 		urls_list = []
 		driver = webdriver.Firefox()
@@ -155,6 +171,7 @@ class E_farsas():
 					driver.close()
 					return urls_list
 				urls_list.append(url)
+				print(url)
 			try:
 				button = driver.find_element_by_xpath(self.button_xpath)
 				next_page = button.get_attribute('href')
@@ -165,10 +182,6 @@ class E_farsas():
 
 		driver.close()
 		return urls_list
-
-
-
-
 
 class Boatos():
 	
@@ -181,10 +194,9 @@ class Boatos():
 
 	def execute_routine(self):
 		urls  = get_last_urls('boatos')
-		line = urls[2].split()
-		last_url = line[0]
-
+		last_url = urls[0].split()
 		routine_urls = self.crawler_news(last_url)
+		list_to_txt(routine_urls,'boatos')
 		return routine_urls
 
 	def convert_date(self,text_date):
@@ -225,12 +237,14 @@ class Aos_fatos():
 	def __init__(self):
 		self.__baseUrl = 'https://www.aosfatos.org/noticias/'
 		self.news_css_selector ='.entry-card-list>a'
+		#self.date_class =
 		self.button_class = 'next-arrow'
 
 	def execute_routine(self):
 		urls = get_last_urls('aos_fatos')
-		line = urls[2]
+		line = urls[0]
 		routine_urls = self.crawler_news(line.strip())
+		list_to_txt(routine_urls,'aos_fatos')
 		return routine_urls
 
 
@@ -271,8 +285,10 @@ class Fato_ou_fake():
 
 	def execute_routine(self):
 		urls = get_last_urls('fato_ou_fake')
-		line = urls[2]
+		#line = urls[2]
+		line  = " "
 		routine_urls = self.crawler_news(line.strip())
+		list_to_txt(routine_urls,'fato_ou_fake')
 		return routine_urls
 	def convert_date(self,text_date):
 		pass
@@ -295,10 +311,12 @@ class Fato_ou_fake():
 					driver.close()
 					return urls_list
 				urls_list.append(url)
+				print(url)
 			try:
 				button = driver.find_element_by_xpath(self.button_xpath)
 				next_page = button.get_attribute("href")
 				driver.get(next_page)
+				time.sleep(0.5)
 			except NoSuchElementException:
 				break
 		driver.close()
@@ -311,6 +329,14 @@ B = Boatos()
 A = Aos_fatos()
 F = Fato_ou_fake()
 E = E_farsas()
+
+#L.execute_routine()
+#C.execute_routine()
+#B.execute_routine()
+#A.execute_routine()
+#F.execute_routine()
+
+E.execute_routine()
 
 
 	
