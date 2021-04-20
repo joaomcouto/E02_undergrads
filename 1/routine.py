@@ -131,17 +131,44 @@ class E_farsas():
 	
 	def __init__(self):
 		self.__baseUrl = 'https://www.e-farsas.com/secoes/falso-2'
-		self.news_father_class = 'tdc_zone tdi_58  wpb_row td-pb-row'
-		self.news_class = 'tdb-module-title-wrap'
-		self.date_class ='entry-date updated td-module-date'
-		self.button_class = '?'
+		self.news_father_class = 'wpb_wrapper'
+		self.news_class = 'entry-title'
+		self.button_xpath = "//a[@aria-label='next-page']"
 
 	def execute_routine(self):
-		pass
+		urls = get_last_urls('e_farsas')
+		line = urls[1]
+		urls_routine = self.crawler_news(line.strip())
+		return urls_routine
+
 	def convert_date(self,text_date):
 		pass
 	def crawler_news(self,last_url):
-		pass
+		urls_list = []
+		driver = webdriver.Firefox()
+		driver.get(self.__baseUrl)
+		while True:
+			news = driver.find_elements_by_class_name(self.news_class)
+			for n in news:
+				url = n.find_element_by_tag_name('a').get_attribute('href')
+				if url == last_url:
+					driver.close()
+					return urls_list
+				urls_list.append(url)
+			try:
+				button = driver.find_element_by_xpath(self.button_xpath)
+				next_page = button.get_attribute('href')
+				driver.get(next_page)
+				time.sleep(0.5)
+			except NoSuchElementException:
+				break
+
+		driver.close()
+		return urls_list
+
+
+
+
 
 class Boatos():
 	
@@ -198,7 +225,6 @@ class Aos_fatos():
 	def __init__(self):
 		self.__baseUrl = 'https://www.aosfatos.org/noticias/'
 		self.news_css_selector ='.entry-card-list>a'
-		#self.date_class =
 		self.button_class = 'next-arrow'
 
 	def execute_routine(self):
@@ -284,7 +310,7 @@ C = Comprova()
 B = Boatos()
 A = Aos_fatos()
 F = Fato_ou_fake()
-
+E = E_farsas()
 
 
 	
