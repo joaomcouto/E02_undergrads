@@ -7,6 +7,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By       
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import TimeoutException
 
 def get_last_urls(agency):
 	urls = []
@@ -19,12 +20,12 @@ def get_last_urls(agency):
 
 def list_to_txt(urls,agency):
 	d_filename = "Dump/dump_"+agency+".txt"
-	#r_filename = "Routines/routine"+agency+".txt"
-	r_filename = "Urls/urls_"+agency+".txt"
+	r_filename = "Routines/routine"+agency+".txt"
+	#r_filename = "Urls/urls_"+agency+".txt"
 	r_file = open(r_filename,"a")
 	d_file = open(d_filename,"w")
-	r_file.write(str(len(urls))+'\n') 
-	#r_file.write(str(date.today())+'\n')
+	#r_file.write(str(len(urls))+'\n') 
+	r_file.write(str(date.today())+'\n')
 	
 	last_url = urls[0]
 	d_file.write(last_url.strip()+'\n')
@@ -79,17 +80,11 @@ class Lupa():
 
 
 	def execute_routine(self):
-		#get from DB
 		urls = get_last_urls('lupa')
 		url = urls[0]
-		#str_date = line[1].split("/")
-		#date = datetime.date(int(str_date[2]),int(str_date[1]),int(str_date[0]))
-
-		#crawler 
 		url_news = self.crawler_news(url)
 		list_to_txt(url_news,'lupa')
 		return url_news
-		#return to DB
 
 class Comprova(): 
 	def __init__(self):
@@ -237,7 +232,6 @@ class Aos_fatos():
 	def __init__(self):
 		self.__baseUrl = 'https://www.aosfatos.org/noticias/'
 		self.news_css_selector ='.entry-card-list>a'
-		#self.date_class =
 		self.button_class = 'next-arrow'
 
 	def execute_routine(self):
@@ -278,7 +272,10 @@ class Fato_ou_fake():
 	def __init__(self):
 		self.__baseUrl = 'https://g1.globo.com/fato-ou-fake/'
 		self.news_class ="feed-media-wrapper"
+		self.feed_class = "feed-placeholder"
+		self.news_xpath = '//div[@data-type ="materia"]'
 		self.button_xpath = "//*[contains(text(), 'Veja mais')]"
+		self.next_page_class = "load-more"
 		self.scroll_initial = 0
 		self.scroll_final = 10000
 		self.scroll_add = 1000
@@ -286,7 +283,7 @@ class Fato_ou_fake():
 	def execute_routine(self):
 		urls = get_last_urls('fato_ou_fake')
 		#line = urls[2]
-		line  = " "
+		line =" "
 		routine_urls = self.crawler_news(line.strip())
 		list_to_txt(routine_urls,'fato_ou_fake')
 		return routine_urls
@@ -304,24 +301,76 @@ class Fato_ou_fake():
 			self.scroll_final += self.scroll_add
 		#crawl
 		while True:
-			news = driver.find_elements_by_class_name(self.news_class)
+			time.sleep(2)
+			#news = driver.find_elements_by_class_name(self.news_class)
+			feed =  WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.CLASS_NAME, self.feed_class)))
+			news = driver.find_elements_by_xpath(self.news_xpath)
 			for n in news:
 				url = n.find_element_by_tag_name('a').get_attribute("href")
 				if url == last_url:
 					driver.close()
 					return urls_list
 				urls_list.append(url)
-				print(url)
+				print(url)			
 			try:
-				button = driver.find_element_by_xpath(self.button_xpath)
-				next_page = button.get_attribute("href")
+				#button = WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.XPATH, self.button_xpath)))
+				#button = driver.find_element_by_xpath(self.button_xpath)
+				#driver.execute_script("arguments[0].scrollIntoView();", button)
+				#driver.execute_script("arguments[0].click();", button)
+				button = driver.find_element_by_class_name(self.next_page_class)
+				next_page = button.find_element_by_tag_name('a').get_attribute("href")
 				driver.get(next_page)
-				time.sleep(0.5)
+				time.sleep(5)
 			except NoSuchElementException:
 				break
+
+
 		driver.close()
 		return urls_list
 		
+class Estadao_verifica():
+	def __init__(self):
+		self.__baseUrl = 'https://politica.estadao.com.br/blogs/estadao-verifica/'
+		self.feed_class = (By.CLASS_NAME,"paged-content")
+		self.news_class = (By.CLASS_NAME,"col-md-6")
+		self.button_class = (By.CSS_SELECTOR, ".more-list-news") 
+		self.n_max_clicks = 180
+	def crawler_news(self,last_url):
+		urls_list = []
+		driver = webdriver.Firefox()
+		driver.get(self.__baseUrl)
+		n_clicks = 0
+		while n_clicks < self.n_max_clicks:
+			try:
+				button = WebDriverWait(driver, 30).until(EC.presence_of_element_located(self.button_class))
+				#button = driver.find_element_by_xpath(self.button_xpath)
+				driver.execute_script("arguments[0].scrollIntoView();", button)
+				driver.execute_script("arguments[0].click();", button)
+				n_clicks+=1
+				time.sleep(2)
+			except TimeoutException:
+				break
+		feed = WebDriverWait(driver, 30).until(EC.presence_of_element_located(self.feed_class))
+		news = driver.find_elements(*self.news_class)
+		for n in news:
+			url = n.find_element_by_tag_name('a').get_attribute('href')
+			if url == last_url:
+				driver.close()
+				return urls_list
+			if url == 'javascript:void(0);' or url == '0':
+				pass
+			else:	
+				urls_list.append(url)
+		driver.close()
+		return urls_list
+
+	def execute_routine(self):
+		urls = get_last_urls('estadao_verifica')
+		last_url = urls[0].strip()
+		routine_urls = self.crawler_news(last_url)
+		list_to_txt(routine_urls,'estadao_verifica')
+		return routine_urls
+
 
 L = Lupa()
 C = Comprova()
@@ -329,14 +378,16 @@ B = Boatos()
 A = Aos_fatos()
 F = Fato_ou_fake()
 E = E_farsas()
+EV = Estadao_verifica()
+
+EV.execute_routine()
 
 #L.execute_routine()
 #C.execute_routine()
 #B.execute_routine()
 #A.execute_routine()
 #F.execute_routine()
-
-E.execute_routine()
+#E.execute_routine()
 
 
 	
