@@ -1,21 +1,12 @@
-# import newspaper
-
-# cnn_paper = newspaper.build('https://g1.globo.com/')
-
-# for article in cnn_paper.articles:
-#     print(article.url)
-
 import os
 import env
-
+import sys
+import time
 
 from news_crawler.base_crawler import BaseCrawler
 
-import sys
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
-import time
-
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -39,6 +30,19 @@ def line_prepender(filename, line):
         f.seek(0, 0)
         f.write(line.rstrip('\r\n') + '\n' + content)
 
+def file_to_urls(fileName):
+    URLs = []
+    f=open(fileName,'r')
+    for line in f:
+        URLs.append(line.strip("\n"))
+    f.close()
+    return URLs
+
+def remove_list_duplicates(inputList):
+    seen = set()
+    seen_add = seen.add
+    return [x for x in inputList if not (x in seen or seen_add(x))]
+
 
 class G1Crawler(BaseCrawler):
     def __init__(self, interface):
@@ -54,19 +58,12 @@ class G1Crawler(BaseCrawler):
         self.delay = 30
         self.retry = 5
 
-        #self.
-
-        # Set wait limit time for elements search
-        #self.wait = WebDriverWait(self.driver, self.wait_rate)
 
     def update(self, feedUrl,fileName):
         latest = fetch_latest_5(fileName)
-        latestFromFeed = self.g1_crawl_pages(1,5,feedUrl)
-        #print(latest[0:5])
-        #print(latestFromFeed[0:5])
+        latestFromFeed = file_to_urls(self.g1_crawl_pages(1,5,feedUrl))
         toAdd = []
         for materia in latestFromFeed:
-            print(materia)
             if materia in latest:
                 break
             toAdd.append(materia)
@@ -74,15 +71,17 @@ class G1Crawler(BaseCrawler):
         for materia in reversed(toAdd):
             line_prepender(fileName, materia)
 
-            
     def g1_crawl_pages(self,startPage, endPage, feedUrl):
         URLs = []
         page = startPage
         while (page <= endPage):
+            if(page > 2000): #Necessario pois após 2000 páginas o G1 carrega sempre o feed da pagina 2000, entao a excessão de parada não acontece
+                print ('Ultima pagina possível alcançada')
+                break
             start = time.time()
             pageURLs = self.g1_crawl_single_page(feedUrl,page)
             if (pageURLs == -1):
-                print ("Feed não localizado! Indicativo de varredura completa até a última página do feed ou erro de conexão..\n")
+                print ("Feed não localizado! Indicativo de varredura completa até a última página DISPONIVEL do feed ou erro de conexão..\n")
                 break
             if (pageURLs == 0):
                 self.retry = self.retry -1
@@ -94,13 +93,18 @@ class G1Crawler(BaseCrawler):
             self.retry = 3
 
         print (" !!!! Coletamos",len(URLs), "URLs", "em", page-startPage, "paginas")
-        self.g1_urls_to_file(URLs,feedUrl,startPage,page)
-        return URLs
+        URLs = remove_list_duplicates(URLs)
+
+        fileName = self.g1_urls_to_file(URLs,feedUrl,startPage,page)
+        return fileName
         #self.driver.close()
         #sys.exit(0)
 
     def g1_crawl_all(self,feedUrl):
-        self.g1_crawl_pages(1,10000,feedUrl)
+        feedUrlsFile = self.g1_crawl_pages(1,2000,feedUrl)
+        newName = "G1_" + feedUrl.split('.com/')[1].replace('/' , '_') + "all"
+        os.rename(feedUrlsFile,newName)
+
 
     def g1_urls_to_file(self,URLs, feedUrl, startPage,page):
         fileNameG1 = "G1_" + feedUrl.split('.com/')[1].replace('/' , '_') + str(startPage) + '_a_' + str(page) + ".txt"
@@ -108,6 +112,8 @@ class G1Crawler(BaseCrawler):
         for u in URLs:
             f.write(u +'\n')
         f.close()
+        return fileNameG1
+
     
     def g1_crawl_single_page(self,feedUrl, page):
         pageURLs = []
@@ -126,10 +132,11 @@ class G1Crawler(BaseCrawler):
         return pageURLs
         
 g1 = G1Crawler(0)
-#g1.g1_crawl_all("https://g1.globo.com/bemestar/coronavirus/")
+g1.g1_crawl_all("https://g1.globo.com/bemestar/coronavirus/")
 #g1.g1_crawl_pages(1150,1153,"https://g1.globo.com/economia/dolar/" )
 #g1.g1_crawl_pages(1,10,"https://g1.globo.com/bemestar/coronavirus/" )
-g1.update("https://g1.globo.com/bemestar/coronavirus/", "G1_bemestar_coronavirus_1_a_11.txt")
+#g1.update("https://g1.globo.com/bemestar/coronavirus/", "G1_bemestar_coronavirus_1_a_11.txt")
+#g1.file_to_urls("G1_bemestar_coronavirus_1_a_11.txt")
 
 
 class UolCrawler(BaseCrawler): #Problema: como escolher o numero de cliques? como saber o que acontece quando nao tem mais pra ver?
@@ -174,6 +181,7 @@ class UolCrawler(BaseCrawler): #Problema: como escolher o numero de cliques? com
             print ("Crawl de materias feito em " , time.time() - start)
             print (" !!!! Coletamos",len(URLs), "URLs com" ,click * i, "cliques")
         
+        URLs = remove_list_duplicates(URLs)
         self.uol_urls_to_file(clickAmount, repeatRange, feedUrl, URLs)
 
         self.driver.close()
@@ -227,6 +235,7 @@ class BbcCrawler(BaseCrawler):
             page = page + 1
             self.retry = 3
         print (" !!!! Coletamos",len(URLs), "URLs")
+        URLs = remove_list_duplicates(URLs)
         self.bbc_urls_to_file(startPage,page, URLs, feedUrl)
         self.driver.close()
         sys.exit(0)
