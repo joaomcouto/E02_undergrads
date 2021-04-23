@@ -233,6 +233,7 @@ class Aos_fatos():
 		self.__baseUrl = 'https://www.aosfatos.org/noticias/'
 		self.news_css_selector ='.entry-card-list>a'
 		self.button_class = 'next-arrow'
+		self.category_locator = (By.CLASS_NAME,'entry-card-category')
 
 	def execute_routine(self):
 		urls = get_last_urls('aos_fatos')
@@ -253,10 +254,12 @@ class Aos_fatos():
 			news = driver.find_elements_by_css_selector(self.news_css_selector)
 			for n in news:
 				url = n.get_attribute("href")
+				category = n.find_element(*self.category_locator).text
+				print(url,category)
 				if url == last_url:
 					driver.close()
 					return urls_list
-				urls_list.append(url)
+				urls_list.append((url,category))
 			try:
 				button = driver.find_element_by_class_name(self.button_class)
 				next_page  = button.get_attribute("href")
@@ -380,12 +383,17 @@ F = Fato_ou_fake()
 E = E_farsas()
 EV = Estadao_verifica()
 
-EV.execute_routine()
-
+#EV.execute_routine()
 #L.execute_routine()
 #C.execute_routine()
 #B.execute_routine()
-#A.execute_routine()
+lista = A.crawler_news(" ")
+#print(lista)
+A_file = open('aos_fatos__url_category.txt',"w")
+A_file.write(str(len(lista))+'\n')
+for el in lista:
+	A_file.write(str(el)+'\n')
+
 #F.execute_routine()
 #E.execute_routine()
 
