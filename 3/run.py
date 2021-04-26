@@ -132,7 +132,8 @@ class G1Crawler(BaseCrawler):
         return pageURLs
         
 g1 = G1Crawler(0)
-g1.g1_crawl_all("https://g1.globo.com/bemestar/coronavirus/")
+g1.g1_crawl_all("https://g1.globo.com/fato-ou-fake/")
+#"https://g1.globo.com/fato-ou-fake/"
 #g1.g1_crawl_pages(1150,1153,"https://g1.globo.com/economia/dolar/" )
 #g1.g1_crawl_pages(1,10,"https://g1.globo.com/bemestar/coronavirus/" )
 #g1.update("https://g1.globo.com/bemestar/coronavirus/", "G1_bemestar_coronavirus_1_a_11.txt")
