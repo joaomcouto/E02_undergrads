@@ -39,9 +39,9 @@ def list_to_txt(urls,agency):
 class Lupa():
 	def __init__(self):
 		self.__baseUrl  = 'https://piaui.folha.uol.com.br/lupa'
-		self.date_class = "bloco-meta"
-		self.button_css_selector = ".btn-mais"
-		self.news_css_selector = ".internaPGN > div"
+		self.date_locator = (By.CLASS_NAME,"bloco-meta")
+		self.button_locator = (By.CSS_SELECTOR,".btn-mais")
+		self.news_locator = (By.CSS_SELECTOR,".internaPGN > div")
 		
 	def convert_date(self,text_date):
 		text_date = text_date.split(" | ")
@@ -59,10 +59,10 @@ class Lupa():
 		
 		
 		while True:
-			news = driver.find_elements_by_css_selector(self.news_css_selector)
+			news = driver.find_elements(*self.news_locator)
 			for n in news:
 				url = n.find_element_by_tag_name('a').get_attribute("href")
-				raw_date = n.find_element_by_class_name(self.date_class).text
+				#raw_date = n.find_element(*self.date_locator).text
 				#date = self.convert_date(raw_date)
 				#if date >= last_date:
 				if url == last_url:
@@ -71,7 +71,7 @@ class Lupa():
 				url_list.append(url)
 			try:
 				time.sleep(1)
-				button = driver.find_element_by_css_selector(self.button_css_selector)
+				button = driver.find_element(*self.button_locator)
 				driver.get(button.get_attribute("href"))
 			except NoSuchElementException:
 				break
@@ -89,10 +89,10 @@ class Lupa():
 class Comprova(): 
 	def __init__(self):
 		self.__baseUrl  = 'https://projetocomprova.com.br/'
-		self.date_class = "answer__credits__date "
-		self.pagination_css_selector = ".pagination>a"
-		self.news_father_tag = "article"
-		self.news_child_class = "answer__title__link"
+		self.date_locator = (By.CLASS_NAME,"answer__credits__date")
+		self.pagination_locator = (By.CSS_SELECTOR,".pagination>a")
+		self.news_locator = (By.TAG_NAME,'article')
+		self.news_child_locator = (By.CLASS_NAME,"answer__title__link")
 
 	def convert_date(self,text_date):
 		#exemple : 2021-03-05
@@ -104,20 +104,21 @@ class Comprova():
 		url_list = []
 		driver = webdriver.Firefox()
 		driver.get(self.__baseUrl)
-		pages = driver.find_elements_by_css_selector(self.pagination_css_selector)
+		pages = driver.find_elements(*self.pagination_locator)
 		for p in pages:
 			page_list.append(p.get_attribute("href"))
 		for page_link in page_list:
 			driver.get(page_link)
-			news = driver.find_elements_by_tag_name(self.news_father_tag)
+			news = driver.find_elements(*self.news_locator)
 			for n in news:
-				url = n.find_element_by_class_name(self.news_child_class).get_attribute("href")
+				url = n.find_element(*self.news_child_locator).get_attribute("href")
 				#raw_date = n.find_element_by_class_name(self.date_class).text
 				#date = self.convert_date(raw_date)
 				if url == last_url:
 					driver.close()
 					return url_list
 				url_list.append(url)
+				print(url)
 		driver.close()
 		return url_list
 
@@ -140,9 +141,9 @@ class E_farsas():
 	
 	def __init__(self):
 		self.__baseUrl = 'https://www.e-farsas.com/secoes/falso-2'
-		self.news_father_class = 'wpb_wrapper'
-		self.news_class = 'entry-title'
-		self.button_xpath = "//a[@aria-label='next-page']"
+		#self.news_father_locator = (By.CLASS_NAME,'wpb_wrapper')
+		self.news_locator = (By.CLASS_NAME,'entry-title')
+		self.button_locator = (By.XPATH,"//a[@aria-label='next-page']")
 
 	def execute_routine(self):
 		urls = get_last_urls('e_farsas')
@@ -159,16 +160,15 @@ class E_farsas():
 		driver = webdriver.Firefox()
 		driver.get(self.__baseUrl)
 		while True:
-			news = driver.find_elements_by_class_name(self.news_class)
+			news = driver.find_elements(*self.news_locator)
 			for n in news:
 				url = n.find_element_by_tag_name('a').get_attribute('href')
 				if url == last_url:
 					driver.close()
 					return urls_list
 				urls_list.append(url)
-				print(url)
 			try:
-				button = driver.find_element_by_xpath(self.button_xpath)
+				button = driver.find_element(*self.button_locator)
 				next_page = button.get_attribute('href')
 				driver.get(next_page)
 				time.sleep(0.5)
@@ -182,10 +182,10 @@ class Boatos():
 	
 	def __init__(self):
 		self.__baseUrl = 'https://www.boatos.org/contato'
-		self.pagination_css_selector = '#archives-4 > ul:nth-child(2) > li'
-		self.news_class = "entry-title"
-		self.date_class = 'entry-date'
-		self.button_css_selector = '.previous'
+		self.pagination_locator = (By.CSS_SELECTOR,'#archives-4 > ul:nth-child(2) > li')
+		self.news_locator = (By.CLASS_NAME,"entry-title")
+		self.date_class = (By.CLASS_NAME,'entry-date')
+		self.button_locator = (By.CSS_SELECTOR,'.previous')
 
 	def execute_routine(self):
 		urls  = get_last_urls('boatos')
@@ -202,7 +202,7 @@ class Boatos():
 		driver = webdriver.Firefox()
 		driver.get(self.__baseUrl)
 
-		archive = driver.find_elements_by_css_selector(self.pagination_css_selector)
+		archive = driver.find_elements(*self.pagination_locator)
 		for ar in archive:
 			ar_url = ar.find_element_by_tag_name("a").get_attribute("href")
 			archive_list.append(ar_url)
@@ -210,7 +210,7 @@ class Boatos():
 			driver.get(page)
 			while True:
 				time.sleep(1)
-				news = driver.find_elements_by_class_name(self.news_class)
+				news = driver.find_elements(*self.news_locator)
 				for n in news:
 					url = n.find_element_by_tag_name("a").get_attribute("href")
 					if url == last_url:
@@ -218,7 +218,7 @@ class Boatos():
 						return urls_list
 					urls_list.append(url)
 				try:
-					button = driver.find_element_by_css_selector(self.button_css_selector)
+					button = driver.find_element(*self.button_locator)
 					next_page = button.find_element_by_tag_name("a").get_attribute("href")
 					driver.get(next_page)
 					time.sleep(1)
@@ -231,8 +231,8 @@ class Aos_fatos():
 	
 	def __init__(self):
 		self.__baseUrl = 'https://www.aosfatos.org/noticias/'
-		self.news_css_selector ='.entry-card-list>a'
-		self.button_class = 'next-arrow'
+		self.news_locator = (By.CSS_SELECTOR,'.entry-card-list>a')
+		self.button_locator = (By.CLASS_NAME,'next-arrow')
 		self.category_locator = (By.CLASS_NAME,'entry-card-category')
 
 	def execute_routine(self):
@@ -242,8 +242,6 @@ class Aos_fatos():
 		list_to_txt(routine_urls,'aos_fatos')
 		return routine_urls
 
-
-
 	def convert_date(self,text_date):
 		pass
 	def crawler_news(self,last_url):
@@ -251,7 +249,7 @@ class Aos_fatos():
 		driver = webdriver.Firefox()
 		driver.get(self.__baseUrl)
 		while True:
-			news = driver.find_elements_by_css_selector(self.news_css_selector)
+			news = driver.find_elements(*self.news_locator)
 			for n in news:
 				url = n.get_attribute("href")
 				category = n.find_element(*self.category_locator).text
@@ -261,7 +259,7 @@ class Aos_fatos():
 					return urls_list
 				urls_list.append((url,category))
 			try:
-				button = driver.find_element_by_class_name(self.button_class)
+				button = driver.find_element(*self.button_locator)
 				next_page  = button.get_attribute("href")
 				driver.get(next_page)
 				time.sleep(1)
@@ -337,7 +335,7 @@ class Estadao_verifica():
 		self.feed_class = (By.CLASS_NAME,"paged-content")
 		self.news_class = (By.CLASS_NAME,"col-md-6")
 		self.button_class = (By.CSS_SELECTOR, ".more-list-news") 
-		self.n_max_clicks = 180
+		self.n_max_clicks = 4
 	def crawler_news(self,last_url):
 		urls_list = []
 		driver = webdriver.Firefox()
@@ -387,13 +385,6 @@ EV = Estadao_verifica()
 #L.execute_routine()
 #C.execute_routine()
 #B.execute_routine()
-lista = A.crawler_news(" ")
-#print(lista)
-A_file = open('aos_fatos__url_category.txt',"w")
-A_file.write(str(len(lista))+'\n')
-for el in lista:
-	A_file.write(str(el)+'\n')
-
 #F.execute_routine()
 #E.execute_routine()
 
