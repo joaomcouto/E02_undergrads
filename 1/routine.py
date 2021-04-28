@@ -20,21 +20,21 @@ def get_last_urls(agency):
 
 def list_to_txt(urls,agency):
 	d_filename = "Dump/dump_"+agency+".txt"
-	r_filename = "Routines/routine"+agency+".txt"
-	#r_filename = "Urls/urls_"+agency+".txt"
+	#r_filename = "Routines/routine"+agency+".txt"
+	r_filename = "Urls/urls_"+agency+".txt"
 	r_file = open(r_filename,"a")
 	d_file = open(d_filename,"w")
-	#r_file.write(str(len(urls))+'\n') 
-	r_file.write(str(date.today())+'\n')
-	
-	last_url = urls[0]
+	r_file.write(str(len(urls))+'\n') 
+	#r_file.write(str(date.today())+'\n')
+	if agency == 'estadao_verifica'
+		last_url = urls[2]
+	else:
+		last_url = urls[0]
 	d_file.write(last_url.strip()+'\n')
 	d_file.close()
 	for u in urls:
 		r_file.write(u+'\n')
 	r_file.close()
-
-
 
 class Lupa():
 	def __init__(self):
@@ -141,36 +141,49 @@ class E_farsas():
 	
 	def __init__(self):
 		self.__baseUrl = 'https://www.e-farsas.com/secoes/falso-2'
-		#self.news_father_locator = (By.CLASS_NAME,'wpb_wrapper')
+		self.wrapper_locator = (By.CSS_SELECTOR,'.tdi_78')
+		self.mp_news_block_wrapper = (By.CSS_SELECTOR,'.tdi_83') #mp = MainPage
+		self.mp_main_news_block_wrapper  =(By.CSS_SELECTOR,'.tdi_71')
 		self.news_locator = (By.CLASS_NAME,'entry-title')
 		self.button_locator = (By.XPATH,"//a[@aria-label='next-page']")
 
 	def execute_routine(self):
 		urls = get_last_urls('e_farsas')
 		line = urls[0]
-		urls_routine = self.crawler_news(line.strip())
+		#urls_routine = self.crawler_news(line.strip())
+		urls_routine = self.crawler_news(" ")
 		list_to_txt(urls_routine,'e_farsas')
 		return urls_routine
-
-	def convert_date(self,text_date):
-		pass
 
 	def crawler_news(self,last_url):
 		urls_list = []
 		driver = webdriver.Firefox()
 		driver.get(self.__baseUrl)
+		IsMainPage  = True
+
 		while True:
-			news = driver.find_elements(*self.news_locator)
+			if IsMainPage:
+				block_wrapper = driver.find_element(*self.mp_main_news_block_wrapper)
+				news = block_wrapper.find_elements(*self.news_locator)
+				wrapper = driver.find_element(*self.mp_news_block_wrapper)
+				mp_news = wrapper.find_elements(*self.news_locator)
+				news.extend(mp_news)
+			else:
+				wrapper = WebDriverWait(driver, 30).until(EC.presence_of_element_located(self.wrapper_locator))
+				news = wrapper.find_elements(*self.news_locator)
+			
 			for n in news:
 				url = n.find_element_by_tag_name('a').get_attribute('href')
 				if url == last_url:
 					driver.close()
 					return urls_list
 				urls_list.append(url)
+				print(url)
 			try:
 				button = driver.find_element(*self.button_locator)
 				next_page = button.get_attribute('href')
 				driver.get(next_page)
+				IsMainPage = False
 				time.sleep(0.5)
 			except NoSuchElementException:
 				break
@@ -381,12 +394,13 @@ F = Fato_ou_fake()
 E = E_farsas()
 EV = Estadao_verifica()
 
-#EV.execute_routine()
+
+#EV.execute_routine() 
 #L.execute_routine()
 #C.execute_routine()
 #B.execute_routine()
 #F.execute_routine()
-#E.execute_routine()
+E.execute_routine()
 
 
 	

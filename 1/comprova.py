@@ -14,6 +14,7 @@ class Comprova():
 		self.title_locator =(By.CLASS_NAME,'answer__title')
 		self.image_locator = (By.TAG_NAME,'img')
 		self.button_locator = (By.CLASS_NAME, 'answer__content__expand__label')
+		self.date_locator = (By.CLASS_NAME,'answer__credits__date')
 		#self.author_locator =  não tem
 		self.category_locator =(By.CLASS_NAME,'answer__term')
 		self.verdict_locator = (By.CLASS_NAME,'answer__tag')
@@ -23,9 +24,11 @@ class Comprova():
 		infos = {'Titulo' : '', 
 				'Texto': '',
 				'Categoria':'',
+				'Data':'',
 				'Imagem':'',
 				'Veredito':'',
-				'Html':''}
+				'Html':'',
+				'Url':''}
 
 		driver.get(url.strip())
 
@@ -41,7 +44,9 @@ class Comprova():
 		infos['Categoria'] = wrapper.find_element(*self.category_locator).text
 		infos['Imagem'] = wrapper.find_element(*self.image_locator).get_attribute('src')
 		infos['Veredito'] = wrapper.find_element(*self.verdict_locator).text
-		#infos['Html'] = driver.page_source
+		infos['Url'] = driver.current_url
+		infos['Data'] = wrapper.find_element(*self.date_locator).text
+		infos['Html'] = driver.page_source
 		driver.close()
 		return infos
 
