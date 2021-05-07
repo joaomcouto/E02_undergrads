@@ -34,10 +34,6 @@ class EfarsasScrapper(BaseCrawler):
         self.fonte = "e-farsas"
         #self.video_locator = (By.CLASS_NAME, "content-video__placeholder")
 
-    #def __del__(self):
-        # self.driver.quit()
-
-
     def access_article(self, articleUrl):
         self.driver.get(articleUrl)
 
@@ -64,12 +60,9 @@ class EfarsasScrapper(BaseCrawler):
         return self.currentWrapper.find_element(*self.author_locator).find_element(By.CLASS_NAME, 'tdb-author-name').text
 
     def get_category(self, articleUrl):
-        #time.sleep(2)
-        #return articleUrl.split('/noticia/')[0].split('.com/')[1].replace('/' , '-')
         categories = []
         allCategories = self.currentWrapper.find_elements(*self.category_locator)
         for cat in allCategories:
-            #print ("Catego:" , cat.text.lower() , "\n")
             if cat.text.lower() not in ['verdadeiro', 'falso']:
                 categories.append(cat.text.lower())
         return categories
@@ -94,10 +87,6 @@ class EfarsasScrapper(BaseCrawler):
     def get_main_image_url(self):
         return self.currentWrapper.find_element(*self.image_locator).find_element(By.TAG_NAME, 'img').get_attribute('src') 
 
-
-
-
-
     def scrap_article(self, articleUrl):
         self.access_article(articleUrl)
         time.sleep(2)
@@ -121,13 +110,5 @@ class EfarsasScrapper(BaseCrawler):
         print(features)
 
 e = EfarsasScrapper(0)
-#Video no topo
-#G1.scrap_article("https://g1.globo.com/bemestar/coronavirus/noticia/2021/04/25/covid-19-ja-matou-mais-brasileiros-em-4-meses-de-2021-do-que-em-todo-ano-de-2020.ghtml")
-
-#Imagem no topo
 e.scrap_article("https://www.e-farsas.com/cachorro-se-teletransporta-para-nao-ser-atropelado.html")
-
 e.driver.quit()
-
-#Sem nada
-#G1.scrap_article("https://g1.globo.com/bemestar/vacina/noticia/2021/04/25/brasil-aplicou-ao-menos-uma-dose-de-vacina-contra-covid-em-mais-de-29-milhoes-de-pessoas-aponta-consorcio-de-veiculos-de-imprensa.ghtml") 

@@ -1,0 +1,21 @@
+Problema: eliminar do texto o link "Clique para assinar o canal da BBC News Brasil no YouTube" colocado em ALGUMAS reportagens, que usa a mesma classe que os paragrafos
+    Solução: encontrar dentro de cada item da classe pela tag 'p' presente em todos os paragrafos reais, a propaganda não tem
+
+Problema: eliminar subtitulos:
+    Solução: encontrar dentro de cada item da classe pela tag 'p' presente em todos os paragrafos reais, os subtitulos não tem
+
+Problema: eliminar do texto o link "Já assistiu aos nossos novos vídeos no YouTube? Inscreva-se no nosso canal!" que tem em todas as reportagens
+    Solução: verificar todas as strings para ver se são essa antes de inserir no dicionario.. necessario pois a estrutura do HTML dessa propagando é identica à de um paragrafo de texto qualquer...
+            inclusive muitos dos paragrafos normais tambem tem link então isso não é uma diferenciação valida ...
+            Alem disso eliminar o ultimo match não basta pois existem matches aleatorios com paragrafos vazio logo depois dessa propaganda, veja:
+                Trecho: Já assistiu aos nossos novos vídeos no YouTube? Inscreva-se no nosso canal! 
+
+                Trecho:  
+
+                Trecho:  
+
+                Trecho:  
+
+https://www.bbc.com/portuguese/geral-53681929
+Problema: string "Escute esta reportagem em áudio neste link."
+    Solução: não existe pois isso é algo manualmente inserior pelo reporter.. apenas um paragrafo com um texto

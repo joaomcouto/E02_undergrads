@@ -75,8 +75,6 @@ class BBCScrapper(BaseCrawler):
     def get_subtitle(self):
         return "NULL"
 
-        
-    
     def get_title(self):
         return self.currentWrapper.find_element(*self.title_locator).text
         
@@ -86,8 +84,6 @@ class BBCScrapper(BaseCrawler):
 
     def get_category(self, articleUrl):
         return articleUrl.split('portuguese/')[1].split('-')[0]
-
-
     
     def get_main_wrapper(self, articleUrl):
         self.currentWrapper = self.driver.find_element(*self.main_wrapper_locator)
@@ -127,11 +123,7 @@ class BBCScrapper(BaseCrawler):
         print(features)
 
 b = BBCScrapper(0)
-#Video no topo
-#G1.scrap_article("https://g1.globo.com/bemestar/coronavirus/noticia/2021/04/25/covid-19-ja-matou-mais-brasileiros-em-4-meses-de-2021-do-que-em-todo-ano-de-2020.ghtml")
-
-#Imagem no topo
 b.scrap_article("https://www.bbc.com/portuguese/geral-53681929")
+b.driver.quit()
 
-#Sem nada
-#G1.scrap_article("https://g1.globo.com/bemestar/vacina/noticia/2021/04/25/brasil-aplicou-ao-menos-uma-dose-de-vacina-contra-covid-em-mais-de-29-milhoes-de-pessoas-aponta-consorcio-de-veiculos-de-imprensa.ghtml") 
+

@@ -33,8 +33,6 @@ class G1Scrapper(BaseCrawler):
         self.fonte = "G1"
         self.video_locator = (By.CLASS_NAME, "content-video__placeholder")
 
-
-
     def access_article(self, articleUrl):
         self.driver.get(articleUrl)
 
@@ -52,20 +50,15 @@ class G1Scrapper(BaseCrawler):
     def get_subtitle(self):
         return self.currentWrapper.find_element(*self.subtitle_locator).text
         
-    
     def get_title(self):
         return self.currentWrapper.find_element(*self.title_locator).text
         
-
     def get_author(self):
         return self.currentWrapper.find_element(*self.author_locator).get_attribute('title')
 
     def get_category(self, articleUrl):
-        #time.sleep(2)
         return articleUrl.split('/noticia/')[0].split('.com/')[1].replace('/' , '-')
-        #return self.currentWrapper.find_element(*self.category_locator).text
 
-    
     def get_main_wrapper(self, articleUrl):
         self.currentWrapper = self.driver.find_element(*self.main_wrapper_locator)
 
@@ -89,14 +82,6 @@ class G1Scrapper(BaseCrawler):
             return block0.find_element(*self.image_locator).get_attribute('src') 
         else:
             return "NULL"
-
-        #images = []
-        #images = self.currentWrapper.find_elements(*self.image_locator)
-        #return images[0].get_attribute('src')
-        #for image in images:
-
-
-
 
     def scrap_article(self, articleUrl):
         self.access_article(articleUrl)
