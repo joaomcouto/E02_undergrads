@@ -25,12 +25,40 @@ def insert_multiple_news(type, collected_data):
         raise e
 
 
-def select_urls():
+def insert(type, source, collected_data, year=0, month=0):
+    source_folder = os.environ.get('DATABASE') + source + '/'
+    if type == 'checking':
+        file_path = source_folder + str(year) + f'/{source}-{year}-{month}.json'
+    elif type == 'error':
+        file_path = source_folder + 'not_collected.json'
+    else:
+        raise 'DataBase error(Invalid type for select_urls on json database file)'
+    try:
+        # Verify if file doesn't exist
+        if not os.path.exists(file_path):
+            with open(file_path, 'w') as outfile:
+                json.dump({}, outfile)
+            current_json = {}
+        # Load file data if already exists
+        else:
+            with open(file_path) as old_json:
+                current_json = json.load(old_json)
+        # Saving the new data
+        current_json.update(collected_data)
+        with open(file_path, mode='w') as f:
+            f.write(json.dumps(current_json, indent=2))
+    except Exception as e:
+        print("Problem on passing news to json database")
+        raise e
+
+
+def select_urls(source):
     """
     Select all urls from a json database file.
     """
     try:
-        with open(os.environ.get('URLS_DB')) as json_data:
+        file_path = os.environ.get('URLS_DB') + 'urls_' + source + '.txt'
+        with open(file_path) as json_data:
             data = json.load(json_data)
         return data
     except Exception as e:
