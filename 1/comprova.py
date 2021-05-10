@@ -21,14 +21,17 @@ class Comprova():
 		self.main_wrapper_locator = (By.CLASS_NAME, 'site-main')
 	def crawl_info(self,url):
 		driver = webdriver.Firefox()
-		infos = {'Titulo' : '', 
-				'Texto': '',
-				'Categoria':'',
-				'Data':'',
-				'Imagem':'',
-				'Veredito':'',
-				'Html':'',
-				'Url':''}
+		infos = {'Titulo':'',
+			'Subtitulo': '',
+			'Data':'',
+			'Texto':'',
+			'Imagem':'',
+			'Video':'',
+			'VideoChecagem':'',
+			'Categorias':'',
+			'Vereditos':'',
+			'Url':'',
+			'HTML':''}
 
 		driver.get(url.strip())
 
@@ -36,17 +39,20 @@ class Comprova():
 		button = WebDriverWait(driver, 30).until(EC.presence_of_element_located(self.button_locator))
 		driver.execute_script("arguments[0].click();", button)
 		time.sleep(1)
-		main_txt = wrapper.find_element(*self.text_locator).text
+		main_txt = wrapper.find_element(*self.text_locator)
 	
 
 		infos['Titulo'] = wrapper.find_element(*self.title_locator).text
-		infos["Texto"]  = wrapper.find_element(*self.header_text_locator).text +'\n'+ main_txt
+		infos["Texto"]  = wrapper.find_element(*self.header_text_locator).text +'\n'+ main_txt.text
 		infos['Categoria'] = wrapper.find_element(*self.category_locator).text
-		infos['Imagem'] = wrapper.find_element(*self.image_locator).get_attribute('src')
 		infos['Veredito'] = wrapper.find_element(*self.verdict_locator).text
 		infos['Url'] = driver.current_url
 		infos['Data'] = wrapper.find_element(*self.date_locator).text
-		infos['Html'] = driver.page_source
+		#infos['Html'] = driver.page_source
+		try:
+			infos['Imagem'] = main_txt.find_element(*self.image_locator).get_attribute('src')
+		except NoSuchElementException:
+			infos['Imagem'] = 'None'
 		driver.close()
 		return infos
 

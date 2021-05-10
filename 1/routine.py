@@ -26,7 +26,7 @@ def list_to_txt(urls,agency):
 	d_file = open(d_filename,"w")
 	r_file.write(str(len(urls))+'\n') 
 	#r_file.write(str(date.today())+'\n')
-	if agency == 'estadao_verifica'
+	if agency == 'estadao_verifica':
 		last_url = urls[2]
 	else:
 		last_url = urls[0]
@@ -346,9 +346,10 @@ class Estadao_verifica():
 	def __init__(self):
 		self.__baseUrl = 'https://politica.estadao.com.br/blogs/estadao-verifica/'
 		self.feed_class = (By.CLASS_NAME,"paged-content")
-		self.news_class = (By.CLASS_NAME,"col-md-6")
+		self.news_class = (By.CSS_SELECTOR, ".col-md-6:nth-child(2)")#(By.CLASS_NAME,"col-md-6")
 		self.button_class = (By.CSS_SELECTOR, ".more-list-news") 
-		self.n_max_clicks = 4
+		self.thumb_img_locator = (By.TAG_NAME, 'img')
+		self.n_max_clicks = 180
 	def crawler_news(self,last_url):
 		urls_list = []
 		driver = webdriver.Firefox()
@@ -368,13 +369,14 @@ class Estadao_verifica():
 		news = driver.find_elements(*self.news_class)
 		for n in news:
 			url = n.find_element_by_tag_name('a').get_attribute('href')
+			img_link = n.find_element(*self.thumb_img_locator).get_attribute('src')
 			if url == last_url:
 				driver.close()
 				return urls_list
 			if url == 'javascript:void(0);' or url == '0':
 				pass
 			else:	
-				urls_list.append(url)
+				urls_list.append((url,img_link))
 		driver.close()
 		return urls_list
 
@@ -400,9 +402,17 @@ EV = Estadao_verifica()
 #C.execute_routine()
 #B.execute_routine()
 #F.execute_routine()
-E.execute_routine()
+#E.execute_routine()
+
+lista = EV.crawler_news(' ')
 
 
+file = open("Urls/urls_estadao_verifica_com_thumb.txt",'w')
+file.write(str(len(lista))+'\n')
+for line in lista:
+	file.write(str(line) +'\n')
+	print('Escreveu!')
+file.close()
 	
 
 

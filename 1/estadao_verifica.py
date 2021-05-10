@@ -6,6 +6,55 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
 
+
+import io
+import requests
+import pytesseract
+from PIL import Image
+
+def extract_text_from_image(image_link):
+    #inFile = Image.open(image_name)
+    #text = pytesseract.image_to_string(inFile, lang='eng')
+
+    response = requests.get(image_link)
+    img = Image.open(io.BytesIO(response.content))
+    
+    box_cntx1 = (181,67,322,133) #usar falso2 para pegar 'fora de'
+    box_cntx2 = (164,61,314,120)
+    box_falso1 = (218,87,325,117)
+    box_falso2 = (182,62,322,103)
+    box_enganoso1 = (163,84,330,121)
+    box_enganoso2 = (150,57,311,86)
+    
+    crop1 = img.crop(box_falso1)
+    crop2 = img.crop(box_falso2)
+    text1 = pytesseract.image_to_string(crop1)
+    text2 = pytesseract.image_to_string(crop2)
+    #print('1 -> ',text1.strip(),'2 ->', text2.strip())
+    if ("FALSO" in text1) or ("FALSO" in text2):
+        return "FALSO"
+    elif ("FORA" in text2):
+        return "FORA DE CONTEXTO"
+    else:
+        crop1 = img.crop(box_cntx1)
+        crop2 = img.crop(box_cntx2)
+        text1 = pytesseract.image_to_string(crop1)
+        text2 = pytesseract.image_to_string(crop2)
+        #print('1 -> ',text1.strip(),'2 ->', text2.strip())
+        if ("FORA" in text1) or ("FORA" in text2) or ("CONTEXTO" in text1) or ("CONTEXTO" in text2):
+            return "FORA DE CONTEXTO"
+        else:
+            crop1 = img.crop(box_enganoso1)
+            crop2 = img.crop(box_enganoso2)
+            text1 = pytesseract.image_to_string(crop1)
+            text2 = pytesseract.image_to_string(crop2)
+            #print('1 -> ',text1.strip(),'2 ->', text2.strip())
+            if ("ENGANOSO" in text1 ) or ("ENGANOSO" in text2):
+                return "ENGANOSO"
+            else:
+                return "None"
+
+
 class Estadao_Verifica():
 
 	def __init__(self):
@@ -15,7 +64,7 @@ class Estadao_Verifica():
 		self.author_locator = "data-credito"
 		self.date_locator = (By.CLASS_NAME,"n--noticia__state")
 		self.image_locator = (By.TAG_NAME,'img')
-		#self.verdict_locator = ?
+		self.subtitle_locator = (By.CLASS_NAME,'n--noticia__subtitle')
 		self.wrapper_locator = (By.XPATH,"//section[contains(@class,'n--noticia')]")
 	def month2num(self, month):
 		if month == 'janeiro':
@@ -65,21 +114,31 @@ class Estadao_Verifica():
 		if text.count(',') > 1 :
 			return text.strip()
 			
-	def scrapper(self, url):
+	def scrapper(self, links):
 		infos = {'Titulo':'',
+			'Subtitulo': '',
 			'Data':'',
-			'Autor':'',
 			'Texto':'',
 			'Imagem':'',
-			'Veredito':'',
+			'Video':'',
+			'VideoChecagem':'',
+			'Categorias':'',
+			'Vereditos':'',
 			'Url':'',
-			'Html':''}
+			'HTML':''}
+
+		url,img_link = links.split(',')
+		url = url[2:-2]
+		img_link = img_link[2:-3]
+
 		driver = webdriver.Firefox()
 		driver.get(url)
+		infos['Veredito'] = extract_text_from_image(img_link)  
 		wrapper = driver.find_element(*self.wrapper_locator)
 		date = wrapper.find_element(*self.date_locator).text
 		infos['Data'] = self.convert_date(date)
 		infos['Titulo'] = wrapper.get_attribute(self.title_locator)
+		infos['Subtitulo'] = wrapper.find_element(*self.subtitle_locator).text
 		infos['Autor']  = self.author_extract(wrapper.get_attribute(self.author_locator))
 		infos['Texto']  = wrapper.find_element(*self.text_locator).text
 		infos['Imagem'] = wrapper.find_element(*self.image_locator).get_attribute('src')
@@ -90,12 +149,4 @@ class Estadao_Verifica():
 
 
 
-
 EV =  Estadao_Verifica()
-u_1_comma  = 'https://politica.estadao.com.br/blogs/estadao-verifica/e-falso-que-ex-apresentador-tenha-vazado-diretrizes-da-globo-para-criticar-bolsonaro/'
-u_m_author = 'https://politica.estadao.com.br/blogs/estadao-verifica/em-discurso-na-cupula-do-clima-bolsonaro-distorce-dados-sobre-preservacao-ambiental/'
-u_1_author = 'https://politica.estadao.com.br/blogs/estadao-verifica/requisicao-de-ambulancias-pelo-governo-da-bahia-esta-previsto-na-constituicao/'
-u_2_author = 'https://politica.estadao.com.br/blogs/estadao-verifica/e-falso-que-tv-tenha-simulado-enterro-para-causar-panico-no-espirito-santo/'
-u_sus = 'https://politica.estadao.com.br/blogs/estadao-verifica/video-de-lula-e-editado-para-parecer-que-ex-presidente-comemorou-bebado-decisao-de-fachin/'
-d = EV.scrapper(u_sus) 
-print(d)
