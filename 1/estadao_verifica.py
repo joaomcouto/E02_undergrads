@@ -76,6 +76,7 @@ class Estadao_Verifica():
 		self.subtitle_locator = (By.CLASS_NAME,'n--noticia__subtitle')
 		self.wrapper_locator = (By.XPATH,"//section[contains(@class,'n--noticia')]")
 		self.tags_locator = (By.CLASS_NAME,"n--noticias__tags__link")
+		self.agency = 'estadao_verifica'
 	def month2num(self, month):
 		if month == 'janeiro':
 			return 1
@@ -128,7 +129,7 @@ class Estadao_Verifica():
 			text = text[0]
 			return (text.strip()).split(',')
 		if text.count(',') > 1 :
-			return (text.strip()).slipt(',')
+			return (text.strip()).split(',')
 			
 	def scrapper(self, links):
 		infos = {
@@ -182,7 +183,7 @@ class Estadao_Verifica():
 		return infos
 
 	def saving(self,dict_data):
-		date = d['publication_date']
+		date = dict_data['publication_date']
 		date = date.split('-')
 		year = date[0]
 		month = date[1]
@@ -206,15 +207,18 @@ class Estadao_Verifica():
 		file.close()
 
 	def execute(self):
-		file_path = 'Urls/urls_estadao_verifica.txt'
-		file = (file_path, 'r')
-		for line in file:
-			D = scrapper(line)
-			self.saving(D)
-			print('Pagina coletada!')
+		file_path = 'URLS/urls_'+self.agency+'.txt'
+		with open(file_path,'r') as file:
+			for line in file:
+				data = json.loads(line)
+				try:
+					D = self.scrapper(data['url'])
+					self.saving(D)
+					print('Pagina coletada!')
+				except Exception as ex:
+					with open('exceptions_estadao.txt','a') as except_file:
+						except_file.write(data['url']+' -'+str(ex)+'-\n')
 
 
 EV =  Estadao_Verifica()
-url ="('https://politica.estadao.com.br/blogs/estadao-verifica/para-inflar-manifestacoes-pro-bolsonaro-posts-tiram-de-contexto-reportagem-sobre-protesto-de-2015/', 'https://politica.estadao.com.br/blogs/crop/360x203/estadao-verifica/wp-content/uploads/sites/690/2021/05/copiadeestadao-verifica-cards3_020520213236.png')"
-d = EV.scrapper(url)
-EV.saving(d)
+EV.execute()

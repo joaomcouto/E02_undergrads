@@ -28,9 +28,10 @@ class Comprova():
 		self.category_locator =(By.CLASS_NAME,'answer__term')
 		self.verdict_locator = (By.CLASS_NAME,'answer__tag')
 		self.main_wrapper_locator = (By.CLASS_NAME, 'site-main')
+		self.agency = 'comprova'
 
 	def saving(self,dict_data):
-		date = d['publication_date']
+		date = dict_data['publication_date']
 		date = date.split('-')
 		year = date[0]
 		month = date[1]
@@ -40,11 +41,17 @@ class Comprova():
 
 	def execute(self):
 		file_path = 'URLS/urls_'+self.agency+'.txt'
-		file = (file_path, 'r')
-		for line in file:
-			D = scrapper(line)
-			self.saving(D)
-			print('Pagina coletada!')
+		with open(file_path,'r') as file:
+			for line in file:
+				data = json.loads(line)
+				try:
+					D = self.scrapper(data['url'])
+					self.saving(D)
+					print('Pagina coletada!')
+				except:
+					with open('exeptions_comprova.txt','a') as except_file:
+						except_file.write(data['url'] + '\n')
+
 
 	def convert_date(self,text):
 		date_text = text.split('-')
@@ -103,9 +110,6 @@ class Comprova():
 		return infos
 
 C = Comprova()
-u = 'https://projetocomprova.com.br/publica%C3%A7%C3%B5es/video-deturpa-informacoes-sobre-a-atuacao-do-governo-na-preservacao-da-amazonia/'
-#u2 = 'https://projetocomprova.com.br/publica%C3%A7%C3%B5es/media-de-mortes-em-2020-nao-foi-menor-que-em-2019/'
-d = C.scrapper(u)
-C.saving(d)
+C.execute()
 
 
