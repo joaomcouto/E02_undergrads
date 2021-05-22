@@ -2,6 +2,9 @@ import os
 import env
 import sys
 import time
+import hashlib
+import json
+from datetime import datetime
 
 from news_crawler.base_crawler import BaseCrawler
 
@@ -79,17 +82,43 @@ class BBCScrapper(BaseCrawler):
         return self.currentWrapper.find_element(*self.title_locator).text
         
 
-    def get_author(self):
-        return self.currentWrapper.find_element(*self.author_locator).text.replace('\n', ' ')
+    def get_author(self): #Algumas noticias na BBC nao tem autor vide https://www.bbc.com/portuguese/internacional-57143976
+        try:
+            return self.currentWrapper.find_element(*self.author_locator).text.replace('\n', ' ')
+        except:
+            return "NULL"
 
     def get_category(self, articleUrl):
-        return articleUrl.split('portuguese/')[1].split('-')[0]
+        return [articleUrl.split('portuguese/')[1].split('-')[0]]
     
     def get_main_wrapper(self, articleUrl):
         self.currentWrapper = self.driver.find_element(*self.main_wrapper_locator)
 
     def get_date(self):
-        return self.currentWrapper.find_element(*self.date_locator).text
+        rawDate = str(self.currentWrapper.find_element(*self.date_locator).text.split('\n')[0])
+        mapper = {
+                'janeiro': 1,
+                'fevereiro': 2,
+                'março': 3,
+                'abril': 4,
+                'maio': 5,
+                'junho': 6,
+                'julho': 7,
+                'agosto': 8,
+                'setembro': 9,
+                'outubro': 10,
+                'novembro': 11,
+                'dezembro': 12
+            }
+        rawDay,rawMonth,rawYear = rawDate.split(" ")
+        rawMonth = mapper[rawMonth]
+
+        data_publicacao = datetime( year=int(rawYear),
+                                    month=int(rawMonth), 
+                                    day=int(rawDay))
+        publication_date = data_publicacao.strftime('%Y-%m-%d %H:%M:%S')
+
+        return publication_date 
   
     def get_main_video_url(self):
         return "NULL"
@@ -108,22 +137,44 @@ class BBCScrapper(BaseCrawler):
         self.get_main_wrapper(articleUrl)
 
         features = dict()
-        features['Titulo'] = self.get_title()
-        features['Subtitulo'] = self.get_subtitle() #BBC não tem titulo
-        features['Data'] = self.get_date()
-        features['URL'] = articleUrl
-        features['Fonte'] = self.fonte
-        features['Texto'] = self.get_text()
-        features['Imagem'] = self.get_main_image_url()
-        features['Video'] = self.get_main_video_url() #BBC não tem video principal
-        features['Autor'] = self.get_author()
-        features['Categoria'] = self.get_category(articleUrl)
-        features['Tipo'] = self.type
+        features['url'] = articleUrl
+        features['source_name'] = self.fonte
+        features['title'] = self.get_title()
+        features['subtitle'] = self.get_subtitle()
         
-        print(features)
+        features['publication_date'] = self.get_date()
+        
+        
+        features['text_news'] = self.get_text()
+        features['image_link'] = self.get_main_image_url()
+        features['video_link'] = self.get_main_video_url()
+        features['authors'] = self.get_author()
+        features['categories'] = self.get_category(articleUrl)
+
+        features['obtained_at'] = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
+
+        features['raw_file_name'] = self.html_file_name(articleUrl)
+        self.save_html(features)
+
+        return features
+
+    def append_article_to_txt(self, features):
+        file_path = os.getenv('PROJECT_DIR') + "/BBC/COLETA/" + features['source_name'].lower() + "_" + '_'.join(features['publication_date'].split('-')[0:2]) + ".txt"
+        with open(file_path, mode='a', encoding='utf-8') as f:
+            f.write(json.dumps(features, ensure_ascii=False) + '\n')
+    
+    def html_file_name(self,url):
+        return hashlib.sha1(url.encode()).hexdigest()+ ".html"
+
+    def save_html(self, features):
+        file_path = os.getenv('PROJECT_DIR') + "/BBC/HTML/" + features['raw_file_name'] 
+        with open(file_path, mode='w', encoding='utf-8') as f:
+            f.write(self.driver.page_source)
 
 b = BBCScrapper(0)
-b.scrap_article("https://www.bbc.com/portuguese/geral-53681929")
-b.driver.quit()
+data = b.scrap_article("https://www.bbc.com/portuguese/internacional-57143976")
+b.append_article_to_txt(data)
+b.driver.close()
+
 
 
