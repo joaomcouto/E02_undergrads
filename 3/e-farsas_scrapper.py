@@ -2,6 +2,9 @@ import os
 import env
 import sys
 import time
+import json
+import hashlib
+from datetime import datetime
 
 from news_crawler.base_crawler import BaseCrawler
 
@@ -30,8 +33,9 @@ class EfarsasScrapper(BaseCrawler):
         self.veredict_locator = (By.CLASS_NAME,'tdb-entry-category')
         self.main_wrapper_locator = (By.ID, 'tdi_59')
         self.date_locator = (By.CLASS_NAME, 'td_block_wrap.tdb_single_date.tdi_72.td-pb-border-top.td_block_template_1.tdb-post-meta')
+        self.tags_locator = (By.CLASS_NAME, 'tdb-tags')
         self.type = "checagem"
-        self.fonte = "e-farsas"
+        self.fonte = "efarsas"
         #self.video_locator = (By.CLASS_NAME, "content-video__placeholder")
 
     def access_article(self, articleUrl):
@@ -57,9 +61,9 @@ class EfarsasScrapper(BaseCrawler):
         
 
     def get_author(self):
-        return self.currentWrapper.find_element(*self.author_locator).find_element(By.CLASS_NAME, 'tdb-author-name').text
+        return [self.currentWrapper.find_element(*self.author_locator).find_element(By.CLASS_NAME, 'tdb-author-name').text]
 
-    def get_category(self, articleUrl):
+    def get_category(self):
         categories = []
         allCategories = self.currentWrapper.find_elements(*self.category_locator)
         for cat in allCategories:
@@ -67,18 +71,51 @@ class EfarsasScrapper(BaseCrawler):
                 categories.append(cat.text.lower())
         return categories
 
+    def get_tags(self):
+        tags = []
+        tagsElement = self.currentWrapper.find_element(*self.tags_locator)
+        allTags = tagsElement.find_elements(By.TAG_NAME, 'li')
+        for tag in allTags:
+            if tag.text.lower() not in ['tags']:
+                tags.append(tag.text.lower())
+        return tags
+
+
     def get_veredict(self):
         allCategories = self.currentWrapper.find_elements(*self.category_locator)
         for cat in allCategories:
             if cat.text.lower() in ['verdadeiro', 'falso']:
-                return cat.text.lower()
+                return [cat.text.lower()]
 
     
     def get_main_wrapper(self, articleUrl):
         self.currentWrapper = self.driver.find_element(*self.main_wrapper_locator)
 
     def get_date(self):
-        return self.currentWrapper.find_element(*self.date_locator).text
+        rawDate = self.currentWrapper.find_element(*self.date_locator).text
+        mapper = {
+            'janeiro': 1,
+            'fevereiro': 2,
+            'março': 3,
+            'abril': 4,
+            'maio': 5,
+            'junho': 6,
+            'julho': 7,
+            'agosto': 8,
+            'setembro': 9,
+            'outubro': 10,
+            'novembro': 11,
+            'dezembro': 12
+        }
+        rawDay,rawMonth,rawYear = rawDate.split(" de ")
+        rawMonth = mapper[rawMonth.lower()]
+
+        data_publicacao = datetime( year=int(rawYear),
+                                    month=int(rawMonth), 
+                                    day=int(rawDay))
+        publication_date = data_publicacao.strftime('%Y-%m-%d %H:%M:%S')
+
+        return publication_date 
 
     
     def get_main_video_url(self):
@@ -93,22 +130,38 @@ class EfarsasScrapper(BaseCrawler):
         self.get_main_wrapper(articleUrl)
 
         features = dict()
-        features['Titulo'] = self.get_title()
-        features['Subtitulo'] = self.get_subtitle()
-        features['Data'] = self.get_date()
-        features['URL'] = articleUrl
-        features['Fonte'] = self.fonte
-        features['Texto'] = self.get_text()
-        features['Imagem'] = self.get_main_image_url()
-        ##features['Texto']
-        features['Video'] = self.get_main_video_url()
-        features['Veredito'] = self.get_veredict()
-        features['Autor'] = self.get_author()
-        features['Categoria'] = self.get_category(articleUrl)
-        features['Tipo'] = self.type
+        features['url'] = articleUrl
+        features['source_name'] = self.fonte
+        features['title'] = self.get_title()
+        features['subtitle'] = self.get_subtitle()
+        features['publication_date'] = self.get_date()
+        features['text_news'] = self.get_text()
+        features['image_link'] = self.get_main_image_url()
+        features['video_link'] = self.get_main_video_url()
+        features['authors'] = self.get_author()
+        features['categories'] = self.get_category()
+        features['tags'] = self.get_tags()
+        features['obtained_at'] = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
+        features['rating'] = self.get_veredict()
+        features['raw_file_name'] = self.html_file_name(articleUrl)
+        self.save_html(features)
         
-        print(features)
+        return features
+
+    def append_article_to_txt(self, features):
+        file_path = os.getenv('PROJECT_DIR') + "/EFARSAS/COLETA/" + features['source_name'].lower() + "_" + '_'.join(features['publication_date'].split('-')[0:2]) + ".txt"
+        with open(file_path, mode='a', encoding='utf-8') as f:
+            f.write(json.dumps(features, ensure_ascii=False) + '\n')
+    
+    def html_file_name(self,url):
+        return hashlib.sha1(url.encode()).hexdigest()+ ".html"
+
+    def save_html(self, features):
+        file_path = os.getenv('PROJECT_DIR') + "/EFARSAS/HTML/" + features['raw_file_name'] 
+        with open(file_path, mode='w', encoding='utf-8') as f:
+            f.write(self.driver.page_source)
 
 e = EfarsasScrapper(0)
-e.scrap_article("https://www.e-farsas.com/cachorro-se-teletransporta-para-nao-ser-atropelado.html")
+data = e.scrap_article("https://www.e-farsas.com/cuba-adotou-com-sucesso-a-cloroquina-no-tratamento-de-pacientes-da-covid.html")
+e.append_article_to_txt(data)
 e.driver.quit()
