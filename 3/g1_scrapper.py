@@ -4,6 +4,7 @@ import sys
 import time
 import json
 import hashlib
+import logging
 from datetime import datetime
 
 from news_crawler.base_crawler import BaseCrawler
@@ -51,13 +52,19 @@ class G1Scrapper(BaseCrawler):
         return ret
 
     def get_subtitle(self):
-        return self.currentWrapper.find_element(*self.subtitle_locator).text
+        try:
+            return self.currentWrapper.find_element(*self.subtitle_locator).text
+        except:
+            return "NULL"
         
     def get_title(self):
         return self.currentWrapper.find_element(*self.title_locator).text
         
     def get_author(self):
-        return self.currentWrapper.find_element(*self.author_locator).get_attribute('title')
+        try:
+            return self.currentWrapper.find_element(*self.author_locator).get_attribute('title')
+        except:
+            return "NULL"
 
     def get_category(self, articleUrl):
         return articleUrl.split('/noticia/')[0].split('.com/')[1].split('/')#replace('/' , '-')
@@ -99,7 +106,7 @@ class G1Scrapper(BaseCrawler):
 
     def scrap_article(self, articleUrl):
         self.access_article(articleUrl)
-        time.sleep(2)
+       # time.sleep(3)
         self.get_main_wrapper(articleUrl)
 
         features = dict()
@@ -124,6 +131,7 @@ class G1Scrapper(BaseCrawler):
 
         return features
 
+
     def append_article_to_txt(self, features):
         file_path = os.getenv('PROJECT_DIR') + "/G1/COLETA/" + features['source_name'].lower() + "_" + '_'.join(features['publication_date'].split('-')[0:2]) + ".txt"
         with open(file_path, mode='a', encoding='utf-8') as f:
@@ -136,9 +144,36 @@ class G1Scrapper(BaseCrawler):
         file_path = os.getenv('PROJECT_DIR') + "/G1/HTML/" + features['raw_file_name'] 
         with open(file_path, mode='w', encoding='utf-8') as f:
             f.write(self.driver.page_source)
+
+    def scrap_urls_file(self, fileName, taskName):
+        LOG_FILENAME = os.getenv('PROJECT_DIR') + '/G1/LOG/' + taskName + '.log'
+        logging.basicConfig(filename=LOG_FILENAME, filemode ='w',level=logging.ERROR)
         
-        
+        with open(fileName) as f:
+            for url in f:
+                retry = 3
+                while(retry > 0):
+                    try:
+                        data = self.scrap_article(url)
+                        self.append_article_to_txt(data)
+                        retry = 3
+                        break
+                    except Exception as e:
+                        retry = retry - 1
+                        if retry ==0:
+                            logging.exception(url)
+        self.driver.close()
+                    
+
+start = time.time()
 G1 = G1Scrapper(0)
+G1.scrap_urls_file('G1/URL/G1_bemestar_coronavirus_historica_may_24.txt','historica')
+print("Total elapsed time:", time.time() -start)
+G1.driver.quit()
+
+        
+        
+#G1 = G1Scrapper(0)
 #Video no topo
 #data = G1.scrap_article("https://g1.globo.com/bemestar/coronavirus/noticia/2021/04/25/covid-19-ja-matou-mais-brasileiros-em-4-meses-de-2021-do-que-em-todo-ano-de-2020.ghtml")
 #G1.append_article_to_txt(data)
@@ -151,7 +186,7 @@ G1 = G1Scrapper(0)
 #G1.append_article_to_txt(data)
 #G1.scrap_article("") 
 
-data = G1.scrap_article("https://g1.globo.com/bemestar/coronavirus/noticia/2021/05/21/numero-de-mortes-na-pandemia-pode-ser-ate-tres-vezes-maior-do-que-o-registrado-aponta-relatorio-da-oms.ghtml")
-G1.append_article_to_txt(data)
-G1.driver.close()
+#data = G1.scrap_article("https://g1.globo.com/bemestar/coronavirus/noticia/2021/05/21/numero-de-mortes-na-pandemia-pode-ser-ate-tres-vezes-maior-do-que-o-registrado-aponta-relatorio-da-oms.ghtml")
+#G1.append_article_to_txt(data)
+#G1.driver.close()
 
