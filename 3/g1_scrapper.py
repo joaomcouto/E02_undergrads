@@ -133,7 +133,7 @@ class G1Scrapper(BaseCrawler):
 
 
     def append_article_to_txt(self, features):
-        file_path = os.getenv('PROJECT_DIR') + "/G1/COLETA/" + features['source_name'].lower() + "_" + '_'.join(features['publication_date'].split('-')[0:2]) + ".txt"
+        file_path = os.getenv('DATA_DIR') + "/G1/COLETA/" + features['source_name'].lower() + "_" + '_'.join(features['publication_date'].split('-')[0:2]) + ".txt"
         with open(file_path, mode='a', encoding='utf-8') as f:
             f.write(json.dumps(features, ensure_ascii=False) + '\n')
     
@@ -141,12 +141,12 @@ class G1Scrapper(BaseCrawler):
         return hashlib.sha1(url.encode()).hexdigest()+ ".html"
 
     def save_html(self, features):
-        file_path = os.getenv('PROJECT_DIR') + "/G1/HTML/" + features['raw_file_name'] 
+        file_path = os.getenv('DATA_DIR') + "/G1/HTML/" + features['raw_file_name'] 
         with open(file_path, mode='w', encoding='utf-8') as f:
             f.write(self.driver.page_source)
 
     def scrap_urls_file(self, fileName, taskName):
-        LOG_FILENAME = os.getenv('PROJECT_DIR') + '/G1/LOG/' + taskName + '.log'
+        LOG_FILENAME = os.getenv('DATA_DIR') + '/G1/LOG/' + taskName + '.log'
         logging.basicConfig(filename=LOG_FILENAME, filemode ='w',level=logging.ERROR)
         
         with open(fileName) as f:
