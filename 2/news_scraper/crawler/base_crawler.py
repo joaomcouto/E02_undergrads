@@ -10,7 +10,6 @@ class BaseCrawler:
     """
 
     def __init__(self, browser="chrome_headless"):
-
         # Browser headless, for automatic execution
         if browser == "chrome_headless":
             driver_dir = os.environ.get('CHROME')
@@ -43,3 +42,6 @@ class BaseCrawler:
         chrome_options.add_argument('--disable-software-rasterizer')
 
         return chrome_options
+
+    def close_connection(self):
+        self.driver.close()
