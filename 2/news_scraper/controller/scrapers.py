@@ -1,4 +1,5 @@
 from crawler.custom.lupa_scraper import LupaScraper
+from crawler.custom.aosfatos_scraper import AosFatosScraper
 from crawler.outline import Outline
 from repository.json_db import insert
 from repository.json_db import select_urls
@@ -13,55 +14,50 @@ def routine_scraper():
     pass
 
 
-def historic_scraper(source, save_rate):
+def historic_scraper(source):
     """
     Controller responsible for executing data collector on historic URLs.
     """
     # Get urls
     urls = select_urls(source)['urls']
-    # Initialize variables
+    # Initialize time lists
     time_success = []
     time_failure = []
-    scraped_data = {}
-    scraped_htmls = {}
-    errors = {}
-    current_month = 0
     # Initialize scraper instance
     if source == 'lupa':
         scraper = LupaScraper()
+    elif source == 'aosfatos':
+        scraper = AosFatosScraper()
     else:
         scraper = Outline()
     # Execute
     initial_time = time.time()
-    for idx, url in enumerate(urls):
+    for url in urls:
         partial_time = time.time()
         try:
             # Execute scraper
-            year, month, data, html = scraper.execute(url)
+            year, month, data, html = scraper.execute(url, source)
             time_success.append(int(round(abs(partial_time - time.time()), 0)))
-            # Every 'save_rate' executions or if the month changes, it saves the collected data
-            if idx % save_rate == 0 or current_month != month:
-                current_month = month
-                # Insert collected data into database
-                insert(
-                    type='checking',
-                    source=source,
-                    collected_data=scraped_data,
-                    year=year,
-                    month=month,
-                    url_htmls=scraped_htmls
-                    )
-                insert(type='error', source=source, collected_data=errors)
-                # Clears the dictionaries for new scraped data
-                scraped_data = {}
-                scraped_htmls = {}
-                errors = {}
-            scraped_data.update(data)
-            scraped_htmls.update({url: html})
+            # Insert collected data into database
+            insert(
+                url='url',
+                type='checking',
+                source=source,
+                collected_data=data,
+                html=html,
+                year=year,
+                month=month
+                )
+            time_success.append(int(round(abs(partial_time - time.time()), 0)))
         except Exception as e:
             # If a exception is raised during the research, the Exception
             # is saved with the url as keY.
-            errors.update({url: str(e)})
+            insert(
+                url=url,
+                type='error',
+                source=source,
+                collected_data={url: str(e)}
+                )
             time_failure.append(int(round(abs(partial_time - time.time()), 0)))
     scraper.close_connection()
     full_time = int(round(abs(initial_time - time.time()), 0))
