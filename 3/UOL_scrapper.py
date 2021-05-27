@@ -2,6 +2,9 @@ import os
 import env
 import sys
 import time
+from datetime import datetime
+import hashlib
+import json
 
 from news_crawler.base_crawler import BaseCrawler
 
@@ -13,6 +16,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.chrome.options import Options
+
+class UOLVideoException(Exception):
+    pass
 
 class UOLScrapper(BaseCrawler):
     def __init__(self,interface):
@@ -33,8 +39,6 @@ class UOLScrapper(BaseCrawler):
         self.fonte = "UOL"
         #self.video_locator = (By.CLASS_NAME, "content-video__placeholder")
 
-
-
     def access_article(self, articleUrl):
         self.driver.get(articleUrl)
 
@@ -44,7 +48,7 @@ class UOLScrapper(BaseCrawler):
         trechos = texto.find_elements(By.TAG_NAME, 'p')
         for trecho in trechos:
             if (len(trecho.text) > 20):  #Necessario para reduzir chances de captar lixo
-                try:
+                try: #Necessario para conseguir identificar quotes e botar as aspas necessarias
                     trecho.find_element(By.TAG_NAME, 'cite')
                     ret+= '"'
                     ret+= (trecho.text)
@@ -53,17 +57,11 @@ class UOLScrapper(BaseCrawler):
                 except:
                     ret+= (trecho.text)
                     ret+= " " 
-                #print(trecho.text)
-                #print(len(trecho.text), "\n")
-                
-            
         return ret
 
     def get_subtitle(self):
         return "NULL"
-        #return self.currentWrapper.find_element(*self.subtitle_locator).text
-        
-    
+
     def get_title(self):
         return self.currentWrapper.find_element(*self.title_locator).text
         
@@ -72,75 +70,84 @@ class UOLScrapper(BaseCrawler):
         return self.currentWrapper.find_element(*self.author_locator).text
 
     def get_category(self, articleUrl):
-        #time.sleep(2)
-        return articleUrl.split('.br/')[1].split('/')[0]
-        #return self.currentWrapper.find_element(*self.category_locator).text
+        return [articleUrl.split('.br/')[1].split('/')[0]]
 
-    
     def get_main_wrapper(self, articleUrl):
         self.currentWrapper = self.driver.find_element(*self.main_wrapper_locator)
 
     def get_date(self):
-        ret = self.currentWrapper.find_element(*self.date_locator).text
-        index = ret.find("Atu")
-        ret = ret[:index] + " " + ret[index:]
-        return ret
-  
+        rawDate = self.currentWrapper.find_element(*self.date_locator).text
+        index = rawDate.find("Atu")
+        rawDate, rawTime= rawDate[:index].split(" ")
+
+        rawDay,rawMonth,rawYear = rawDate.split("/")
+        rawHour, rawMinute = rawTime.split("h")
+
+        data_publicacao = datetime( year=int(rawYear),
+                                    month=int(rawMonth), 
+                                    day=int(rawDay),
+                                    hour=int(rawHour),
+                                    minute=int(rawMinute))
+        publication_date = data_publicacao.strftime('%Y-%m-%d %H:%M:%S')
+
+        return publication_date 
+
     def get_main_video_url(self):
         return "NULL"
-    #    block0 = self.currentWrapper.find_element(By.XPATH , '//div[@data-block-id="0"]')
-
-        #if (block0.get_attribute('data-block-type') == 'backstage-video'):
-         #   return "globoplay.globo.com/v/" + block0.find_element(*self.video_locator).get_attribute('data-video-id') 
-        #else:
-        #    return "NULL"
-        #pass
 
     def get_main_image_url(self):
         img = self.currentWrapper.find_element(*self.image_locator)
         return img.find_element(By.TAG_NAME,'img').get_attribute('src')
 
-   #     block0 = self.currentWrapper.find_element(By.XPATH , '//div[@data-block-id="0"]')
-
-    #    if (block0.get_attribute('data-block-type') == 'backstage-photo'):
-     #       return block0.find_element(*self.image_locator).get_attribute('src') 
-     #   else:
-      #      return "NULL"
-
-        #images = []
-        #images = self.currentWrapper.find_elements(*self.image_locator)
-        #return images[0].get_attribute('src')
-        #for image in images:
-
-
-
-
     def scrap_article(self, articleUrl):
+        if("/video" in articleUrl):
+            raise UOLVideoException("Artigos 'video' do UOL são apenas links para o YT deles, não coletaremos. Trate essa excessão para dar continuidade à coleta!")
         self.access_article(articleUrl)
         time.sleep(2)
         self.get_main_wrapper(articleUrl)
 
         features = dict()
-        features['Titulo'] = self.get_title()
-        features['Subtitulo'] = self.get_subtitle()
-        features['Data'] = self.get_date()
-        features['URL'] = articleUrl
-        features['Fonte'] = self.fonte
-        features['Texto'] = self.get_text()
-        features['Imagem'] = self.get_main_image_url()
-        features['Video'] = self.get_main_video_url()
-        features['Autor'] = self.get_author()
-        features['Categoria'] = self.get_category(articleUrl)
-        features['Tipo'] = self.type
+        features['url'] = articleUrl
+        features['source_name'] = self.fonte
+        features['title'] = self.get_title()
+        features['subtitle'] = self.get_subtitle()
         
-        print(features)
+        features['publication_date'] = self.get_date()
+        
+        
+        features['text_news'] = self.get_text()
+        features['image_link'] = self.get_main_image_url()
+        features['video_link'] = self.get_main_video_url()
+        features['authors'] = self.get_author()
+        features['categories'] = self.get_category(articleUrl)
+
+        features['obtained_at'] = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
+
+        features['raw_file_name'] = self.html_file_name(articleUrl)
+        self.save_html(features)
+
+        return features
+
+    def append_article_to_txt(self, features):
+        file_path = os.getenv('PROJECT_DIR') + "/UOL/COLETA/" + features['source_name'].lower() + "_" + '_'.join(features['publication_date'].split('-')[0:2]) + ".txt"
+        with open(file_path, mode='a', encoding='utf-8') as f:
+            f.write(json.dumps(features, ensure_ascii=False) + '\n')
+    
+    def html_file_name(self,url):
+        return hashlib.sha1(url.encode()).hexdigest()+ ".html"
+
+    def save_html(self, features):
+        file_path = os.getenv('PROJECT_DIR') + "/UOL/HTML/" + features['raw_file_name'] 
+        with open(file_path, mode='w', encoding='utf-8') as f:
+            f.write(self.driver.page_source)
 
 u = UOLScrapper(0)
-#Video no topo
-#G1.scrap_article("https://g1.globo.com/bemestar/coronavirus/noticia/2021/04/25/covid-19-ja-matou-mais-brasileiros-em-4-meses-de-2021-do-que-em-todo-ano-de-2020.ghtml")
-
-#Imagem no topo
-u.scrap_article("https://noticias.uol.com.br/saude/ultimas-noticias/redacao/2021/05/03/3-onda-covid-sp-edson-aparecido.htm")
-
-#Sem nada
-#G1.scrap_article("https://g1.globo.com/bemestar/vacina/noticia/2021/04/25/brasil-aplicou-ao-menos-uma-dose-de-vacina-contra-covid-em-mais-de-29-milhoes-de-pessoas-aponta-consorcio-de-veiculos-de-imprensa.ghtml") 
+try:
+    data = u.scrap_article("https://noticias.uol.com.br/politica/ultimas-noticias/2021/05/22/aziz-bolsonaro-queria-que-eu-prendesse-wajngarten-e-acabasse-a-cpi.htm")
+except UOLVideoException:
+    print("Artigos 'video' do UOL são apenas links para o YT deles, não coletaremos.")
+else:    
+    u.append_article_to_txt(data)
+finally:
+    u.driver.close()
+    u.driver.quit()

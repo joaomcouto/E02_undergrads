@@ -2,6 +2,10 @@ import os
 import env
 import sys
 import time
+import json
+import hashlib
+import logging
+from datetime import datetime
 
 from news_crawler.base_crawler import BaseCrawler
 
@@ -33,8 +37,6 @@ class G1Scrapper(BaseCrawler):
         self.fonte = "G1"
         self.video_locator = (By.CLASS_NAME, "content-video__placeholder")
 
-
-
     def access_article(self, articleUrl):
         self.driver.get(articleUrl)
 
@@ -50,28 +52,40 @@ class G1Scrapper(BaseCrawler):
         return ret
 
     def get_subtitle(self):
-        return self.currentWrapper.find_element(*self.subtitle_locator).text
+        try:
+            return self.currentWrapper.find_element(*self.subtitle_locator).text
+        except:
+            return "NULL"
         
-    
     def get_title(self):
         return self.currentWrapper.find_element(*self.title_locator).text
         
-
     def get_author(self):
-        return self.currentWrapper.find_element(*self.author_locator).get_attribute('title')
+        try:
+            return self.currentWrapper.find_element(*self.author_locator).get_attribute('title')
+        except:
+            return "NULL"
 
     def get_category(self, articleUrl):
-        #time.sleep(2)
-        return articleUrl.split('/noticia/')[0].split('.com/')[1].replace('/' , '-')
-        #return self.currentWrapper.find_element(*self.category_locator).text
+        return articleUrl.split('/noticia/')[0].split('.com/')[1].split('/')#replace('/' , '-')
 
-    
     def get_main_wrapper(self, articleUrl):
         self.currentWrapper = self.driver.find_element(*self.main_wrapper_locator)
 
     def get_date(self):
-        return self.currentWrapper.find_element(*self.date_locator).text
-        pass
+        #print()self.currentWrapper.find_element(*self.date_locator).text.split(" ")
+        rawDate,rawTime = self.currentWrapper.find_element(*self.date_locator).text.split(" ")
+        rawDay,rawMonth,rawYear = rawDate.split("/")
+        rawHour, rawMinute = rawTime.split("h")
+
+        data_publicacao = datetime( year=int(rawYear),
+                                    month=int(rawMonth), 
+                                    day=int(rawDay),
+                                    hour=int(rawHour),
+                                    minute=int(rawMinute))
+        publication_date = data_publicacao.strftime('%Y-%m-%d %H:%M:%S')
+
+        return publication_date 
     
     def get_main_video_url(self):
         block0 = self.currentWrapper.find_element(By.XPATH , '//div[@data-block-id="0"]')
@@ -90,41 +104,89 @@ class G1Scrapper(BaseCrawler):
         else:
             return "NULL"
 
-        #images = []
-        #images = self.currentWrapper.find_elements(*self.image_locator)
-        #return images[0].get_attribute('src')
-        #for image in images:
-
-
-
-
     def scrap_article(self, articleUrl):
         self.access_article(articleUrl)
-        time.sleep(2)
+       # time.sleep(3)
         self.get_main_wrapper(articleUrl)
 
         features = dict()
-        features['Titulo'] = self.get_title()
-        features['Subtitulo'] = self.get_subtitle()
-        features['Data'] = self.get_date()
-        features['URL'] = articleUrl
-        features['Fonte'] = self.fonte
-        features['Texto'] = self.get_text()
-        features['Imagem'] = self.get_main_image_url()
-        #features['Texto']
-        features['Video'] = self.get_main_video_url()
-        features['Autor'] = self.get_author()
-        features['Categoria'] = self.get_category(articleUrl)
-        features['Tipo'] = self.type
+        features['url'] = articleUrl
+        features['source_name'] = self.fonte
+        features['title'] = self.get_title()
+        features['subtitle'] = self.get_subtitle()
         
-        print(features)
+        features['publication_date'] = self.get_date()
+        
+        
+        features['text_news'] = self.get_text()
+        features['image_link'] = self.get_main_image_url()
+        features['video_link'] = self.get_main_video_url()
+        features['authors'] = self.get_author()
+        features['categories'] = self.get_category(articleUrl)
 
+        features['obtained_at'] = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
+
+        features['raw_file_name'] = self.html_file_name(articleUrl)
+        self.save_html(features)
+
+        return features
+
+
+    def append_article_to_txt(self, features):
+        file_path = os.getenv('DATA_DIR') + "/G1/COLETA/" + features['source_name'].lower() + "_" + '_'.join(features['publication_date'].split('-')[0:2]) + ".txt"
+        with open(file_path, mode='a', encoding='utf-8') as f:
+            f.write(json.dumps(features, ensure_ascii=False) + '\n')
+    
+    def html_file_name(self,url):
+        return hashlib.sha1(url.encode()).hexdigest()+ ".html"
+
+    def save_html(self, features):
+        file_path = os.getenv('DATA_DIR') + "/G1/HTML/" + features['raw_file_name'] 
+        with open(file_path, mode='w', encoding='utf-8') as f:
+            f.write(self.driver.page_source)
+
+    def scrap_urls_file(self, fileName, taskName):
+        LOG_FILENAME = os.getenv('DATA_DIR') + '/G1/LOG/' + taskName + '.log'
+        logging.basicConfig(filename=LOG_FILENAME, filemode ='w',level=logging.ERROR)
+        
+        with open(fileName) as f:
+            for url in f:
+                retry = 3
+                while(retry > 0):
+                    try:
+                        data = self.scrap_article(url)
+                        self.append_article_to_txt(data)
+                        retry = 3
+                        break
+                    except Exception as e:
+                        retry = retry - 1
+                        if retry ==0:
+                            logging.exception(url)
+        self.driver.close()
+                    
+
+start = time.time()
 G1 = G1Scrapper(0)
+G1.scrap_urls_file('G1/URL/G1_bemestar_coronavirus_historica_may_24.txt','historica')
+print("Total elapsed time:", time.time() -start)
+G1.driver.quit()
+
+        
+        
+#G1 = G1Scrapper(0)
 #Video no topo
-#G1.scrap_article("https://g1.globo.com/bemestar/coronavirus/noticia/2021/04/25/covid-19-ja-matou-mais-brasileiros-em-4-meses-de-2021-do-que-em-todo-ano-de-2020.ghtml")
+#data = G1.scrap_article("https://g1.globo.com/bemestar/coronavirus/noticia/2021/04/25/covid-19-ja-matou-mais-brasileiros-em-4-meses-de-2021-do-que-em-todo-ano-de-2020.ghtml")
+#G1.append_article_to_txt(data)
 
 #Imagem no topo
-G1.scrap_article("https://g1.globo.com/ciencia-e-saude/noticia/2020/02/03/chineses-que-sairam-de-cidade-em-quarentena-por-coronavirus-pedem-a-quem-ficou-para-cuidar-de-animais-de-estimacao.ghtml")
+#G1.scrap_article("https://g1.globo.com/ciencia-e-saude/noticia/2020/02/03/chineses-que-sairam-de-cidade-em-quarentena-por-coronavirus-pedem-a-quem-ficou-para-cuidar-de-animais-de-estimacao.ghtml")
 
 #Sem nada
-#G1.scrap_article("https://g1.globo.com/bemestar/vacina/noticia/2021/04/25/brasil-aplicou-ao-menos-uma-dose-de-vacina-contra-covid-em-mais-de-29-milhoes-de-pessoas-aponta-consorcio-de-veiculos-de-imprensa.ghtml") 
+#data = G1.scrap_article("https://g1.globo.com/bemestar/vacina/noticia/2021/04/25/brasil-aplicou-ao-menos-uma-dose-de-vacina-contra-covid-em-mais-de-29-milhoes-de-pessoas-aponta-consorcio-de-veiculos-de-imprensa.ghtml")
+#G1.append_article_to_txt(data)
+#G1.scrap_article("") 
+
+#data = G1.scrap_article("https://g1.globo.com/bemestar/coronavirus/noticia/2021/05/21/numero-de-mortes-na-pandemia-pode-ser-ate-tres-vezes-maior-do-que-o-registrado-aponta-relatorio-da-oms.ghtml")
+#G1.append_article_to_txt(data)
+#G1.driver.close()
+
