@@ -36,7 +36,7 @@ def historic_scraper(source):
         partial_time = time.time()
         try:
             # Execute scraper
-            year, month, data, html = scraper.execute(url, source)
+            year, month, data, html = scraper.execute(url)
             time_success.append(int(round(abs(partial_time - time.time()), 0)))
             # Insert collected data into database
             insert(
