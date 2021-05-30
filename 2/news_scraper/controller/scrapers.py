@@ -1,5 +1,6 @@
 from crawler.custom.lupa_scraper import LupaScraper
-from crawler.custom.aosfatos_scraper import AosFatosScraper
+from crawler.custom.aos_fatos_scraper import AosFatosScraper
+from crawler.custom.fato_ou_fake_scraper import FatoOuFakeScraper
 from crawler.outline import Outline
 from repository.json_db import insert
 from repository.json_db import select_urls
@@ -26,8 +27,10 @@ def historic_scraper(source):
     # Initialize scraper instance
     if source == 'lupa':
         scraper = LupaScraper()
-    elif source == 'aosfatos':
+    elif source == 'aos_fatos':
         scraper = AosFatosScraper()
+    elif source == 'fato-ou-fake':
+        scraper = FatoOuFakeScraper()
     else:
         scraper = Outline()
     # Execute
