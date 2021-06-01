@@ -77,7 +77,7 @@ class AosFatosScraper(CustomScraper):
         """
         Aos fatos has no category on page
         """
-        return []
+        pass
 
     def get_tags(self):
         """
