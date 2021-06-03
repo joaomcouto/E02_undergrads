@@ -31,7 +31,7 @@ class Outline(BaseCrawler):
         # Set wait limit time for elements search
         self.wait = WebDriverWait(self.driver, self.wait_rate)
 
-    def get_news(self, url_news):
+    def execute(self, url_news):
         """
         Receives a news url and return a json data.
         """
