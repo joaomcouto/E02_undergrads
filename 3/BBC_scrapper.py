@@ -171,10 +171,57 @@ class BBCScrapper(BaseCrawler):
         with open(file_path, mode='w', encoding='utf-8') as f:
             f.write(self.driver.page_source)
 
-b = BBCScrapper(0)
-data = b.scrap_article("https://www.bbc.com/portuguese/internacional-57143976")
-b.append_article_to_txt(data)
-b.driver.close()
+    def scrap_urls_file(self, fileName, taskName):
+        LOG_FILENAME = os.getenv('PROJECT_DIR') + '/BBC/LOG/' + taskName + '.log'
+        logging.basicConfig(filename=LOG_FILENAME, filemode ='w',level=logging.WARNING)
+        count = 0
+        latestTime = time.time()
+        startTime = time.time()
+        with open(fileName) as f:
+            for lineNumber,url in enumerate(f):
+                print("Nova URL:", url)
+                retry = 3
+                while(retry > 0):
+                    try:
+                        urlDataPotentialPath = Path(os.getenv('PROJECT_DIR') + "/BBC/HTML/" + hashlib.sha1(url.encode()).hexdigest()+ ".html")
+                        if(urlDataPotentialPath.is_file()):
+                            print("Skipping artigo #", lineNumber)
+                            break
+                        data = self.scrap_article(url)
+                        self.append_article_to_txt(data)
+                        mark = time.time()
+                        print ("Scrapping artigo #", lineNumber, "Unitary time:" ,mark - latestTime , 'Elapsed time:', mark - startTime)
+                        latestTime = mark
+                        retry = 3
+                        break
+                    #except UOLUndesirableException as unde:
+                    #    logging.warning(url + "\t" + str(type(unde)) + " : " + str(unde))
+                    #    break
+                    except InvalidSessionIdException as inval:
+                        logging.exception(url)
+                        super(BBCScrapper, self).__init__()
+                        break
+                    except Exception as e:
+                        print ("\t Retrying", retry, "times" , url)
+                        retry = retry - 1
+                        time.sleep(5)
+                        if retry == 0:
+                            logging.exception(url)
+
+#b = BBCScrapper(0)
+#data = b.scrap_article("https://www.bbc.com/portuguese/internacional-57143976")
+#b.append_article_to_txt(data)
+#b.driver.close()
+
+
+
+
+#u.scrap_urls_file('UOL/URL/UOL_coronavirus_882_loads.txt','historica_uol_continued')
+##print("Total elapsed time:", time.time() -start)
+#u.driver.quit()
+
+
+
 
 
 """
