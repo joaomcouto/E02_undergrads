@@ -205,12 +205,9 @@ class BaseScrapper(ABC):
         return ret
 
     def get_date(self):
-        print("Usando data base scrapper")
 
         if(self.dateHasDateTimeAttribute):
-            #global dateText
             dateText =self.currentWrapper.find_element(*self.date_locator).get_attribute(self.dateTimeAttribute)
-            print(dateText)
             if(self.dateHasTime):
                 fmt ="%Y-%m-%dT%H:%M:%S"
                 try:
@@ -259,19 +256,17 @@ class BaseScrapper(ABC):
                                         day=int(publicationDay))
 
             publication_date = data_publicacao.strftime('%Y-%m-%d %H:%M:%S')
-            print("Pub date:" , publication_date)
             return publication_date 
 
     def get_category(self, articleUrl):
         categories = []
         if(self.category_locator != "NULL"):
-            print("Entrou no if de category")
             try:
                 #categoryTextElement = 
                 categories.append(self.strip_accents(self.currentWrapper.find_element(*self.category_locator).text.lower()))
             except Exception as e:
                 print(e)
-                print("N conseguiu pegar categoria da url")
+                print("Problema temporario na captura de categoria NO ARTIGO, resolucao pendente")
                 pass
 
         if(self.addUrlCategories):
@@ -284,11 +279,9 @@ class BaseScrapper(ABC):
                     urlCategories = urlCategories.split(upper)[0]
                     break
             urlCategories = urlCategories.split('/')
-            print("categorias na url", urlCategories)
             categories.extend(urlCategories)
 
         categories.extend(self.manualCategories)
-        print(categories)
         return list(set(categories))
 
     def get_main_image_url(self):

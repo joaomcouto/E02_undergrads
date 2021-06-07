@@ -8,14 +8,12 @@ class TEMPLATEScrapper(BaseScrapper):
         else:
             super(TEMPLATEScrapper, self).__init__()
 
-    ####OBRIGATORIOS
     text_locator = (By.CLASS_NAME,'entry-content.clearfix' )
     scrapperSource = "ATROMBETA"
     title_locator = (By.CLASS_NAME ,'entry-header' )
     main_wrapper_locator = (By.ID ,'content' )
     date_locator = (By.CLASS_NAME ,'entry-date.published' )
 
-    ###PODEM SER NULL MAS PRECISAM SER DEFINIDOS
     title_locator_internal = (By.CLASS_NAME, 'entry-title')
     subtitle_locator = "NULL"
     image_locator = (By.CLASS_NAME ,'attachment-colormag-featured-image.size-colormag-featured-image.wp-post-image' )
@@ -24,10 +22,8 @@ class TEMPLATEScrapper(BaseScrapper):
     category_locator = "NULL" #PENDING
     video_locator = "NULL"
     
-    ###SUBSTRINGS DE URLS INDESEJADAS
     undesirables = []
     
-    #PARAMETROS PARA O METODO baseScrapper.get_date()
     dateHasTime = True
 
     dateHasDateTimeAttribute = True
@@ -39,7 +35,6 @@ class TEMPLATEScrapper(BaseScrapper):
     dayMonthYearSeparator = "NULL"
     monthNeedsMapper = "NULL"
 
-    #PARAMETROS PARA O METODO baseScrapper.get_category()
     addUrlCategories = False
     urlCategoryLowerBounds = [".br/"]
     urlCategoryUpperBounds = ["/2020/","/2021/"]
@@ -50,15 +45,12 @@ class TEMPLATEScrapper(BaseScrapper):
     """
     manualCategories = []
 
-    #PARAMETROS ADICIONAIS PARA O METODO baseScrapper.get_main_image_url()
     image_locator_internal = "NULL"
     image_locator_attribute = 'src'
 
-    #PARAMETROS ADICIONAIS PARA O METODO baseScrapper.get_main_video_url()
     image_locator_internal = "NULL"
     image_locator_attribute = 'src'
 
-    #PARAMETROS get_text()
     text_locator_internal = (By.TAG_NAME, 'p')
 
 t = TEMPLATEScrapper(0)
