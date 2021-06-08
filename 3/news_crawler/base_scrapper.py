@@ -71,7 +71,7 @@ class BaseScrapper(ABC):
 
         return chrome_options
 
-    def strip_accents(text):
+    def strip_accents(self,text):
         try:
             text = unicode(text, 'utf-8')
         except NameError: # unicode is a default on python 3 
@@ -98,7 +98,7 @@ class BaseScrapper(ABC):
     @classmethod
     @abstractmethod
     def text_locator(cls):
-        return NotImplementedError  
+        return NotImplementedError 
 
     @property
     @classmethod
@@ -186,16 +186,22 @@ class BaseScrapper(ABC):
             except:
                 return "NULL"
     
-    def get_author(self):
+    def get_author(self): ##gold standard
         if (self.author_locator == "NULL"):
             return "NULL"
         else:
+            if(self.author_locator_internal == "NULL"):
+                authorElement =self.currentWrapper.find_element(*self.author_locator)
+            else:
+                authorElement =self.currentWrapper.find_element(*self.author_locator).find_element(*self.author_locator_internal)
+
             try:
                 if(self.author_locator_attribute == 'NULL'):
-                    return self.treat_text(self.currentWrapper.find_element(*self.author_locator).text)
+                    return self.treat_text(authorElement.text)
                 else:
-                    return self.treat_text(self.currentWrapper.find_element(*self.author_locator).get_attribute(self.author_locator_attribute))
+                    return self.treat_text(authorElement.get_attribute(self.author_locator_attribute))
             except Exception as e:
+                print("Problemas no get_author: ", e)
                 return "NULL"
 
     def treat_text(self, text):
@@ -205,9 +211,13 @@ class BaseScrapper(ABC):
         return ret
 
     def get_date(self):
+        if(self.date_locator_internal == "NULL"):
+            dateElement =self.currentWrapper.find_element(*self.date_locator)
+        else:
+            dateElement =self.currentWrapper.find_element(*self.date_locator).find_element(*self.date_locator_internal)
 
         if(self.dateHasDateTimeAttribute):
-            dateText =self.currentWrapper.find_element(*self.date_locator).get_attribute(self.dateTimeAttribute)
+            dateText =dateElement.get_attribute(self.dateTimeAttribute)
             if(self.dateHasTime):
                 fmt ="%Y-%m-%dT%H:%M:%S"
                 try:
@@ -232,10 +242,13 @@ class BaseScrapper(ABC):
                         raise
                 publication_date = data_publicacao.strftime('%Y-%m-%d %H:%M:%S')
                 return publication_date
+
         else:
-            dateText = self.currentWrapper.find_element(*self.date_locator).text.split(self.dateEndingSeparator)[0]
+            dateText = dateElement.text.split(self.dateEndingSeparator)[0]
+            #print(dateText)
 
             if(self.dateHasTime):
+                #print(dateText)
                 dateText, timeText = dateText.split(self.dateTimeSeparator)
                 publicationHour, publicationMinute = timeText.split(self.hourMinuteSeparator)
 
@@ -261,9 +274,12 @@ class BaseScrapper(ABC):
     def get_category(self, articleUrl):
         categories = []
         if(self.category_locator != "NULL"):
+            if(self.category_locator_internal == "NULL"):
+                categoryElement =self.currentWrapper.find_element(*self.category_locator)
+            else:
+                categoryElement =self.currentWrapper.find_element(*self.category_locator).find_element(*self.category_locator_internal)
             try:
-                #categoryTextElement = 
-                categories.append(self.strip_accents(self.currentWrapper.find_element(*self.category_locator).text.lower()))
+                categories.append(self.strip_accents( categoryElement.text.lower() ))
             except Exception as e:
                 print(e)
                 print("Problema temporario na captura de categoria NO ARTIGO, resolucao pendente")
@@ -306,15 +322,23 @@ class BaseScrapper(ABC):
             if(self.text_locator_internal != "NULL"):
                 try:
                     paragraph =trecho.find_elements(*self.text_locator_internal)
-                    paragraph = [a.text for a in paragraph]
+                    # print(len(paragraph))
+                    # for b in [ paragraph[-1] ]:
+                    #     print("\n" + b.text)
+                    # print(paragraph[-3].text)
+                    # print("\n\n")
+                    paragraph = [a.text for a in paragraph if not any(und in a.text for und in self.textUndesirables)]
+                    #print(paragraph)
                     paragraph = " ".join(paragraph)
+                    #print(paragraph)
                 except:
                     continue
             else:
-                paragraph = trecho.text
+                if not any(und in trecho.text for und in self.textUndesirables):
+                    paragraph = trecho.text
+                else:
+                    paragraph = ''
 
-            if any(und in paragraph for und in self.textUndesirables):
-                continue
             if(len(paragraph) < 20): #Capaz de tratar muitos casos de coleta acidental de lixo
                 continue
             ret+= paragraph
@@ -353,6 +377,7 @@ class BaseScrapper(ABC):
         features['obtained_at'] = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
         features['raw_file_name'] = self.html_file_name(articleUrl)
         self.save_html(features)
+        print(features)
         return features
 
     def save_html(self, features):

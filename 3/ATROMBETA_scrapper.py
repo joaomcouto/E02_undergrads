@@ -1,14 +1,14 @@
 from news_crawler.base_scrapper import BaseScrapper
 from selenium.webdriver.common.by import By
 
-class TEMPLATEScrapper(BaseScrapper):
+class ATROMBETAScrapper(BaseScrapper):
     def __init__(self,interface):
         if interface:
-            super(TEMPLATEScrapper, self).__init__("firefox")
+            super(ATROMBETAScrapper, self).__init__("firefox")
         else:
-            super(TEMPLATEScrapper, self).__init__()
+            super(ATROMBETAScrapper, self).__init__()
 
-    text_locator = (By.CLASS_NAME,'entry-content.clearfix' )
+    text_locator = (By.CLASS_NAME,'td-post-content.tagdiv-type' )
     scrapperSource = "ATROMBETA"
     title_locator = (By.CLASS_NAME ,'entry-header' )
     main_wrapper_locator = (By.ID ,'content' )
