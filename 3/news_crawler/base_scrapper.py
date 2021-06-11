@@ -245,10 +245,11 @@ class BaseScrapper(ABC):
 
         else:
             dateText = dateElement.text.split(self.dateEndingSeparator)[0]
-            #print(dateText)
+            print(dateText)
+
 
             if(self.dateHasTime):
-                #print(dateText)
+                print(dateText)
                 dateText, timeText = dateText.split(self.dateTimeSeparator)
                 publicationHour, publicationMinute = timeText.split(self.hourMinuteSeparator)
 
