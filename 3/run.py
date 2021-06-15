@@ -12,6 +12,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import StaleElementReferenceException
+
 from selenium.webdriver.chrome.options import Options
 
 
@@ -131,8 +133,8 @@ class G1Crawler(BaseCrawler):
             pageURLs.append(materia.find_element(*self.UrlLocator).get_attribute('href'))        
         return pageURLs
         
-g1 = G1Crawler(0)
-g1.g1_crawl_all("https://g1.globo.com/fato-ou-fake/")
+#g1 = G1Crawler(0)
+#g1.g1_crawl_all("https://g1.globo.com/fato-ou-fake/")
 #"https://g1.globo.com/fato-ou-fake/"
 #g1.g1_crawl_pages(1150,1153,"https://g1.globo.com/economia/dolar/" )
 #g1.g1_crawl_pages(1,10,"https://g1.globo.com/bemestar/coronavirus/" )
@@ -158,27 +160,38 @@ class UolCrawler(BaseCrawler): #Problema: como escolher o numero de cliques? com
         self.driver.get(feedUrl)
         feedElement = self.driver.find_element(*self.feedLocator)
 
-        clickAmountDebug = 1
+        clickAmountDebug = 0
         if(clickAmountDebug == 1):
             repeatRange = 5
         else:
             repeatRange = 2
-        for i in range (1, repeatRange+1):
+        for i in range (1, repeatRange):
             start = time.time()
             URLs = []
             for click in range(1,clickAmount+1):
+                latestClick = time.time()
                 clickRet = self.uol_ver_mais(feedElement)
                 if (clickRet == 0):
                     print ("Ver mais não encontrado . Iniciando varredura das materias carregadas\n")
                     break
                 else:
-                    print ("Ver Mais encontrado! Clicando #" , click + ( (i -1) * (clickAmount) ))
+                    print ("Ver Mais encontrado! Clicando #" , click + ( (i -1) * (clickAmount) ),"tempo corrente:",time.time() - start, "tempo unitario:", time.time()-latestClick)
             print ("Cliques efetuados em", time.time() - start , "segundos")
             
             start = time.time()
-            materias = feedElement.find_elements(*self.materiaLocator)
+            try:
+                materias = feedElement.find_elements(*self.materiaLocator)
+            except StaleElementReferenceException:
+                materias = feedElement.find_elements(*self.materiaLocator)
+
+            count = 0 
+            totalMaterias = len(materias)
+            print (" !! Achamos",totalMaterias, "elementos de materia com" ,click * i, "cliques")
             for materia in materias:
+                latest = time.time()
                 URLs.append(materia.find_element(*self.urlLocator).get_attribute('href'))
+                count += 1
+                print("Crawl materia #" ,count, "/",totalMaterias, " tempo corrente:", time.time() - start , "tempo unitario:", time.time() - latest)
             print ("Crawl de materias feito em " , time.time() - start)
             print (" !!!! Coletamos",len(URLs), "URLs com" ,click * i, "cliques")
         
@@ -200,11 +213,14 @@ class UolCrawler(BaseCrawler): #Problema: como escolher o numero de cliques? com
             verMaisElement = WebDriverWait(feedElement, self.delay).until(EC.presence_of_element_located(self.verMaisLocator))
         except TimeoutException:
             return 0
+        except StaleElementReferenceException:
+            return 0
         self.driver.execute_script("arguments[0].click();", verMaisElement)
         return 1
 
-#uol = UolCrawler(0)
-#uol.uol_crawl_feed("https://noticias.uol.com.br/coronavirus/" , 1)
+uol = UolCrawler(0)
+uol.uol_crawl_feed("https://noticias.uol.com.br/coronavirus/" , 441)
+uol.driver.quit()
 
 class BbcCrawler(BaseCrawler):
     def __init__(self, interface):
@@ -274,5 +290,7 @@ class BbcCrawler(BaseCrawler):
         
 #bbc = BbcCrawler(0)
 #x`a = bbc.bbc_crawl_pages(99,104,"https://www.bbc.com/portuguese/topics/c340q430z4vt")
+#MANO ESSE TEMPO TODO TU FEZ O LINK ERRADO O DO CORONA EH ESSE AQUI:
+#https://www.bbc.com/portuguese/topics/clmq8rgyyvjt
 
 

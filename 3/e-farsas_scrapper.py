@@ -5,9 +5,7 @@ import time
 import json
 import hashlib
 from datetime import datetime
-
 from news_crawler.base_crawler import BaseCrawler
-
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
@@ -23,7 +21,6 @@ class EfarsasScrapper(BaseCrawler):
             super(EfarsasScrapper, self).__init__("firefox")
         else:
             super(EfarsasScrapper, self).__init__()
-
         self.text_locator = (By.CLASS_NAME,'td_block_wrap.tdb_single_content.tdi_98.td-pb-border-top.td_block_template_1.td-post-content.tagdiv-type')
        # self.subtitle_locator = (By.CLASS_NAME,'content-head__subtitle')
         self.title_locator =(By.CLASS_NAME,'tdb-title-text')
@@ -51,15 +48,12 @@ class EfarsasScrapper(BaseCrawler):
                 ret += " "
         return ret
     
-
     def get_subtitle(self):
         return "NULL"
         
-    
     def get_title(self):
         return self.currentWrapper.find_element(*self.title_locator).text
         
-
     def get_author(self):
         return [self.currentWrapper.find_element(*self.author_locator).find_element(By.CLASS_NAME, 'tdb-author-name').text]
 
@@ -80,14 +74,12 @@ class EfarsasScrapper(BaseCrawler):
                 tags.append(tag.text.lower())
         return tags
 
-
     def get_veredict(self):
         allCategories = self.currentWrapper.find_elements(*self.category_locator)
         for cat in allCategories:
             if cat.text.lower() in ['verdadeiro', 'falso']:
                 return [cat.text.lower()]
 
-    
     def get_main_wrapper(self, articleUrl):
         self.currentWrapper = self.driver.find_element(*self.main_wrapper_locator)
 
@@ -116,7 +108,6 @@ class EfarsasScrapper(BaseCrawler):
         publication_date = data_publicacao.strftime('%Y-%m-%d %H:%M:%S')
 
         return publication_date 
-
     
     def get_main_video_url(self):
         return "NULL"
@@ -128,7 +119,6 @@ class EfarsasScrapper(BaseCrawler):
         self.access_article(articleUrl)
         time.sleep(2)
         self.get_main_wrapper(articleUrl)
-
         features = dict()
         features['url'] = articleUrl
         features['source_name'] = self.fonte
@@ -145,7 +135,6 @@ class EfarsasScrapper(BaseCrawler):
         features['rating'] = self.get_veredict()
         features['raw_file_name'] = self.html_file_name(articleUrl)
         self.save_html(features)
-        
         return features
 
     def append_article_to_txt(self, features):
