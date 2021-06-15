@@ -248,6 +248,7 @@ class BaseScrapper(ABC):
             print(dateText)
 
 
+
             if(self.dateHasTime):
                 print(dateText)
                 dateText, timeText = dateText.split(self.dateTimeSeparator)
