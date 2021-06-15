@@ -8,7 +8,7 @@ class ATROMBETAScrapper(BaseScrapper):
         else:
             super(ATROMBETAScrapper, self).__init__()
 
-    text_locator = (By.CLASS_NAME,'td-post-content.tagdiv-type' )
+    text_locator = (By.CLASS_NAME,'entry-content.clearfix' )
     scrapperSource = "ATROMBETA"
     title_locator = (By.CLASS_NAME ,'entry-header' )
     main_wrapper_locator = (By.ID ,'content' )

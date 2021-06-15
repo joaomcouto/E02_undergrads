@@ -400,27 +400,50 @@ class BaseScrapper(ABC):
             urlCategories = urlCategories.split('/')
             categories.extend(urlCategories)
 
+        if(self.addTagsCategories):
+            tags = []
+            tagsElement = self.currentWrapper.find_element(*self.tags_categories_locator)
+            allTags = tagsElement.find_elements(*self.tags_categories_locator_internal)
+            tags = [a.text.lower() for a in allTags if not any(und in a.text for und in self.tagsUndesirables)]
+            categories.extend(tags)
+
         categories.extend(self.manualCategories)
         return list(set(categories))
 
     def get_main_image_url(self):
         if (self.image_locator == "NULL"):
             return "NULL"
-        img = self.currentWrapper.find_element(*self.image_locator)
-        if(self.image_locator_internal != "NULL"):
-            return img.find_element(*self.image_locator_internal).get_attribute(self.image_locator_attribute)
         else:
-            return img.get_attribute(self.image_locator_attribute)
+            try:
+                if (self.image_locator_internal == "NULL"):
+                    imgElement = self.currentWrapper.find_element(*self.image_locator)
+                else:
+                    imgElement = self.currentWrapper.find_element(*self.image_locator).find_element(*self.image_locator_internal)
+                return imgElement.get_attribute(self.video_locator_attribute)
+            except Exception as e:
+                print(e)
+                return "NULL"
+
 
     def get_main_video_url(self):
         if (self.video_locator == "NULL"):
             return "NULL"
-        vid = self.currentWrapper.find_element(*self.video_locator)
-        return vid.find_element(*self.video_locator_internal).get_attribute(self.video_locator_attribute)
+
+        else:
+            try:
+                if(self.video_locator_internal == "NULL"):
+                    vidElement =self.currentWrapper.find_element(*self.video_locator)
+                else:
+                    vidElement =self.currentWrapper.find_element(*self.video_locator).find_element(*self.video_locator_internal)
+                return vidElement.get_attribute(self.video_locator_attribute)
+            except Exception as e:
+                #print(e)
+                return "NULL"
+
 
     def get_text(self):
         ret = ""
-        trechos = self.currentWrapper.find_elements(*self.text_locator)   
+        trechos = self.currentWrapper.find_elements(*self.text_locator)
         for trecho in trechos:
             if(self.text_locator_internal != "NULL"):
                 try:
@@ -449,15 +472,6 @@ class BaseScrapper(ABC):
         if(len(ret) < 30):
             raise("Texto coletado pequeno demais, algo de errado aconteceu")
         return self.treat_text(ret)
-
-    def get_tags(self):
-        tags = []
-        tagsElement = self.currentWrapper.find_element(*self.tags_locator)
-        allTags = tagsElement.find_elements(By.TAG_NAME, 'li')
-        for tag in allTags:
-            if tag.text.lower() not in ['tags']:
-                tags.append(tag.text.lower())
-        return tags
 
     def scrap_article(self, articleUrl):
         for und in self.undesirables:
