@@ -61,12 +61,15 @@ class G1Crawler(BaseCrawler):
 
     def update(self, feedUrl,fileName):
         latest = fetch_latest_5(fileName)
-        latestFromFeed = file_to_urls(self.g1_crawl_pages(1,5,feedUrl))
+        latestFromFeed = file_to_urls(self.g1_crawl_pages(1,60,feedUrl))
         toAdd = []
-        for materia in latestFromFeed:
-            if materia in latest:
-                break
-            toAdd.append(materia)
+        for i,materia in enumerate(latestFromFeed):
+            if materia in latest[1:]:
+                if (latestFromFeed[i+1] in latest[1:]):
+                    if (latestFromFeed[i+2] in latest[1:]):
+                        break
+            else:
+                toAdd.append(materia)
             
         for materia in reversed(toAdd):
             line_prepender(fileName, materia)
@@ -131,13 +134,14 @@ class G1Crawler(BaseCrawler):
             pageURLs.append(materia.find_element(*self.UrlLocator).get_attribute('href'))        
         return pageURLs
         
-g1 = G1Crawler(0)
-g1.g1_crawl_all("https://g1.globo.com/fato-ou-fake/")
+#g1 = G1Crawler(0)
+#g1.g1_crawl_all("https://g1.globo.com/fato-ou-fake/")
 #"https://g1.globo.com/fato-ou-fake/"
 #g1.g1_crawl_pages(1150,1153,"https://g1.globo.com/economia/dolar/" )
 #g1.g1_crawl_pages(1,10,"https://g1.globo.com/bemestar/coronavirus/" )
-#g1.update("https://g1.globo.com/bemestar/coronavirus/", "G1_bemestar_coronavirus_1_a_11.txt")
+#g1.update("https://g1.globo.com/bemestar/coronavirus/", "G1/URL/G1_bemestar_coronavirus_historica_may_24.txt")
 #g1.file_to_urls("G1_bemestar_coronavirus_1_a_11.txt")
+#g1.driver.close()
 
 
 class UolCrawler(BaseCrawler): #Problema: como escolher o numero de cliques? como saber o que acontece quando nao tem mais pra ver?
@@ -147,9 +151,11 @@ class UolCrawler(BaseCrawler): #Problema: como escolher o numero de cliques? com
         else:
             super(UolCrawler, self).__init__()
 
-        self.feedLocator = (By.CLASS_NAME , 'results-index')
+        #self.feedLocator = (By.CLASS_NAME , 'results-index')
+        self.feedLocator = (By.CLASS_NAME , 'results-items')
         self.verMaisLocator = (By.XPATH, "//*[contains(text(), 'ver mais')]")
         self.materiaLocator = (By.CLASS_NAME, 'thumbnails-wrapper')
+        #self.materiaLocator = (By.CLASS_NAME, 'thumbnails-item.align-horizontal.list.col-xs-8.col-sm-12.small.col-sm-24.small')
         self.urlLocator = (By.TAG_NAME , 'a')
 
         self.delay = 90
@@ -158,12 +164,12 @@ class UolCrawler(BaseCrawler): #Problema: como escolher o numero de cliques? com
         self.driver.get(feedUrl)
         feedElement = self.driver.find_element(*self.feedLocator)
 
-        clickAmountDebug = 1
+        clickAmountDebug = 0
         if(clickAmountDebug == 1):
             repeatRange = 5
         else:
             repeatRange = 2
-        for i in range (1, repeatRange+1):
+        for i in range (1, repeatRange):
             start = time.time()
             URLs = []
             for click in range(1,clickAmount+1):
@@ -189,7 +195,7 @@ class UolCrawler(BaseCrawler): #Problema: como escolher o numero de cliques? com
         sys.exit(0) 
 
     def uol_urls_to_file(self,clickAmount, repeatRange, feedUrl, URLs):
-        uolFileName = "UOL_" + feedUrl.split('.br/')[1].replace('/' , '_') + str(clickAmount*repeatRange) + "_loads" + ".txt"
+        uolFileName = "UOL_" + feedUrl.split('.br/')[1].replace('/' , '_') + str(clickAmount*(repeatRange-1)) + "_loads" + ".txt"
         f=open(uolFileName,'w')
         for u in URLs:
             f.write(u +'\n')
@@ -204,7 +210,8 @@ class UolCrawler(BaseCrawler): #Problema: como escolher o numero de cliques? com
         return 1
 
 #uol = UolCrawler(0)
-#uol.uol_crawl_feed("https://noticias.uol.com.br/coronavirus/" , 1)
+#uol.uol_crawl_feed("https://noticias.uol.com.br/coronavirus/" , 50)
+#uol.driver.quit()
 
 class BbcCrawler(BaseCrawler):
     def __init__(self, interface):
@@ -272,7 +279,7 @@ class BbcCrawler(BaseCrawler):
 
         
         
-#bbc = BbcCrawler(0)
-#x`a = bbc.bbc_crawl_pages(99,104,"https://www.bbc.com/portuguese/topics/c340q430z4vt")
+bbc = BbcCrawler(0)
+bbc.bbc_crawl_pages(0,104,"https://www.bbc.com/portuguese/topics/c340q430z4vt")
 
 
