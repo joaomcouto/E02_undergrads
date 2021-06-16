@@ -346,12 +346,12 @@ class BaseScrapper(ABC):
 
         else:
             dateText = dateElement.text.split(self.dateEndingSeparator)[0]
-            print(dateText)
+            #print(dateText)
 
 
 
             if(self.dateHasTime):
-                print(dateText)
+                #print(dateText)
                 dateText, timeText = dateText.split(self.dateTimeSeparator)
                 publicationHour, publicationMinute = timeText.split(self.hourMinuteSeparator)
 
@@ -419,7 +419,8 @@ class BaseScrapper(ABC):
                     imgElement = self.currentWrapper.find_element(*self.image_locator)
                 else:
                     imgElement = self.currentWrapper.find_element(*self.image_locator).find_element(*self.image_locator_internal)
-                return imgElement.get_attribute(self.video_locator_attribute)
+                    print(imgElement.get_attribute('outerHTML'))
+                return imgElement.get_attribute(self.image_locator_attribute)
             except Exception as e:
                 print(e)
                 return "NULL"
