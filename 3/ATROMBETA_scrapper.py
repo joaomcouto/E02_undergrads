@@ -24,6 +24,7 @@ class ATROMBETAScrapper(BaseScrapper):
     dateHasTime = True
     dateHasDateTimeAttribute = True
     dateTimeAttribute = 'datetime'
+    dateStartSeparator = "NULL"
     dateEndingSeparator = "NULL"
     dateTimeSeparator = "NULL"
     hourMinuteSeparator = "NULL"
@@ -31,8 +32,7 @@ class ATROMBETAScrapper(BaseScrapper):
     monthNeedsMapper = False
     yearNeedsMapper = False
 
-
-    category_locator = "NULL" #PENDING
+    category_locator = "NULL"
     addUrlCategories = False
     urlCategoryLowerBounds = [".br/"]
     urlCategoryUpperBounds = ["/2020/","/2021/"]
@@ -41,11 +41,11 @@ class ATROMBETAScrapper(BaseScrapper):
 
     subtitle_locator = "NULL"
 
-    image_locator = (By.CLASS_NAME ,'attachment-colormag-featured-image.size-colormag-featured-image.wp-post-image' )
+    image_locator = (By.CLASS_NAME, 'attachment-colormag-featured-image.size-colormag-featured-image.wp-post-image' )
     image_locator_internal = "NULL"
     image_locator_attribute = 'src'
 
-    author_locator =  (By.CLASS_NAME ,'url.fn.n' )
+    author_locator = (By.CLASS_NAME, 'url.fn.n')
     author_locator_internal = 'NULL'
     author_locator_attribute = 'title'
 
