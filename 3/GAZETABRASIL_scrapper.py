@@ -8,30 +8,37 @@ class GAZETABRASILScrapper(BaseScrapper):
         else:
             super(GAZETABRASILScrapper, self).__init__()
 
+    scrapperSource = "GAZETABRASIL"
+
     main_wrapper_locator = (By.CLASS_NAME ,'vc_column.tdi_90.wpb_column.vc_column_container.tdc-column.td-pb-span8' )
+
+    title_locator = (By.CLASS_NAME ,'tdb-title-text' )
+    title_locator_internal = "NULL"
 
     text_locator = (By.CLASS_NAME,'td_block_wrap.tdb_single_content.tdi_107.td-pb-border-top.td_block_template_1.td-post-content.tagdiv-type')
     text_locator_internal = (By.TAG_NAME, 'p')
     textUndesirables = []
 
-    scrapperSource = "GAZETABRASIL"
-    title_locator = (By.CLASS_NAME ,'tdb-title-text' )
-    title_locator_internal = "NULL"
-    
     date_locator = (By.CLASS_NAME ,'td_block_wrap.tdb_single_date.tdi_98.td-pb-border-top.td_block_template_1.tdb-post-meta' )
-    #date_locator_internal = (By.XPATH, '//a[not(contains(text(),"Atualizado"))]')
     date_locator_internal = (By.CLASS_NAME ,"entry-date.updated.td-module-date")
-
     dateHasTime = True
-
     dateHasDateTimeAttribute = True
     dateTimeAttribute = 'datetime'
-
+    dateStartSeparator = "NULL"
     dateEndingSeparator = "NULL"
     dateTimeSeparator = "NULL"
     hourMinuteSeparator = "NULL"
     dayMonthYearSeparator = "NULL"
     monthNeedsMapper = False
+    yearNeedsMapper = False
+
+    category_locator = 'NULL'
+    category_locator_internal = 'NULL'
+    addUrlCategories = True
+    urlCategoryLowerBounds = [".br/"]
+    urlCategoryUpperBounds = ["/2021/","/2020/"]
+    addTagsCategories = False
+    tagsUndesirables = []
 
     subtitle_locator = "NULL"
 
@@ -39,23 +46,13 @@ class GAZETABRASILScrapper(BaseScrapper):
     image_locator_internal = (By.TAG_NAME, "img")
     image_locator_attribute = 'src'
 
-    #author_locator =  (By.XPATH ,'//span[@style="color: rgb(159, 159, 223);"]' )
     author_locator =  (By.CLASS_NAME ,'tdb-author-name-wrap')
     author_locator_internal = (By.CLASS_NAME ,'tdb-author-name')
     author_locator_attribute = 'NULL'
 
-    category_locator = 'NULL' 
-    category_locator_internal = 'NULL'
-
-    addUrlCategories = True
-    urlCategoryLowerBounds = [".br/"]
-    urlCategoryUpperBounds = ["/2021/","/2020/"]
-
-
     video_locator = "NULL"
-    
+
     undesirables = []
-    
 
     """
     MANUAL CATEGORIES (MUDAR DE ACORDO COM O EDITORAL SOBRE O QUAL O CRAWLING DE URLS FOR FEITO)
@@ -63,7 +60,7 @@ class GAZETABRASILScrapper(BaseScrapper):
                 Alem disso, outro exemplo, noticias de politica relacionadas a covid frequentente recebem apenas a categoria "politica"
     """
     manualCategories = []
-    
+
 
 
 g = GAZETABRASILScrapper(0)
