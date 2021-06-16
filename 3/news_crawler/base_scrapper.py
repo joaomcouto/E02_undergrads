@@ -287,16 +287,16 @@ class BaseScrapper(ABC):
             except:
                 return "NULL"
     
-    def get_author(self): ##gold standard
+    def get_author(self): ##gold standard for non essentials
         if (self.author_locator == "NULL"):
             return "NULL"
         else:
-            if(self.author_locator_internal == "NULL"):
-                authorElement =self.currentWrapper.find_element(*self.author_locator)
-            else:
-                authorElement =self.currentWrapper.find_element(*self.author_locator).find_element(*self.author_locator_internal)
-
             try:
+                if(self.author_locator_internal == "NULL"):
+                    authorElement =self.currentWrapper.find_element(*self.author_locator)
+                else:
+                    authorElement =self.currentWrapper.find_element(*self.author_locator).find_element(*self.author_locator_internal)
+
                 if(self.author_locator_attribute == 'NULL'):
                     return self.treat_text(authorElement.text)
                 else:
@@ -346,6 +346,8 @@ class BaseScrapper(ABC):
 
         else:
             dateText = dateElement.text.split(self.dateEndingSeparator)[0]
+            if(self.dateStartSeparator != "NULL"): #Domingo, 19 de Abril de 2020, 12h:59 | Atualizado: vem do folhaMax
+                dateText = self.dateTimeSeparator.join(dateText.split(self.dateStartSeparator)[1:])
             #print(dateText)
 
 
@@ -359,6 +361,9 @@ class BaseScrapper(ABC):
 
             if(self.monthNeedsMapper):
                 publicationMonth = self.dateMonthMapper[publicationMonth]
+
+            if(self.yearNeedsMapper):
+                publicationYear = self.dateYearMapper[publicationYear]
 
             if(self.dateHasTime):
                 data_publicacao = datetime( year=int(publicationYear),
