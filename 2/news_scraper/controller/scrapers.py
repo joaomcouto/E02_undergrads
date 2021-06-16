@@ -1,6 +1,7 @@
-from crawler.custom.lupa_scraper import LupaScraper
 from crawler.custom.aos_fatos_scraper import AosFatosScraper
+from crawler.custom.boatos_scraper import BoatosScraper
 from crawler.custom.fato_ou_fake_scraper import FatoOuFakeScraper
+from crawler.custom.lupa_scraper import LupaScraper
 from crawler.outline import Outline
 from repository.json_db import insert
 from repository.json_db import select_urls
@@ -31,11 +32,16 @@ def historic_scraper(source):
         scraper = AosFatosScraper()
     elif source == 'fato-ou-fake':
         scraper = FatoOuFakeScraper()
+    elif source == 'boatos':
+        scraper = BoatosScraper()
     else:
         scraper = Outline()
     # Execute
     initial_time = time.time()
+    cnt = 0
     for url in urls:
+        cnt += 1
+        print(cnt)
         partial_time = time.time()
         try:
             # Execute scraper
@@ -43,7 +49,6 @@ def historic_scraper(source):
             time_success.append(int(round(abs(partial_time - time.time()), 0)))
             # Insert collected data into database
             insert(
-                url='url',
                 type='checking',
                 source=source,
                 collected_data=data,
@@ -56,7 +61,6 @@ def historic_scraper(source):
             # If a exception is raised during the research, the Exception
             # is saved with the url as keY.
             insert(
-                url=url,
                 type='error',
                 source=source,
                 collected_data={url: str(e)}
