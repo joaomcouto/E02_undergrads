@@ -419,7 +419,6 @@ class BaseScrapper(ABC):
                     imgElement = self.currentWrapper.find_element(*self.image_locator)
                 else:
                     imgElement = self.currentWrapper.find_element(*self.image_locator).find_element(*self.image_locator_internal)
-                    print(imgElement.get_attribute('outerHTML'))
                 return imgElement.get_attribute(self.image_locator_attribute)
             except Exception as e:
                 print(e)
