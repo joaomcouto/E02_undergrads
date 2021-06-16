@@ -63,14 +63,14 @@ class TEMPLATEScrapper(BaseScrapper):
 
     author_locator =  (By.CLASS_NAME, '') #OBRIGATORIO MAS PODE SER "NULL"/VAZIO
     author_locator_internal = 'NULL' #PODE SER APAGADO SE O OBRIGATORIO ACIMA MAIS PROXIMO FOR "NULL"
-    author_locator_attribute = 'NULL'#PODE SER APAGADO SE O OBRIGATORIO ACIMA MAIS PROXIMO FOR "NULL"
+    author_locator_attribute = 'NULL'#OBRIGATORIO MAS PODE SER "NULL"
 
     video_locator = (By.CLASS_NAME, '') #OBRIGATORIO MAS PODE SER "NULL"/VAZIO
     video_locator_internal = 'NULL' #PODE SER APAGADO SE O OBRIGATORIO ACIMA MAIS PROXIMO FOR "NULL"
     video_locator_attribute = 'NULL'#PODE SER APAGADO SE O OBRIGATORIO ACIMA MAIS PROXIMO FOR "NULL"
-    
+
     undesirables = [] #OBRIGATORIO MAS PODE SER "NULL"/VAZIO
-    
+
     """
     MANUAL CATEGORIES (MUDAR DE ACORDO COM O EDITORAL SOBRE O QUAL O CRAWLING DE URLS FOR FEITO)
                 Necessario pois no inicio da pandemia por exemplo no g1, noticias de covid tem apenas a categoria "ciencia-e-saude"
