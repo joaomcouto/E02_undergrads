@@ -21,9 +21,9 @@ class ATROMBETAScrapper(BaseScrapper):
     author_locator_attribute = 'title'
     category_locator = "NULL" #PENDING
     video_locator = "NULL"
-    
+
     undesirables = []
-    
+
     dateHasTime = True
 
     dateHasDateTimeAttribute = True
@@ -54,6 +54,6 @@ class ATROMBETAScrapper(BaseScrapper):
     text_locator_internal = (By.TAG_NAME, 'p')
 
 t = TEMPLATEScrapper(0)
-data = t.scrap_article("https://atrombetanews.com.br/2020/09/25/com-slogan-tratamento-precoce-e-vida-governo-bolsonaro-planeja-dia-d-contra-covid-em-03-de-outubro-com-kit-com-hidroxicloroquina-cloroquina-azitromicina-ivermec/")
+data = t.scrap_article("https://atrombetanews.com.br/2020/03/29/todos-infectados-pelo-covid-19-estao-curados-em-blumenau-santa-catarina-dentre-eles-um-idoso-de-72-anos/?fbclid=IwAR1ePn7ka554HfNuqv8jTCVJFoKUqASAo4XGIMKGdnvIIhSiJezMWfU65q0")
 t.append_article_to_txt(data)
 t.driver.quit()
