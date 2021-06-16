@@ -72,7 +72,7 @@ class CARTAPIAUIScrapper(BaseScrapper):
     """
     manualCategories = []
 
-d = CARTAPIAUIScrapper(1)
+d = CARTAPIAUIScrapper(0)
 data = d.scrap_article("https://cartapiaui.com.br/noticias/feitosa-costa/avanco-hospital-no-piaui-cura-pessoas-da-covid-19-e-esvazia-utis-com-uso-de-cloroquina-36954.html?fbclid=IwAR30hJf77Lt6YqE-MR03LalxDBcqfXRduQafmLcEbcM-qZlglcUjKhSxFR8")
 d.append_article_to_txt(data)
 d.driver.quit()
