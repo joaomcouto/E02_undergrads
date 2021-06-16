@@ -28,11 +28,13 @@ class CARTAPIAUIScrapper(BaseScrapper):
     dateHasDateTimeAttribute = False
     dateTimeAttribute = 'NULL'
 
+    dateStartSeparator = "NULL"
     dateEndingSeparator = "NULL"
     dateTimeSeparator = " às "
     hourMinuteSeparator = ":"
     dayMonthYearSeparator = " de "
     monthNeedsMapper = True
+    yearNeedsMapper = False
     dateMonthMapper = {
         'janeiro': 1,
         'fevereiro': 2,
@@ -60,6 +62,10 @@ class CARTAPIAUIScrapper(BaseScrapper):
     category_locator = 'NULL' #TEMPORARIO PQ TEM TAGS TEM QUE IMPLEMENTAR ISSO
     category_locator_internal = 'NULL'
 
+    addTagsCategories = False #OBRIGATORIO NÃO NULL
+    tags_categories_locator = (By.CLASS_NAME, '') #PODE SER APAGADO SE O BOOL OBRIGATORIO ACIMA MAIS PROXIMO FOR FALSE
+    tags_categories_locator_internal = (By.TAG_NAME,'') #PODE SER APAGADO SE O BOOL OBRIGATORIO ACIMA MAIS PROXIMO FOR FALSE
+    tagsUndesirables = [] #OBRIGATORIO MAS PODE SER "NULL"/VAZIO
 
     video_locator = "NULL"
     

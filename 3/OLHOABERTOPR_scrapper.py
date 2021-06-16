@@ -54,6 +54,13 @@ class OLHOABERTOPRScrapper(BaseScrapper):
     addUrlCategories = False
     urlCategoryLowerBounds = []
     urlCategoryUpperBounds = []
+
+    yearNeedsMapper = False
+    addTagsCategories = False
+    tags_categories_locator = 'NULL'
+    tags_categories_locator_internal = 'NULL'
+    tagsUndesirables = []
+    dateStartSeparator = "NULL"
     """
     MANUAL CATEGORIES (MUDAR DE ACORDO COM O EDITORAL SOBRE O QUAL O CRAWLING DE URLS FOR FEITO)
                 Necessario pois no inicio da pandemia por exemplo no g1, noticias de covid tem apenas a categoria "ciencia-e-saude"

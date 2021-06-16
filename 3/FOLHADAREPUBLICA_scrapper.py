@@ -69,6 +69,13 @@ class FOLHADAREPUBLICAScrapper(BaseScrapper):
     addUrlCategories = False
     urlCategoryLowerBounds = []
     urlCategoryUpperBounds = []
+
+    yearNeedsMapper = False
+    addTagsCategories = False
+    tags_categories_locator = 'NULL'
+    tags_categories_locator_internal = 'NULL'
+    tagsUndesirables = []
+    dateStartSeparator = "NULL"
     """
     MANUAL CATEGORIES (MUDAR DE ACORDO COM O EDITORAL SOBRE O QUAL O CRAWLING DE URLS FOR FEITO)
                 Necessario pois no inicio da pandemia por exemplo no g1, noticias de covid tem apenas a categoria "ciencia-e-saude"
@@ -78,7 +85,7 @@ class FOLHADAREPUBLICAScrapper(BaseScrapper):
     
 
 
-f = FOLHADAREPUBLICAScrapper(0)
+f = FOLHADAREPUBLICAScrapper(1)
 data = f.scrap_article('https://folhadarepublica.com/2021/06/08/senador-jorginho-mello-surpreende-renan-calheiros-e-mostra-foto-de-renan-com-lula-sem-mascara-e-confusao-toma-conta-da-cpi/')
 f.append_article_to_txt(data)
 f.driver.quit()
