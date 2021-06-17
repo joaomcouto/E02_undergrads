@@ -67,7 +67,6 @@ class QUESTIONESEScrapper(BaseScrapper):
 
 
 q = QUESTIONESEScrapper(0)
-#data = q.scrap_article("https://terrabrasilnoticias.com/2020/07/ministro-da-educacao-milton-ribeiro-recebe-alta-do-hospital-apos-tratamento-com-hidroxicloroquina-e-antibioticos/")
 data = q.scrap_article("https://questione-se.com/paciente-internada-com-covid-recebe-inalacao-com-hidroxicloroquina-e-melhora-imediatamente/")
 q.append_article_to_txt(data)
 q.driver.quit()
