@@ -9,60 +9,53 @@ class JORNALDACIDADEScrapper(BaseScrapper):
         else:
             super(JORNALDACIDADEScrapper, self).__init__()
 
+    scrapperSource = "JORNALDACIDADE"
+
     main_wrapper_locator = (By.CLASS_NAME ,'content' )
+
+    title_locator = (By.CLASS_NAME ,'post__title' )
+    title_locator_internal = "NULL"
 
     text_locator = (By.XPATH,'//div[contains(@class, "post__description")]/*[self::p or self::blockquote]')
     text_locator_internal = "NULL"
     textUndesirables = []
 
-    scrapperSource = "JORNALDACIDADE"
-    title_locator = (By.CLASS_NAME ,'post__title' )
-    title_locator_internal = "NULL"
-    
     date_locator = (By.CLASS_NAME,'post__date')
     date_locator_internal = "NULL"
-
     dateHasTime = True
-
     dateHasDateTimeAttribute = False
     dateTimeAttribute = "NULL"
-
+    dateStartSeparator = "NULL"
     dateEndingSeparator = "NULL"
     dateTimeSeparator = " às "
     hourMinuteSeparator = ":"
     dayMonthYearSeparator = "/"
     monthNeedsMapper = False
-    dateMonthMapper = {}
+    yearNeedsMapper = False
+
+    category_locator = (By.CLASS_NAME ,'post__category')
+    category_locator_internal = 'NULL'
+    addUrlCategories = False
+    urlCategoryLowerBounds = []
+    urlCategoryUpperBounds = []
+    addTagsCategories = True
+    tags_categories_locator = (By.CLASS_NAME ,'post__tags')
+    tags_categories_locator_internal = (By.CLASS_NAME ,'tag')
+    tagsUndesirables = []
 
     subtitle_locator = "NULL"
 
-    image_locator = (By.CLASS_NAME ,'featured-image' ) 
-    image_locator_internal = (By.TAG_NAME, "img") 
+    image_locator = (By.CLASS_NAME ,'featured-image' )
+    image_locator_internal = (By.TAG_NAME, "img")
     image_locator_attribute = 'srcset'
 
     author_locator =  (By.CLASS_NAME ,'writer__redaction')
     author_locator_internal = 'NULL'
     author_locator_attribute = 'NULL'
 
-    category_locator = (By.CLASS_NAME ,'post__category')
-    category_locator_internal = 'NULL'
-    
-    addUrlCategories = False
-    urlCategoryLowerBounds = []
-    urlCategoryUpperBounds = []
-
-    addTagsCategories = True
-    tags_categories_locator = (By.CLASS_NAME ,'post__tags')
-    tags_categories_locator_internal = (By.CLASS_NAME ,'tag')
-    tagsUndesirables = []
-
-
     video_locator = 'NULL'
-    video_locator_internal = 'NULL'
-    video_locator_attribute = 'NULL'
-    
+
     undesirables = []
-    
 
     """
     MANUAL CATEGORIES (MUDAR DE ACORDO COM O EDITORAL SOBRE O QUAL O CRAWLING DE URLS FOR FEITO)
