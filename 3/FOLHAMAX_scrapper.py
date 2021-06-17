@@ -9,27 +9,24 @@ class FOLHAMAXScrapper(BaseScrapper):
         else:
             super(FOLHAMAXScrapper, self).__init__()
 
+    scrapperSource = "FOLHAMAX"
+
     main_wrapper_locator = (By.ID ,'middle' )
+
+    title_locator = (By.CLASS_NAME,'Font30.linespacing')
+    title_locator_internal = "NULL"
 
     text_locator = (By.ID,'TextSize')
     text_locator_internal = (By.TAG_NAME,'p')
     textUndesirables = []
 
-    scrapperSource = "FOLHAMAX"
-    title_locator = (By.CLASS_NAME,'Font30.linespacing')
-    title_locator_internal = "NULL"
-    
     date_locator = (By.ID,'DestaqueSecao' )
     date_locator_internal = (By.CLASS_NAME,'Font12')
-
     dateHasTime = True
-
     dateHasDateTimeAttribute = False
     dateTimeAttribute = "NULL"
-
     dateStartSeparator = ", "
     dateEndingSeparator = " |"
-    
     dateTimeSeparator = ", "
     hourMinuteSeparator = "h:"
     dayMonthYearSeparator = " de "
@@ -48,36 +45,30 @@ class FOLHAMAXScrapper(BaseScrapper):
         'Novembro': 11,
         'Dezembro': 12
     }
-
-    subtitle_locator = (By.CLASS_NAME ,"Chapeu.line")
-
-    image_locator = (By.CLASS_NAME ,'img-wrapper.img-left' ) 
-    image_locator_internal = (By.TAG_NAME, "img") 
-    image_locator_attribute = 'src'
-
-    author_locator =  (By.CLASS_NAME ,'Font14.azul.linespacing')
-    author_locator_internal = 'NULL'
-    author_locator_attribute = 'NULL'
+    yearNeedsMapper = False
 
     category_locator = (By.ID ,'DestaqueSecao')
     category_locator_internal = (By.CLASS_NAME,'Font24Bold')
-    
     addUrlCategories = True
     urlCategoryLowerBounds = ['.com/']
     urlCategoryUpperBounds = ['/']
-
     addTagsCategories = False
     tags_categories_locator = 'NULL'
     tags_categories_locator_internal = 'NULL'
     tagsUndesirables = []
 
+    subtitle_locator = (By.CLASS_NAME ,"Chapeu.line")
+
+    image_locator = (By.CLASS_NAME ,'img-wrapper.img-left' )
+    image_locator_internal = (By.TAG_NAME, "img")
+    image_locator_attribute = 'src'
+
+    author_locator =  (By.CLASS_NAME, 'Font14.azul.linespacing')
+    author_locator_attribute = 'NULL'
 
     video_locator = 'NULL'
-    video_locator_internal = 'NULL'
-    video_locator_attribute = 'NULL'
-    
+
     undesirables = []
-    
 
     """
     MANUAL CATEGORIES (MUDAR DE ACORDO COM O EDITORAL SOBRE O QUAL O CRAWLING DE URLS FOR FEITO)
