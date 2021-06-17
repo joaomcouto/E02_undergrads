@@ -9,28 +9,24 @@ class LUISCARDOSOScrapper(BaseScrapper):
         else:
             super(LUISCARDOSOScrapper, self).__init__()
 
+    scrapperSource = "LUISCARDOSO"
+
     main_wrapper_locator = (By.TAG_NAME,'article' )
 
-    text_locator = (By.CLASS_NAME,'post-content.sa_incontent')  
+    title_locator = (By.CLASS_NAME,'post-title')
+    title_locator_internal = "NULL"
+
+    text_locator = (By.CLASS_NAME,'post-content.sa_incontent')
     text_locator_internal = (By.TAG_NAME,'p' )
     textUndesirables = ['Acompanhe o Blog']
 
-    scrapperSource = "LUISCARDOSO"
-    
-    title_locator = (By.CLASS_NAME,'post-title')
-    title_locator_internal = "NULL"
-    
     date_locator = (By.CLASS_NAME,'post-date' )
     date_locator_internal = (By.TAG_NAME,'time' )
-
     dateHasTime = True
-
     dateHasDateTimeAttribute = False #Ter tem mas so tem a hora, nao serve pra nada
     dateTimeAttribute = "NULL"
-
     dateStartSeparator = "NULL"
     dateEndingSeparator = "NULL"
-    
     dateTimeSeparator = " às "
     hourMinuteSeparator = ":"
     dayMonthYearSeparator = " de "
@@ -54,62 +50,52 @@ class LUISCARDOSOScrapper(BaseScrapper):
     dateYearMapper = {
                       '25' : 2025,
                       '24' : 2024,
-                      '23' : 2023,        
-                      '22' : 2022,        
-                      '21' : 2021,        
+                      '23' : 2023,
+                      '22' : 2022,
+                      '21' : 2021,
                       '20' : 2020,
                       '19' : 2019,
-                      '18' : 2018,                 
-                      '17' : 2017,      
-                      '16' : 2016,      
-                      '15' : 2015,      
-                      '14' : 2014, 
+                      '18' : 2018,
+                      '17' : 2017,
+                      '16' : 2016,
+                      '15' : 2015,
+                      '14' : 2014,
                       '13' : 2013,
-                      '12' : 2012, 
-                      '11' : 2011, 
-                      '10' : 2010, 
-                      '09' : 2009, 
-                      '08' : 2008, 
-                      '07' : 2007, 
-                      '06' : 2006, 
-                      '05' : 2005, 
-                      '04' : 2004, 
-                      '03' : 2003, 
-                      '02' : 2002, 
-                      '01' : 2001, 
-                      '00' : 2000,                                            
+                      '12' : 2012,
+                      '11' : 2011,
+                      '10' : 2010,
+                      '09' : 2009,
+                      '08' : 2008,
+                      '07' : 2007,
+                      '06' : 2006,
+                      '05' : 2005,
+                      '04' : 2004,
+                      '03' : 2003,
+                      '02' : 2002,
+                      '01' : 2001,
+                      '00' : 2000,
     }
 
-    subtitle_locator = "NULL"
-
-    image_locator = 'NULL'
-    image_locator_internal = 'NULL'
-    image_locator_attribute = 'NULL'
-
-    author_locator =  'NULL'
-    author_locator_internal = 'NULL'
-    author_locator_attribute = 'NULL'
-
     category_locator = (By.XPATH , '//span[i/@class = "fas fa-thumbtack"]')
-    
     category_locator_internal = (By.TAG_NAME, 'a')
-    
     addUrlCategories = True
     urlCategoryLowerBounds = ['.br/']
     urlCategoryUpperBounds = ['/']
-
     addTagsCategories = False
     tags_categories_locator = 'NULL'
     tags_categories_locator_internal = 'NULL'
     tagsUndesirables = []
 
+    subtitle_locator = "NULL"
+
+    image_locator = 'NULL'
+
+    author_locator =  'NULL'
+    author_locator_attribute = 'NULL'
 
     video_locator = 'NULL'
-    video_locator_internal = 'NULL'
-    video_locator_attribute = 'NULL'
-    
+
     undesirables = []
-    
 
     """
     MANUAL CATEGORIES (MUDAR DE ACORDO COM O EDITORAL SOBRE O QUAL O CRAWLING DE URLS FOR FEITO)
