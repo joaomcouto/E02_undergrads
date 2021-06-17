@@ -26,11 +26,13 @@ class CONEXAOAMAZONASScrapper(BaseScrapper):
     dateHasDateTimeAttribute = False
     dateTimeAttribute = 'NULL'
 
+    dateStartSeparator = "NULL"
     dateEndingSeparator = "NULL"
     dateTimeSeparator = " "
     hourMinuteSeparator = ":"
     dayMonthYearSeparator = "/"
     monthNeedsMapper = False
+    yearNeedsMapper = False
     
 
     subtitle_locator = (By.CLASS_NAME,'p_subtitle')
@@ -47,6 +49,10 @@ class CONEXAOAMAZONASScrapper(BaseScrapper):
     category_locator = 'NULL' #TEMPORARIO PQ TEM TAGS TEM QUE IMPLEMENTAR ISSO
     category_locator_internal = 'NULL'
 
+    addTagsCategories = False #OBRIGATORIO NÃO NULL
+    tags_categories_locator = 'NULL' #PODE SER APAGADO SE O BOOL OBRIGATORIO ACIMA MAIS PROXIMO FOR FALSE
+    tags_categories_locator_internal = 'NULL' #PODE SER APAGADO SE O BOOL OBRIGATORIO ACIMA MAIS PROXIMO FOR FALSE
+    tagsUndesirables = [] #OBRIGATORIO MAS PODE SER "NULL"/VAZIO
 
     video_locator = "NULL"
     
@@ -55,6 +61,7 @@ class CONEXAOAMAZONASScrapper(BaseScrapper):
     addUrlCategories = False
     urlCategoryLowerBounds = []
     urlCategoryUpperBounds = []
+
     """
     MANUAL CATEGORIES (MUDAR DE ACORDO COM O EDITORAL SOBRE O QUAL O CRAWLING DE URLS FOR FEITO)
                 Necessario pois no inicio da pandemia por exemplo no g1, noticias de covid tem apenas a categoria "ciencia-e-saude"

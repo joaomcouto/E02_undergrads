@@ -25,11 +25,13 @@ class ALIADOSBRASILScrapper(BaseScrapper):
     dateHasDateTimeAttribute = False
     dateTimeAttribute = 'NULL'
 
-    dateEndingSeparator = "."
+    dateStartSeparator = "NULL"
+    dateEndingSeparator = "NULL"
     dateTimeSeparator = " "
     hourMinuteSeparator = ":"
     dayMonthYearSeparator = "/"
     monthNeedsMapper = False
+    yearNeedsMapper = False
 
     subtitle_locator = 'NULL'
 
@@ -45,8 +47,14 @@ class ALIADOSBRASILScrapper(BaseScrapper):
     category_locator = (By.CLASS_NAME,'post_header') #TEMPORARIO PQ TEM TAGS TEM QUE IMPLEMENTAR ISSO
     category_locator_internal = (By.TAG_NAME,'h4')
 
+    addTagsCategories = False
+    tags_categories_locator = 'NULL' #PODE SER APAGADO SE O BOOL OBRIGATORIO ACIMA MAIS PROXIMO FOR FALSE
+    tags_categories_locator_internal = "NULL" #PODE SER APAGADO SE O BOOL OBRIGATORIO ACIMA MAIS PROXIMO FOR FALSE
+    tagsUndesirables = [] #OBRIGATORIO MAS PODE SER "NULL"/VAZIO
 
-    video_locator = "NULL"
+    video_locator = 'NULL' #OBRIGATORIO MAS PODE SER "NULL"/VAZIO
+    video_locator_internal = 'NULL' #PODE SER APAGADO SE O OBRIGATORIO ACIMA MAIS PROXIMO FOR "NULL"
+    video_locator_attribute = 'NULL'#PODE SER APAGADO SE O OBRIGATORIO ACIMA MAIS PROXIMO FOR "NULL"
     
     undesirables = []
     
