@@ -8,24 +8,23 @@ class TERCALIVREScrapper(BaseScrapper):
         else:
             super(TERCALIVREScrapper, self).__init__()
 
+    scrapperSource = "TERCALIVRE"
+
     main_wrapper_locator = (By.CLASS_NAME ,'col-lg-9.col-md-9.col-mod-single.col-mod-main' )
+
+    title_locator = (By.CLASS_NAME ,'entry-title.h1' )
+    title_locator_internal = "NULL"
 
     text_locator = (By.CLASS_NAME,'entry-content.herald-entry-content')
     text_locator_internal = (By.TAG_NAME, 'p')
     textUndesirables = []
 
-    scrapperSource = "TERCALIVRE"
-    title_locator = (By.CLASS_NAME ,'entry-title.h1' )
-    title_locator_internal = "NULL"
-    
     date_locator = (By.CLASS_NAME ,'updated' )
     date_locator_internal = "NULL"
-
     dateHasTime = True
-
     dateHasDateTimeAttribute = False
     dateTimeAttribute = 'NULL'
-
+    dateStartSeparator = "NULL"
     dateEndingSeparator = "NULL"
     dateTimeSeparator = "NULL"
     hourMinuteSeparator = ":"
@@ -45,6 +44,17 @@ class TERCALIVREScrapper(BaseScrapper):
                 'novembro': 11,
                 'dezembro': 12
             }
+    yearNeedsMapper = False
+
+    category_locator = 'NULL'
+    category_locator_internal = 'NULL'
+    addUrlCategories = False
+    urlCategoryLowerBounds = []
+    urlCategoryUpperBounds = []
+    addTagsCategories = True
+    tags_categories_locator = (By.CLASS_NAME ,'meta-tags')
+    tags_categories_locator_internal = (By.TAG_NAME ,'a')
+    tagsUndesirables = []
 
     subtitle_locator = "NULL"
 
@@ -57,24 +67,9 @@ class TERCALIVREScrapper(BaseScrapper):
     author_locator_internal = "NULL"
     author_locator_attribute = 'NULL'
 
-    category_locator = 'NULL' 
-    category_locator_internal = 'NULL'
-    addUrlCategories = False
-    urlCategoryLowerBounds = []
-    urlCategoryUpperBounds = []
-
-    addTagsCategories = True
-    tags_categories_locator = (By.CLASS_NAME ,'meta-tags')
-    tags_categories_locator_internal = (By.TAG_NAME ,'a')
-    tagsUndesirables = []
-
-
     video_locator = "NULL"
-    video_locator_internal = "NULL"
-    video_locator_attribute = "NULL"
-    
+
     undesirables = []
-    
 
     """
     MANUAL CATEGORIES (MUDAR DE ACORDO COM O EDITORAL SOBRE O QUAL O CRAWLING DE URLS FOR FEITO)
@@ -82,6 +77,7 @@ class TERCALIVREScrapper(BaseScrapper):
                 Alem disso, outro exemplo, noticias de politica relacionadas a covid frequentente recebem apenas a categoria "politica"
     """
     manualCategories = []
+
     def get_date(self):
         if(self.date_locator_internal == "NULL"):
             dateElement =self.currentWrapper.find_element(*self.date_locator)
@@ -105,20 +101,23 @@ class TERCALIVREScrapper(BaseScrapper):
 
         if(self.dateHasTime):
             data_publicacao = datetime( year=int(publicationYear),
-                                    month=int(publicationMonth), 
+                                    month=int(publicationMonth),
                                     day=int(publicationDay),
                                     hour=int(publicationHour),
                                     minute=int(publicationMinute))
         else:
             data_publicacao = datetime( year=int(publicationYear),
-                                    month=int(publicationMonth), 
+                                    month=int(publicationMonth),
                                     day=int(publicationDay))
 
         publication_date = data_publicacao.strftime('%Y-%m-%d %H:%M:%S')
-        return publication_date 
+        return publication_date
 
 
 t = TERCALIVREScrapper(0)
-data = t.scrap_article("https://tercalivre.com.br/alexandre-de-moraes-retira-sigilo-do-inquerito-dos-supostos-atos-antidemocraticos/")
+#data = t.scrap_article("https://tercalivre.com.br/alexandre-de-moraes-retira-sigilo-do-inquerito-dos-supostos-atos-antidemocraticos/")
+#data = t.scrap_article("https://tercalivre.com.br/oms-recua-e-diz-que-governos-devem-pensar-em-quem-precisa-garantir-o-pao-de-cada-dia/")
+data = t.scrap_article("https://tercalivre.com.br/joe-biden-recebeu-as-perguntas-do-debate-desta-noite-com-antecedencia/")
+#data = t.scrap_article("https://tercalivre.com.br/bolsonaro-critica-politica-economica-da-argentina-venezuela-e-cuba/")
 t.append_article_to_txt(data)
 t.driver.quit()
