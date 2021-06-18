@@ -2,6 +2,8 @@ from news_crawler.base_scrapper import BaseScrapper
 from selenium.webdriver.common.by import By
 from datetime import datetime
 
+
+#O get do selenium está rodando infinitamente, acredito que o site de alguma forma está bloqueando seu acesso
 class ESTIBORDOScrapper(BaseScrapper):
     def __init__(self,interface):
         if interface:

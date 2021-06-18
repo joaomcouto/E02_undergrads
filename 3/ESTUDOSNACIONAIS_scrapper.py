@@ -9,38 +9,40 @@ class ESTUDOSNACIONAISScrapper(BaseScrapper):
         else:
             super(ESTUDOSNACIONAISScrapper, self).__init__()
 
-    main_wrapper_locator = (By.ID ,'td-outer-wrap' )
+    main_wrapper_locator = (By.CLASS_NAME ,'jeg_main.jeg_sidebar_none' )
 
-    text_locator = (By.CLASS_NAME,'td-post-content.tagdiv-type')
+    text_locator = (By.CLASS_NAME,'content-inner')
     text_locator_internal = (By.TAG_NAME ,'p')
     textUndesirables = []
 
     scrapperSource = "ESTUDOSNACIONAIS"
-    title_locator = (By.CLASS_NAME ,'td-post-title' )
-    title_locator_internal = (By.CLASS_NAME ,"entry-title" )
+    title_locator = (By.CLASS_NAME ,'entry-header' )
+    title_locator_internal = (By.CLASS_NAME ,"jeg_post_title" )
     
-    date_locator = (By.CLASS_NAME,'entry-date')
-    date_locator_internal = "NULL"
+    date_locator = (By.CLASS_NAME,'entry-header')
+    date_locator_internal = (By.CLASS_NAME,"jeg_meta_date")
 
-    dateHasTime = True
+    dateHasTime = False
 
-    dateHasDateTimeAttribute = True
-    dateTimeAttribute = "datetime"
+    dateHasDateTimeAttribute = False
+    dateTimeAttribute = "NULL"
 
     dateEndingSeparator = "NULL"
+    dateStartSeparator = "NULL"
     dateTimeSeparator = "NULL"
     hourMinuteSeparator = "NULL"
-    dayMonthYearSeparator = "NULL"
+    dayMonthYearSeparator = "/"
     monthNeedsMapper = False
+    yearNeedsMapper = False
     dateMonthMapper = {}
 
-    subtitle_locator = (By.CLASS_NAME ,"td-post-sub-title")
+    subtitle_locator = (By.CLASS_NAME ,"jeg_post_subtitle")
 
-    image_locator = (By.ID ,'td-full-screen-header-image' ) 
-    image_locator_internal = (By.TAG_NAME, "img") 
-    image_locator_attribute = 'src'
+    image_locator = (By.CLASS_NAME ,'jeg_featured_img' ) 
+    image_locator_internal = "NULL" 
+    image_locator_attribute = 'style'
 
-    author_locator =  (By.CLASS_NAME ,'td-post-author-name')
+    author_locator =  (By.CLASS_NAME ,'jeg_meta_author')
     author_locator_internal = (By.TAG_NAME, "a") 
     author_locator_attribute = 'NULL'
 
@@ -70,6 +72,22 @@ class ESTUDOSNACIONAISScrapper(BaseScrapper):
                 Alem disso, outro exemplo, noticias de politica relacionadas a covid frequentente recebem apenas a categoria "politica"
     """
     manualCategories = []
+
+    def get_main_image_url(self):
+        if (self.image_locator == "NULL"):
+            return "NULL"
+        else:
+            try:
+                if (self.image_locator_internal == "NULL"):
+                    imgElement = self.currentWrapper.find_element(*self.image_locator)
+                else:
+                    imgElement = self.currentWrapper.find_element(*self.image_locator).find_element(*self.image_locator_internal)
+                print(imgElement.get_attribute(self.image_locator_attribute))
+                return (imgElement.get_attribute(self.image_locator_attribute)).split('url("')[1].split('");')[0]    
+            except Exception as e:
+                print(e)
+                return "NULL"
+    
 
 
 t = ESTUDOSNACIONAISScrapper(0)

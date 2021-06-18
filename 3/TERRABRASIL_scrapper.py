@@ -42,7 +42,7 @@ class TERRABRASILScrapper(BaseScrapper):
     #author_locator =  (By.XPATH ,'//span[@style="color: rgb(159, 159, 223);"]' )
     author_locator =  (By.CLASS_NAME ,'post_author')
     author_locator_internal = (By.TAG_NAME ,'a')
-    author_locator_attribute = 'NULL'
+    author_locator_attribute = 'innerHTML'
 
     category_locator = 'NULL' 
     category_locator_internal = 'NULL'
@@ -89,7 +89,6 @@ class TERRABRASILScrapper(BaseScrapper):
         if(len(ret) < 30):
             raise("Texto coletado pequeno demais, algo de errado aconteceu")
         return self.treat_text(ret)
-
 
 
 t = TERRABRASILScrapper(0)
