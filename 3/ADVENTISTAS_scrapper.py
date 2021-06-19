@@ -77,7 +77,7 @@ class ADVENTISTASScrapper(BaseScrapper):
     """
     manualCategories = []
 
-
+#Isadora E Leandro ambos tem essa
 t = ADVENTISTASScrapper(0)
 data = t.scrap_article("http://www.adventistas.com/2020/04/02/novo-coronavirus-tem-algo-errado-com-esse-virus-da-covid19/")
 t.append_article_to_txt(data)

@@ -92,6 +92,10 @@ class TERRABRASILScrapper(BaseScrapper):
 
 
 t = TERRABRASILScrapper(0)
-data = t.scrap_article("https://terrabrasilnoticias.com/2021/05/bomba-documentos-mostram-coronavirus-sendo-testado-como-arma-biologica-5-anos-antes-da-pandemia-por-chineses/")
+data = t.scrap_article("https://terrabrasilnoticias.com/2020/07/ministro-da-educacao-milton-ribeiro-recebe-alta-do-hospital-apos-tratamento-com-hidroxicloroquina-e-antibioticos")
 t.append_article_to_txt(data)
+
+data2 = t.scrap_article("https://terrabrasilnoticias.com/2021/05/bomba-documentos-mostram-coronavirus-sendo-testado-como-arma-biologica-5-anos-antes-da-pandemia-por-chineses")
+t.append_article_to_txt(data2)
+
 t.driver.quit()

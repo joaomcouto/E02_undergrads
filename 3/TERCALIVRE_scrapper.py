@@ -117,7 +117,16 @@ class TERCALIVREScrapper(BaseScrapper):
 t = TERCALIVREScrapper(0)
 #data = t.scrap_article("https://tercalivre.com.br/alexandre-de-moraes-retira-sigilo-do-inquerito-dos-supostos-atos-antidemocraticos/")
 #data = t.scrap_article("https://tercalivre.com.br/oms-recua-e-diz-que-governos-devem-pensar-em-quem-precisa-garantir-o-pao-de-cada-dia/")
-data = t.scrap_article("https://tercalivre.com.br/joe-biden-recebeu-as-perguntas-do-debate-desta-noite-com-antecedencia/")
+
 #data = t.scrap_article("https://tercalivre.com.br/bolsonaro-critica-politica-economica-da-argentina-venezuela-e-cuba/")
+data = t.scrap_article("https://tercalivre.com.br/bolsonaro-critica-politica-economica-da-argentina-venezuela-e-cuba")
 t.append_article_to_txt(data)
+
+data2 = t.scrap_article("https://tercalivre.com.br/joe-biden-recebeu-as-perguntas-do-debate-desta-noite-com-antecedencia")
+t.append_article_to_txt(data2)
+
+#Isadora
+data3 = t.scrap_article("https://www.tercalivre.com.br/oms-recua-e-diz-que-governos-devem-pensar-em-quem-precisa-garantir-o-pao-de-cada-dia/")
+t.append_article_to_txt(data3)
+
 t.driver.quit()

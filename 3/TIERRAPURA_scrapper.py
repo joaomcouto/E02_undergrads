@@ -70,4 +70,8 @@ t = TIERRAPURAScrapper(0)
 #data = t.scrap_article("https://tierrapura.org/2021/05/29/buenas-noticias-la-inmunidad-natural-al-covid-19-puede-durar-toda-la-vida/")
 data = t.scrap_article("https://tierrapura.org/2021/03/20/treinta-por-ciento-de-los-vacunados-morira-en-tres-meses-asegura-doctora-sherri-tempenny")
 t.append_article_to_txt(data)
+
+data2 = t.scrap_article("https://tierrapura.org/2021/04/25/neumonia-bacteriana-un-peligro-latente-por-el-uso-prolongado-de-mascarillas")
+t.append_article_to_txt(data2)
+
 t.driver.quit()

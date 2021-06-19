@@ -65,6 +65,9 @@ class DIARIODOPODERScrapper(BaseScrapper):
 
 d = DIARIODOPODERScrapper(0)
 #data = d.scrap_article("https://diariodopoder.com.br/coronavirus/revisao-de-estudos-sobre-ivermectina-indica-eficacia-potencial-contra-covid-19")
-data = d.scrap_article("https://diariodopoder.com.br/politica/brasil-e-o-quinto-pais-que-mais-vacina-desde-o-dia-17-inicio-da-imunizacao")
+data = d.scrap_article("https://diariodopoder.com.br/coronavirus/revisao-de-estudos-sobre-ivermectina-indica-eficacia-potencial-contra-covid-19")
 d.append_article_to_txt(data)
+
+data2 = d.scrap_article("https://diariodopoder.com.br/politica/brasil-e-o-quinto-pais-que-mais-vacina-desde-o-dia-17-inicio-da-imunizacao")
+d.append_article_to_txt(data2)
 d.driver.quit()

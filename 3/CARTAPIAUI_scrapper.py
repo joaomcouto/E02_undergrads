@@ -28,11 +28,13 @@ class CARTAPIAUIScrapper(BaseScrapper):
     dateHasDateTimeAttribute = False
     dateTimeAttribute = 'NULL'
 
+    dateStartSeparator = "NULL"
     dateEndingSeparator = "NULL"
     dateTimeSeparator = " às "
     hourMinuteSeparator = ":"
     dayMonthYearSeparator = " de "
     monthNeedsMapper = True
+    yearNeedsMapper = False
     dateMonthMapper = {
         'janeiro': 1,
         'fevereiro': 2,
@@ -59,6 +61,7 @@ class CARTAPIAUIScrapper(BaseScrapper):
 
     category_locator = 'NULL' #TEMPORARIO PQ TEM TAGS TEM QUE IMPLEMENTAR ISSO
     category_locator_internal = 'NULL'
+    addTagsCategories = False
 
 
     video_locator = "NULL"
@@ -75,7 +78,7 @@ class CARTAPIAUIScrapper(BaseScrapper):
     """
     manualCategories = []
 
-d = CARTAPIAUIScrapper(1)
+d = CARTAPIAUIScrapper(0)
 data = d.scrap_article("https://cartapiaui.com.br/noticias/feitosa-costa/avanco-hospital-no-piaui-cura-pessoas-da-covid-19-e-esvazia-utis-com-uso-de-cloroquina-36954.html?fbclid=IwAR30hJf77Lt6YqE-MR03LalxDBcqfXRduQafmLcEbcM-qZlglcUjKhSxFR8")
 d.append_article_to_txt(data)
 d.driver.quit()

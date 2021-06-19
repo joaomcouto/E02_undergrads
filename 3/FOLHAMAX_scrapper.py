@@ -64,6 +64,7 @@ class FOLHAMAXScrapper(BaseScrapper):
     image_locator_attribute = 'src'
 
     author_locator =  (By.CLASS_NAME, 'Font14.azul.linespacing')
+    author_locator_internal = "NULL"
     author_locator_attribute = 'NULL'
 
     video_locator = 'NULL'

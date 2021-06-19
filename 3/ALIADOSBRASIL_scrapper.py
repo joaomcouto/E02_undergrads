@@ -70,7 +70,7 @@ class ALIADOSBRASILScrapper(BaseScrapper):
     
 
 
-f = ALIADOSBRASILScrapper(1)
+f = ALIADOSBRASILScrapper(0)
 data = f.scrap_article('https://www.aliadosbrasiloficial.com.br/noticia/prefeitura-de-sorocaba-sp-anuncia-eficacia-de-99-do-tratamento-precoce-contra-covid')
 f.append_article_to_txt(data)
 f.driver.quit()

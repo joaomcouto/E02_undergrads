@@ -69,7 +69,7 @@ class REVISTAAMAZONIAScrapper(BaseScrapper):
     
 
 
-f = REVISTAAMAZONIAScrapper(1)
+f = REVISTAAMAZONIAScrapper(0)
 data = f.scrap_article('https://revistaamazonia.com.br/alemanha-envia-cobranca-de-130-bilhoes-de-libras-a-china-por-danos-causados-pelo-coronavirus/?fbclid=IwAR1wmPKZg7pn7Gx1lckrwLC56cgQmatCeq2dgLpTDwVrDkVpPGY56HcJqUM')
 f.append_article_to_txt(data)
 f.driver.quit()
