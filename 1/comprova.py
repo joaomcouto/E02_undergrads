@@ -9,7 +9,7 @@ from selenium.common.exceptions import NoSuchElementException
 
 
 def file_name(url):
-    value = hash(url)
+    value = new_hash = hashlib.sha1(url.encode()).hexdigest()
     if value < 0:
         name = '0' + str(abs(value)) + '.html'
     else:
@@ -96,11 +96,12 @@ class Comprova():
 		infos['url'] = driver.current_url
 		infos['publication_date'] = self.convert_date(wrapper.find_element(*self.date_locator).text)
 		infos['obtained_at'] = datetime.date.today().strftime('%Y-%m-%d %H:%M:%S')
-		name = file_name(driver.current_url)
-		file_path = 'COMPROVA/HTML/'+name
+
+		value = hashlib.sha1(url.encode()).hexdigest()
+		file_path = 'COMPROVA/HTML/'+value+'.html'
 		with open(file_path,'w') as file:
 			file.write(driver.page_source)
-		infos['raw_file_name'] = file_path
+		infos["raw_file_name"] = file_path
 
 		try:
 			infos['img_link'] = main_txt.find_element(*self.image_locator).get_attribute('src')

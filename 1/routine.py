@@ -14,8 +14,9 @@ def get_last_urls(agency):
 	urls = []
 	filename = "LAST_URL/last_"+agency+".txt"
 	with open(filename,'r') as file:
-		url = file.readline()
-	return url.strip()
+		for line in file:
+			urls.append(line.strip())
+	return urls
 
 def collect_all(Obj):
 	infos = {'url':'',
@@ -27,9 +28,13 @@ def collect_all(Obj):
 	urls = Obj.crawler_news(' ')
 	file_path = "URLS/urls_"+Obj.agency+'.txt'
 	file2_path = "LAST_URL/last_"+Obj.agency+'.txt'
+
 	with open(file2_path,'w') as file2:
-		file2.write(str(urls[0]))
-	with open(file_path, mode='w', encoding='utf-8') as file:
+		last_urls_list = urls[0:5]
+		for el in last_urls_list:
+			file2.write(str(el)+'\n')
+
+	with open(file_path,'w') as file:
 		for line in urls:
 			infos['url'] = str(line)
 			infos['obtained_at'] = datetime.date.today().strftime('%Y-%m-%d %H:%M:%S')
@@ -45,17 +50,21 @@ def write_routine(urls,agency):
 
 	file_path = 'ROUTINES/routine_'+agency+'.txt'
 	file2_path = 'LAST_URL/last_'+agency+'.txt'
-	with open (file2_path,'w') as url_file:
-		url_file.write(str(urls[0]))
-	with open(file_path, mode='a', encoding='utf-8') as routine_file:
+
+	with open(file2_path,'w') as file2:
+		last_urls_list = urls[0:5]
+		for el in last_urls_list:
+			file2.write(str(el)+'\n')
+
+	with open(file_path, 'a') as routine_file:
 		for line in urls:
 			infos['url'] = str(line)
 			infos['obtained_at'] = datetime.date.today().strftime('%Y-%m-%d %H:%M:%S')
 			routine_file.write(json.dumps(infos, ensure_ascii=False) + '\n')
 
 def execute_routine(Obj):
-	url = get_last_urls(Obj.agency)
-	url_news = Obj.crawler_news(url)
+	urls = get_last_urls(Obj.agency)
+	url_news = Obj.crawler_news(urls)
 	write_routine(url_news,Obj.agency)
 	return url_news
 
@@ -76,19 +85,27 @@ class Lupa():
 		date  = datetime.date(year,month,day)
 		return date
 	
-	def crawler_news(self,last_url):
+	def crawler_news(self,last_urls):
 		driver = webdriver.Firefox()
 		driver.get(self.__baseUrl)
 		url_list = []
-				
+		last_url = last_urls[0]
+		is_first_time = True
+		bubble_counter = 0
 		while True:
 			news = driver.find_elements(*self.news_locator)
 			for n in news:
 				url = n.find_element_by_tag_name('a').get_attribute("href")
-				if url == last_url:
-					driver.close()
-					return url_list
-				url_list.append(url)
+				if (url == last_url):
+					if is_first_time:
+						is_first_time = False
+						last_url = last_urls[1]
+					else:
+						driver.close()
+						return url_list
+				else:
+					url_list.append(url)
+
 			try:
 				time.sleep(1)
 				button = driver.find_element(*self.button_locator)
@@ -119,9 +136,11 @@ class Comprova():
 		complete_date = text_date.split("-")
 		date = datetime.date(int(complete_date[0]),int(complete_date[1]),int(complete_date[2]))
 		return date
-	def crawler_news(self,last_url):
+	def crawler_news(self,last_urls):
 		page_list = []
 		url_list = []
+		last_url = last_urls[0]
+		is_first_time = True
 		driver = webdriver.Firefox()
 		driver.get(self.__baseUrl)
 		pages = driver.find_elements(*self.pagination_locator)
@@ -132,11 +151,15 @@ class Comprova():
 			news = driver.find_elements(*self.news_locator)
 			for n in news:
 				url = n.find_element(*self.news_child_locator).get_attribute("href")
-				if url == last_url:
-					driver.close()
-					return url_list
-				url_list.append(url)
-				# print(url)
+				if (url == last_url):
+					if is_first_time:
+						is_first_time = False
+						last_url = last_urls[1]
+					else:
+						driver.close()
+						return url_list
+				else:
+					url_list.append(url)
 		driver.close()
 		return url_list
 
@@ -218,11 +241,13 @@ class Boatos():
 
 	def convert_date(self,text_date):
 		pass
-	def crawler_news(self,last_url):
+	def crawler_news(self,last_urls):
 		archive_list = []
 		urls_list = []
 		driver = webdriver.Firefox()
 		driver.get(self.__baseUrl)
+		last_url = last_urls[0]
+		is_first_time = True
 
 		archive = driver.find_elements(*self.pagination_locator)
 		for ar in archive:
@@ -235,10 +260,15 @@ class Boatos():
 				news = driver.find_elements(*self.news_locator)
 				for n in news:
 					url = n.find_element_by_tag_name("a").get_attribute("href")
-					if url == last_url:
-						driver.close()
-						return urls_list
-					urls_list.append(url)
+					if (url == last_url):
+						if is_first_time:
+							is_first_time = False
+							last_url = last_urls[1]
+						else:
+							driver.close()
+							return url_list
+					else:
+						url_list.append(url)
 				try:
 					button = driver.find_element(*self.button_locator)
 					next_page = button.find_element_by_tag_name("a").get_attribute("href")
@@ -267,20 +297,26 @@ class Aos_fatos():
 
 	def convert_date(self,text_date):
 		pass
-	def crawler_news(self,last_url):
+	def crawler_news(self,last_urls):
 		urls_list = []
 		driver = webdriver.Firefox()
 		driver.get(self.__baseUrl)
+		last_url = last_urls[0]
+		is_first_time = True
 		while True:
 			news = driver.find_elements(*self.news_locator)
 			for n in news:
 				url = n.get_attribute("href")
 				category = n.find_element(*self.category_locator).text
-				print(url,category)
-				if url == last_url:
-					driver.close()
-					return urls_list
-				urls_list.append((url,category))
+                if (url == last_url):
+					if is_first_time:
+						is_first_time = False
+						last_url = last_urls[1]
+					else:
+						driver.close()
+						return url_list
+				else:
+					url_list.append(url)
 			try:
 				button = driver.find_element(*self.button_locator)
 				next_page  = button.get_attribute("href")
@@ -290,7 +326,6 @@ class Aos_fatos():
 				break
 		driver.close()
 		return urls_list
-
 		
 class Fato_ou_fake():
 	
@@ -314,10 +349,12 @@ class Fato_ou_fake():
 
 	def convert_date(self,text_date):
 		pass
-	def crawler_news(self,last_url):
+	def crawler_news(self,last_urls):
 		urls_list = []
 		driver = webdriver.Firefox()
 		driver.get(self.__baseUrl)
+		last_url = last_urls[0]
+		is_first_time = True
 		#scroll page
 		for i in range(0,4):
 			driver.execute_script("window.scrollTo("+str(self.scroll_initial)+", "+str(self.scroll_final) +")")
@@ -326,8 +363,6 @@ class Fato_ou_fake():
 			self.scroll_final += self.scroll_add
 		#crawl
 		while True:
-			time.sleep(2)
-			#news = driver.find_elements_by_class_name(self.news_class)
 			feed =  WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.CLASS_NAME, self.feed_class)))
 			news = driver.find_elements_by_xpath(self.news_xpath)
 			for n in news:
@@ -335,21 +370,14 @@ class Fato_ou_fake():
 				if url == last_url:
 					driver.close()
 					return urls_list
-				urls_list.append(url)
-				print(url)			
+				urls_list.append(url)		
 			try:
-				#button = WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.XPATH, self.button_xpath)))
-				#button = driver.find_element_by_xpath(self.button_xpath)
-				#driver.execute_script("arguments[0].scrollIntoView();", button)
-				#driver.execute_script("arguments[0].click();", button)
 				button = driver.find_element_by_class_name(self.next_page_class)
 				next_page = button.find_element_by_tag_name('a').get_attribute("href")
 				driver.get(next_page)
 				time.sleep(5)
 			except NoSuchElementException:
 				break
-
-
 		driver.close()
 		return urls_list
 		
@@ -360,12 +388,14 @@ class Estadao_verifica():
 		self.news_class = (By.CSS_SELECTOR, ".col-md-6:nth-child(2)")#(By.CLASS_NAME,"col-md-6")
 		self.button_class = (By.CSS_SELECTOR, ".more-list-news") 
 		self.thumb_img_locator = (By.TAG_NAME, 'img')
-		self.n_max_clicks = 180
+		self.n_max_clicks = 8
 		self.agency = 'estadao_verifica'
-	def crawler_news(self,last_url):
+	def crawler_news(self,last_urls):
 		urls_list = []
 		driver = webdriver.Firefox()
 		driver.get(self.__baseUrl)
+		last_url = last_urls[0]
+		is_first_time = True
 		n_clicks = 0
 		while n_clicks < self.n_max_clicks:
 			try:
@@ -384,14 +414,18 @@ class Estadao_verifica():
 			url = wrapper_obj.get_attribute('href')
 			img = wrapper_obj.find_element(By. TAG_NAME,'img')
 			img_link = img.get_attribute('src')
-			if url == last_url:
-				driver.close()
-				urls_list = urls_list[2:]
-				return urls_list
-			if url == 'javascript:void(0);' or url == '0':
-				pass
-			else:	
-				urls_list.append((url,img_link))
+			if (url == last_url):
+				if is_first_time:
+					is_first_time = False
+					last_url = last_urls[1]
+				else:
+					driver.close()
+					return url_list
+			else:
+				if url == 'javascript:void(0);' or url == '0':
+					pass
+				else:	
+					urls_list.append((url,img_link))
 		driver.close()
 		urls_list = urls_list[2:]
 		return urls_list
@@ -404,27 +438,19 @@ class Estadao_verifica():
 
 
 L = Lupa()
-C = Comprova()
-B = Boatos()
-A = Aos_fatos()
-F = Fato_ou_fake()
-E = E_farsas()
-EV = Estadao_verifica()
+#C = Comprova()
+#B = Boatos()
+#A = Aos_fatos()
+#F = Fato_ou_fake()
+#E = E_farsas()
+#EV = Estadao_verifica()
 
-#d = EV.crawler_news('https://politica.estadao.com.br/blogs/estadao-verifica/foto-viral-mostra-visita-do-papa-ao-rio-nao-ato-pro-bolsonaro-de-1o-de-maio/')
-# collect_all(L)
-#collect_all(C)
-# collect_all(B)
-# collect_all(A)
-# collect_all(E)
-collect_all(EV)
-#lista = EV.crawler_news(' ')
+last1 ='https://piaui.folha.uol.com.br/lupa/2021/06/01/verificamos-recife-olhos-sangrando/'
+last2 = 'https://piaui.folha.uol.com.br/lupa/2021/05/31/verificamos-video-documentos-eleitorais-descartados-inseguranca-urna-eletronica/'
+last3 = 'https://piaui.folha.uol.com.br/lupa/2021/05/31/mitos-mudancas-climaticas/'
+list_last = [last1,last2,last3]
 
-'''
-file = open("Urls/urls_estadao_verifica_com_thumb.txt",'w')
-file.write(str(len(lista))+'\n')
-for line in lista:
-	file.write(str(line) +'\n')
-	print('Escreveu!')
-file.close()
-'''
+p = L.crawler_news(list_last)
+print(p)
+
+

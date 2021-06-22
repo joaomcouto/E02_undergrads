@@ -160,7 +160,10 @@ class Estadao_Verifica():
 		date = wrapper.find_element(*self.date_locator).text
 		infos['publication_date'] = self.convert_date(date)
 		infos['title']       = wrapper.get_attribute(self.title_locator)
-		infos['subtitle']    = wrapper.find_element(*self.subtitle_locator).text
+		try:
+			infos['subtitle']    = wrapper.find_element(*self.subtitle_locator).text
+		except:
+			infos['subtitle'] = ''	
 		infos['authors']     = self.author_extract(wrapper.get_attribute(self.author_locator))
 		infos['text_news']   = wrapper.find_element(*self.text_locator).text
 		infos['image_link']  = wrapper.find_element(*self.image_locator).get_attribute('src')
@@ -174,7 +177,7 @@ class Estadao_Verifica():
 		except NoSuchElementException:
 			infos['tags'] = tag_list
 			print("Não possui tags")
-		value = file_name(driver.current_url)
+		value = hashlib.sha1(url.encode()).hexdigest()
 		file_path = 'ESTADAO_VERIFICA/HTML/'+value+'.html'
 		with open(file_path,'w') as file:
 			file.write(driver.page_source)
