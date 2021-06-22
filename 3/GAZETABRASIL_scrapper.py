@@ -66,4 +66,9 @@ class GAZETABRASILScrapper(BaseScrapper):
 g = GAZETABRASILScrapper(0)
 data = g.scrap_article("https://gazetabrasil.com.br/especiais/coronavirus/2021/05/04/europa-comeca-a-avaliar-se-aprova-ou-nao-uso-da-coronavac/")
 g.append_article_to_txt(data)
-g.driver.quit()
+
+#Isadora - URL DERUBADA
+#data2 = g.scrap_article("https://gazetabrasil.com.br/brasil/em-video-governador-do-para-diz-que-vai-colocar-presos-para-monitorar-populacao-em-quarentena/?fbclid=IwAR0wJgjwKWr4-DC1HrHT1gkPNw2kURqYqxVzDqfS24oqxk30iGy-sU1L9Z0")
+#g.append_article_to_txt(data2)
+
+#g.driver.quit()

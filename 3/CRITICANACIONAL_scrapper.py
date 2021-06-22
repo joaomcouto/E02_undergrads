@@ -65,7 +65,8 @@ class CRITICANACIONALScrapper(BaseScrapper):
 
 
 c = CRITICANACIONALScrapper(0)
-#data = c.scrap_article("https://criticanacional.com.br/2021/04/13/estudo-da-universidade-de-tel-aviv-pessoas-vacinadas-tem-oito-vezes-mais-chances-de-contrair-variante-do-coronavirus")
-data = c.scrap_article("https://criticanacional.com.br/2021/05/24/partido-comunista-chines-oferece-ajuda-milionaria-ao-grupo-terrorista-hamas")
+data = c.scrap_article("https://criticanacional.com.br/2021/04/13/estudo-da-universidade-de-tel-aviv-pessoas-vacinadas-tem-oito-vezes-mais-chances-de-contrair-variante-do-coronavirus")
 c.append_article_to_txt(data)
+data2 = c.scrap_article("https://criticanacional.com.br/2021/05/24/partido-comunista-chines-oferece-ajuda-milionaria-ao-grupo-terrorista-hamas")
+c.append_article_to_txt(data2)
 c.driver.quit()

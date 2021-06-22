@@ -70,7 +70,7 @@ class OLHOABERTOPRScrapper(BaseScrapper):
     
 
 
-f = OLHOABERTOPRScrapper(1)
+f = OLHOABERTOPRScrapper(0)
 data = f.scrap_article('https://olhoabertopr.blogspot.com/2020/03/cuba-anuncia-que-ja-fabricou-vacina.html?fbclid=IwAR342c_F4F9DfO7t4ZM66AwmIWUMMaJLwX3jbennQauPMvLEKsSv1HE-_0U')
 f.append_article_to_txt(data)
 f.driver.quit()

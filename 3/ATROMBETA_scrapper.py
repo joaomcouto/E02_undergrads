@@ -66,4 +66,11 @@ t = ATROMBETAScrapper(0)
 #data = t.scrap_article("https://atrombetanews.com.br/2021/03/12/medicos-europeus-pedem-uso-urgente-da-ivermectina-no-tratamento-contra-a-covid-19-video/")
 data = t.scrap_article("https://atrombetanews.com.br/2021/02/24/vacinas-causam-600-novos-casos-de-doencas-oculares-e-deixam-5-pessoas-cegas-de-acordo-com-o-governo-do-reino-unido/")
 t.append_article_to_txt(data)
+data2 = t.scrap_article("https://atrombetanews.com.br/2021/03/12/medicos-europeus-pedem-uso-urgente-da-ivermectina-no-tratamento-contra-a-covid-19-video")
+t.append_article_to_txt(data2)
+
+#Isadora
+data3 = t.scrap_article("http://www.atrombetanews.com.br/2020/03/29/todos-infectados-pelo-covid-19-estao-curados-em-blumenau-santa-catarina-dentre-eles-um-idoso-de-72-anos/?fbclid=IwAR1ePn7ka554HfNuqv8jTCVJFoKUqASAo4XGIMKGdnvIIhSiJezMWfU65q0")
+t.append_article_to_txt(data3)
+
 t.driver.quit()

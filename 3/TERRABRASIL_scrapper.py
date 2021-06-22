@@ -42,7 +42,7 @@ class TERRABRASILScrapper(BaseScrapper):
     #author_locator =  (By.XPATH ,'//span[@style="color: rgb(159, 159, 223);"]' )
     author_locator =  (By.CLASS_NAME ,'post_author')
     author_locator_internal = (By.TAG_NAME ,'a')
-    author_locator_attribute = 'NULL'
+    author_locator_attribute = 'innerHTML'
 
     category_locator = 'NULL' 
     category_locator_internal = 'NULL'
@@ -91,8 +91,11 @@ class TERRABRASILScrapper(BaseScrapper):
         return self.treat_text(ret)
 
 
-
 t = TERRABRASILScrapper(0)
-data = t.scrap_article("https://terrabrasilnoticias.com/2021/05/bomba-documentos-mostram-coronavirus-sendo-testado-como-arma-biologica-5-anos-antes-da-pandemia-por-chineses/")
+data = t.scrap_article("https://terrabrasilnoticias.com/2020/07/ministro-da-educacao-milton-ribeiro-recebe-alta-do-hospital-apos-tratamento-com-hidroxicloroquina-e-antibioticos")
 t.append_article_to_txt(data)
+
+data2 = t.scrap_article("https://terrabrasilnoticias.com/2021/05/bomba-documentos-mostram-coronavirus-sendo-testado-como-arma-biologica-5-anos-antes-da-pandemia-por-chineses")
+t.append_article_to_txt(data2)
+
 t.driver.quit()
