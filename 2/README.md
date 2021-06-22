@@ -7,6 +7,7 @@ Esse módulo é responsável pela coleta dos seguintes sites:
 * Lupa
 
 <br>
+
 ### Configurando os parâmetros:
 Utilizando o arquivo news_scraper/env.py.example, crie o arquivo env.py no mesmo diretório.
 Note que dentro deste arquivo há a Localização referente aos seguintes arquivos:
@@ -19,11 +20,13 @@ As localizações presentes são apenas uma sugestão de implementação e fazem
 > É de suma importância que os drivers que serão selecionados sejão compatíveis com a versão dos browsers instalados nas máquinas que realizarão as coletas.
 
 <br>
+
 ### Ambiente virtual geral:
 Repare que as únicas dependências desse projeto são as bibliotecas Selenium e PyTesseract, logo é possível executar este projeto dentro de outros ambientes que atendam a essas dependências.
 No entanto, é importante salientar que versões antigas do Selenium podem conflitar com certas versões de browsers, diante disso sugerimos que utilize as versões mais atualizadas tanto para o Selenium, quanto para os browsers.
 
 <br>
+
 ### Ambiente virtual específico:
 Caso queira é possível criar um **ambiente virtual apenas para esse módulo**, para isso deve ser atendido as seguintes dependências e passos:
 **Dependências do sistema**:
@@ -39,6 +42,7 @@ Caso queira é possível criar um **ambiente virtual apenas para esse módulo**,
 5. Desativando ambiente: `deactivate`
 
 <br>
+
 ### Executando o módulo:
 Com o ambiente que contenha o Selenium, o PyTesseract e com todos os parâmetros configurados realizamos:
 1. Movemos para a fonte do projeto :  `cd src`
@@ -51,6 +55,7 @@ Com o ambiente que contenha o Selenium, o PyTesseract e com todos os parâmetros
 3. As URL's do arquivo definido em env.py serão coletadas utilizando o coletor especificado em _arguments_ e serão salvos na pasta também definida no arquivo env.py.
 
 <br>
+
 ### Arquitetura e estrutura de execução
 O arquivo **run.py** é responsável por verificar qual o coletor será utilizado e chamar a controler para iniciar a execução.
 O **controller/scrapers.py** irá gerenciar a execução, instanciando o coletor **crawler/custom_scraper.py** com uma de suas classes de implementação dependendo de qual site será coletado, suas implementações estão definidas em **crawler/custom/**.
