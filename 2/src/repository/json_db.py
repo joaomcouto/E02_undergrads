@@ -2,9 +2,9 @@ import json
 import os
 
 
-def insert(url, type, source, collected_data, html=None, year=0, month=0):
+def insert(type, source, collected_data, html=None, year=0, month=0):
     """
-    Receives error or checking news in json format
+    Receives errors or checking news in json format
     and inserts it on text-json database file.
     """
     source_folder = os.environ.get('DATABASE') + source + '/'
@@ -37,7 +37,7 @@ def select_urls(source):
     Select all urls from a json database file.
     """
     try:
-        file_path = os.environ.get('URLS_DB') + 'urls_' + source + '.txt'
+        file_path = os.environ.get('URLS')
         with open(file_path) as json_data:
             data = json.load(json_data)
         return data

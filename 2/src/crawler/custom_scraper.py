@@ -15,7 +15,7 @@ class CustomScraper(ABC):
         Initialize drive and parameters for execution.
         """
         # Parameters for execution
-        self.try_rate = 15
+        self.try_rate = 3
         wait_rate = 8
         # Instanciate BaseCraler as inner Class so it doesn't violate the
         # pattern of abstract classes.
