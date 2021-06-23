@@ -7,15 +7,19 @@ def main(argv):
     Select parameters, instanciate source
     than triggers data scraper
     """
-    source = argv[0]
-    url = argv[1]
+    process_type = argv[0]
 
-    if source == 'adventistas':
-        t = ADVENTISTASScrapper(0)
+    if process_type == '-url':
+        pass
+    elif process_type == '-coletor':
+        source = argv[1]
+        url = argv[2]
+        if source == 'adventistas':
+            t = ADVENTISTASScrapper(0)
 
-    data = t.scrap_article(url)
-    t.append_article_to_txt(data)
-    t.driver.quit()
+        data = t.scrap_article(url)
+        t.append_article_to_txt(data)
+        t.driver.quit()
 
 
 if __name__ == "__main__":
