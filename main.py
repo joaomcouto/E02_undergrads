@@ -1,7 +1,10 @@
 import sys
-# ULRS
-from COLETORES.COLETORES_URL import fact_check_url_collector as FC_Class
-from COLETORES.COLETORES_URL.fact_check_url_collector import collect_all
+# URLS
+from BUSCA_URLS import fact_check_url_collector as FC_Class
+from BUSCA_URLS.fact_check_url_collector import collect_all
+
+from COLETORES.IMPLEMENTADOS.CHECAGENS.COMPROVA import COMPROVAScrapper as CMPRV
+from COLETORES.IMPLEMENTADOS.CHECAGENS.ESTADAO_VERIFICA import ESTADAOVERIFICAScrapper as ESTDVER
 
 """
 from COLETORES.IMPLEMENTADOS.ADVENTISTAS.ADVENTISTAS_scrapper import ADVENTISTASScrapper
@@ -65,17 +68,17 @@ def main(argv):
                     print("Ocorreu um erro! Coleta interrompida.\n")
                     print('Erro: ', ex)
         else:
-            if (agency == '-estadao_verifica'):
+            if (agency == 'ESTADAOVERIFICA'):
                 collector_obj = FC_Class.Estadao_verifica()
-            elif (agency == '-boatos'):
+            elif (agency == 'BOATOS'):
                 collector_obj = FC_Class.Boatos()
-            elif (agency == '-comprova'):
+            elif (agency == 'COMPROVA'):
                 collector_obj = FC_Class.Comprova()
-            elif (agency == '-aos_fatos'):
+            elif (agency == 'AOSFATOS'):
                 collector_obj = FC_Class.Aos_fatos()
-            elif (agency == '-lupa'):
+            elif (agency == 'LUPA'):
                 collector_obj = FC_Class.Lupa()
-            elif (agency == '-fato_fake'):
+            elif (agency == 'FATOOUFAKE'):
                 collector_obj = FC_Class.Fato_ou_fake()
             else:
                 print('Argumento não definido!\n')
@@ -299,8 +302,15 @@ def main(argv):
         elif source == 'LUPA':
             pass
 
-        elif source == 'ESTADAO':
-            pass
+        elif source == 'ESTADAOVERIFICA':
+            url = argv[2]
+            EV = ESTDVER.Estadao_Verifica()
+            EV.scrap_check(url.strip())
+
+        elif source == 'COMPROVA':
+            url = argv[2]
+            C = CMPRV.Comprova()
+            C.scrap_check(url.strip())
 
 
 if __name__ == "__main__":

@@ -3,16 +3,22 @@ import datetime
 import time
 import json
 import os
+import hashlib
 from selenium.webdriver.support.ui import WebDriverWait       
 from selenium.webdriver.common.by import By       
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
 
+"""
+EXTRATOR DE VEREDITOS: 
+	Tenta extrair a partir da imagem da thumb da checagem um dos 3
+	vereditos possiveis(falso,enganoso ou fora de contexto). Utiliza
+	modulos de OCR para Python (Pytesseract)
 
-import io
-import requests
-import pytesseract
-from PIL import Image
+# import io
+# import requests
+# import pytesseract
+# from PIL import Image
 
 def extract_text_from_image(image_link):
     #inFile = Image.open(image_name)
@@ -55,7 +61,7 @@ def extract_text_from_image(image_link):
                 return ["ENGANOSO"]
             else:
                 return ["None"]
-
+"""
 def file_name(url):
     value = new_hash = hashlib.sha1(url.encode()).hexdigest()
     if value < 0:
@@ -130,8 +136,16 @@ class Estadao_Verifica():
 			return (text.strip()).split(',')
 		if text.count(',') > 1 :
 			return (text.strip()).split(',')
+	
+	def filter_links(self, links_list):		
+			if len(filter_links) < 0:
+				for link in links_list:
+					if ('crop/117x66' not in link) or ('/117x66/' not in link):
+						return link
+			else:
+				return 'NULL'	
 			
-	def scrapper(self, links):
+	def scrapper(self, url):
 		infos = {
 		'url': '',
 		'source_name':'ESTADAO_VERIFICA',
@@ -148,14 +162,15 @@ class Estadao_Verifica():
 		'rating': [],
 		'raw_file_name': ''
 		}
-		tag_list = []
-		url,img_link = links.split(',')
-		url = url[2:-2]
-		img_link = img_link[2:-2]
+
+		# tag_list = []
+		# url,img_link = links.split(',')
+		# url = url[2:-2]
+		# img_link = img_link[2:-2]
 
 		driver = webdriver.Firefox()
 		driver.get(url)
-		infos['rating'] = extract_text_from_image(img_link)
+		#infos['rating'] = extract_text_from_image(img_link)
 		wrapper = driver.find_element(*self.wrapper_locator)
 		date = wrapper.find_element(*self.date_locator).text
 		infos['publication_date'] = self.convert_date(date)
@@ -163,13 +178,27 @@ class Estadao_Verifica():
 		try:
 			infos['subtitle']    = wrapper.find_element(*self.subtitle_locator).text
 		except:
-			infos['subtitle'] = ''	
+			infos['subtitle'] = 'NULL'	
 		infos['authors']     = self.author_extract(wrapper.get_attribute(self.author_locator))
-		infos['text_news']   = wrapper.find_element(*self.text_locator).text
-		infos['image_link']  = wrapper.find_element(*self.image_locator).get_attribute('src')
+		text_obj = wrapper.find_element(*self.text_locator)
+		infos['text_news']   = text_obj.text
 		infos['url']         = driver.current_url
 		infos['obtained_at'] = datetime.date.today().strftime('%Y-%m-%d %H:%M:%S')
+
 		try:
+			img_objs  = text_obj.find_elements(*self.image_locator)
+			for img in img_objs:
+				link = img.get_attribute('src')
+				img_links.append(link)
+			infos['image_link'] = self.filter_links(img_links)
+		except:
+			infos['image_link'] = 'NULL'
+
+
+
+		#Extrair tags
+		try:
+			tag_list = []
 			tags = wrapper.find_elements(*self.tags_locator)
 			for tag in tags:
 				tag_list.append(tag.text)
@@ -177,11 +206,14 @@ class Estadao_Verifica():
 		except NoSuchElementException:
 			infos['tags'] = tag_list
 			print("Não possui tags")
+
+		#Nomear e salvar HTML da checagem
 		value = hashlib.sha1(url.encode()).hexdigest()
-		file_path = 'ESTADAO_VERIFICA/HTML/'+value+'.html'
+		file_path = 'COLETORES/IMPLEMENTADOS/CHECAGENS/ESTADAO_VERIFICA/HTML/'+value+'.html'
 		with open(file_path,'w') as file:
 			file.write(driver.page_source)
-		infos["raw_file_name"] = file_path
+		infos["raw_file_name"] = value
+
 		driver.close()
 		return infos
 
@@ -190,24 +222,22 @@ class Estadao_Verifica():
 		date = date.split('-')
 		year = date[0]
 		month = date[1]
-		file_path = 'ESTADAO_VERIFICA/COLETA/estadao_verifica_'+year+'_'+month+'.txt'		
+		file_path = 'COLETORES/IMPLEMENTADOS/CHECAGENS/ESTADAO_VERIFICA/COLETA/estadao_verifica_'+year+'_'+month+'.txt'		
 		with open(file_path, mode='a', encoding='utf-8') as f:
 			f.write(json.dumps(dict_data, ensure_ascii=False) + '\n')
 
-	def dict2json(self, d):
-		print(d)
-		date = d['publication_date']
-		date = date.split('-')
-		year = date[0]
-		month = date[1]
-		file_path = 'ESTADAO_VERIFICA/COLETA/estadao_verifica_'+year+'_'+month+'.txt'
-		if os.path.exists(file_path):
-			file = open(file_path,'a')
-		else:
-			file = open(file_path,'w')
-		
-		file.write(json.dumps(d) + '\n')
-		file.close()
+	def scrap_check(self,url):
+		try:
+			D = self.scrapper(url)
+			try:
+				self.saving(D)
+				print('Página Coletada!')
+			except Exception as S:
+				print('Ocorreu um erro no salvamento!\n Erro: ', S)
+		except Exception as E:
+			print('Ocorreu um erro na coleta!\n Erro: ', E)
+			return
+
 
 	def execute(self):
 		file_path = 'URLS/urls_'+self.agency+'.txt'
@@ -221,7 +251,3 @@ class Estadao_Verifica():
 				except Exception as ex:
 					with open('exceptions_estadao.txt','a') as except_file:
 						except_file.write(data['url']+' -'+str(ex)+'-\n')
-
-
-EV =  Estadao_Verifica()
-EV.execute()
