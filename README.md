@@ -117,3 +117,21 @@ python3 main.py -coletor AOSFATOS https://www.aosfatos.org/noticias/nao-e-verdad
 	* ESTADAOVERIFICA
 	* FATOOUFAKE
 	* LUPA
+
+
+### Dados coletados:
+Os dados são divididos da mesma forma que o sistema, há um formato para a busca de URLs e um formato para os coletores de sites.
+* **Busca de URLs:**
+	O arquivo contendo as URLs coletadas é salvo na pasta BUSCA_URLS/URLS. Os arquivos são organizados pelo nome da agência  da seguinte maneira: urls_nome_da_agencia.txt. Internamente os arquivos são organizados em jsons contendo url, fonte da url, tipo (notícia ou checagem) e a data de obtenção. O módulo está disponível para a coleta de urls de todas as seis agências de checagens utilizadas.
+
+* **Coletores de sites:**
+	A pasta de cada coletor, notícia ou checagem é disposta da seguinte forma:
+	```python
+		../NOMEDOVEICULO
+			|_HTML/
+			|_COLETA/
+			|_LOG/
+			|_código do coletor
+	```
+
+	Na pasta /HTML ficam salvos os códigos-fontes das páginas coletadas, na pasta /LOG ficam salvos possíveis erros de coleta e a pasta /COLETA guarda os arquivos contendo as coletas. Os arquivos em COLETA são organizados por mês e ano da publicação da notícia, sendo nomeados: nomeveiculo_ano_mes.txt. Internamente esses arquivos são organizados em um json por linha contendo as informações coletadas como título, data de publicação, autor, texto da notícia, etc.
