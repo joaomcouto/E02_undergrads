@@ -1,40 +1,251 @@
 ## DESCRIPTION:
-Este modulo define a classe base "BaseScrapper" a ser utilizada em todos scrappers desenvolvidos para a coleta de noticias e/ou fact-checking neste projeto
+## 3.1 Coletores
+- Com o objetivo de permitir a criação em larga escala de coletores, foi desenvolvido o módulo base_scrapper que define a classe base "BaseScrapper" a ser utilizada em todos coletores desenvolvidos para a coleta de notícias e/ou fact-checking neste projeto
 
-Esta classe semi-abstrata define uma serie de métodos "padrão" que buscam ser robustos o suficiente para conseguir coletar dados de quaisquer sites de noticia ou verificação de fatos
+- Esta classe semi-abstrata define uma série de métodos "padrão" que buscam ser robustos o suficiente para conseguir coletar os principais dados de interesse de quaisquer sites de notícia ou verificação de fatos
 
-O objetivo é permitir que um scrapper para um site inédito possa ser desenvolvido em poucas linhas de código, bastando definir os parametros deste BaseScrapper
+- O objetivo é permitir que um coletor customizado para um site inédito possa ser desenvolvido em poucas linhas de código, bastando definir os parametros para o funcionamento deste BaseScrapper e, ocasionalmente, implementando/redefinindo métodos (na subclasse) no raro caso em que alguma das lógicas de coleta presentes no baseScrapper não atende às especificidades de algum portal de notícias/fact-checking
 
-Na eventualidade da lógica de um método dessa classe não se encaixar com a coleta de um campo de um dado site, basta redefinir o método na classe scrapper que o herda.
-    Observamos que os métodos definidos aqui servem de base para a criação de métodos customizados nestes casos, e que, na maioria dos casos, basta trocar uma ou duas linhas sobre como eles funcionam
+- Assim, na eventualidade da lógica de um método padrão não conseguir lidar com as características do código fonte de uma página no contexto da coleta de algum dado de interesse do site (i.e título, autor), deve-se implementar e redefinir o respectivo método de coleta desse dado na subclasse que herda baseScrapper. Aqui, vale ressaltar que em várias ocasiões os métodos "padrão" servem como base para a criação de métodos customizados nestes casos, e que, na maioria dos casos, basta trocar uma ou duas linhas sobre como eles funcionam
+
+## 3.1.1 Parâmetros de entrada (Coletores)
+
+### 3.1.1.1 NOÇÕES BÁSICAS: a hierarquia de locators e o parametro attribute (IMPORTANTE!!!)
+- Para possibilitar o entedimento do parametros de uso dos métodos deste módulo é necessário entender uma noção básica comum entre todos eles: a hierarquia de locators
+
+- A hierarquia de locators constitui a definição de 3 instâncias do mecanismo "By" do framework Selenium. Em todos os métodos neste módulo, a ativação sequencial dessas 3 instâncias deve possibilitar ao BaseScrapper encontrar e isolar o elemento de interesse em cada método. 
+
+- A primeira dessas 3 instâncias, main_wrapper_locator, é compartilhada entre todos os métodos e representa um localizador para o elemento HTML (único no código fonte) que contém como nodes filhos todos os elementos HTML com as informações que se espera coletar.
+
+- As duas últimas instâncias, x_locator e x_locator_internal , específicas de cada método x, representam uma combinação de localizadores que quando executados sequencialmente dentro do elemento HTML encontrado pelo main_wrapper_locator especificado acima, devem encontrar, isoladamente, o(s) elemento(s) de interesse do método x.
+
+- Assim, por exemplo,  para o método get_title, definimos em nossa subclasse os parametros title_locator e title_locator_internal, e então, ao ser chamado, o método get_title vai, (1) buscar por title_locator dentro do retorno de main_wrapper_locator e (2) buscar por title_locator_internal dentro do resultado de 1.
+
+- Assim conclui-se que para encontrar um dado de interesse não é necessário que o localizador para ele seja único no código fonte da página inteira e sim que a combinação dos três localizadores, executados sequencialmente, um dentro do outro, seja capaz de isolar APENAS o dado que buscamos com o método. 
+
+- Observa-se que às vezes não precisamos do locator x_locator_internal, a combinação do main_wrapper_locator com x_locator muitas vezes é suficiente para isolar o elemento de interesse. Neste caso, definimos x_locator_internal = "NULL" , os métodos de baseScrapper utilizarão apenas os dois primeiros.
+
+- Por fim, outra noção básica comum entre vários métodos é a definição do parametro x_locator_attribute. Se este for diferente de "NULL", os métodos retornam o atributo x_locator_attribute dos elementos HTML encontrados pela hierarquia de locators definida acima ao invés do atributo texto (.text) deles.
 
 
-## NOÇÕES BÁSICAS
 
-A ideia básica de uso dos métodos aqui presentes é a definição de 3 níveis de finders do Selenium, 1 compartilhado por todos os métodos e 2 especificos de cada método
 
-    main_wrapper_locator, obrigatorio
-  	x_locator, obrigatorio
-  	x_locator_internal, opcional
 
-Com esses parametros/finders definidos, os métodos então buscam dentro de main_wrapper o elemento x_locator e, 
-   se o x_locator_internal for diferente de "NULL", buscam por x_locator_internal dentro do elemento que foi encontrado por x_locator
+- Em resumo:
+	-  A ideia básica de uso dos métodos aqui presentes é a definição de 3 níveis de finders do Selenium, 1 compartilhado por todos os métodos e 2 especificos de cada método
+	  	- `main_wrapper_locator, finder para o elemento HTML UNICO NA PAGINA que contém todas a informações que se deseja coletar com o Scrapper.`
+  		- `x_locator, IDEALMENTE o finder para os elementos HTML dentro do main_wrapper que contenham APENAS o dado que um certo método busca coletar, se x_locator não for o suficiente para isolar apenas os elementos que o método busca coletar, utilizamos o x_locator_internal`
+  		- `x_locator_internal, deve então conter o finder para os elementos HTML dentro de x_locator que contenham APENAS o dado que um dado método busca coletar`
 
-Assim temos: 
+	- Com esses parametros/finders definidos, os métodos então buscam dentro de main_wrapper o elemento x_locator e, se o x_locator_internal for diferente de "NULL", buscam por x_locator_internal dentro do elemento que foi encontrado por x_locator
 
-	main_wrapper_locator finder para elemento HTML UNICO NA PAGINA mais interno que contém todas a informações que se deseja coletar com o Scrapper.
+	- Observamos que a probabilidade de que estes dois níveis de filtro sejam insuficientes, considerando todas as formas que temos de encontrar elementos no selenium, é pragmaticamente nula
 
-	x_locator deve ser IDEALMENTE o finder para os elementos HTML dentro do main_wrapper que contenham APENAS o dado que um certo método busca coletar
-    Se x_locator não for o suficiente para isolar apenas os elementos que o método busca coletar, utilizamos o x_locator_internal
+	- Uma vez isolados os elementos duas coisas podem acontecer:
+    		1 - O método vai extrair o texto .text dos elementos isolados
+    		2 - Podemos definir o parametro x_locator_attribute, neste caso, o método vai extrair o valor do atributo x_locator_attribute dos elementos HTML isolados
+    
+    
+    
+    
+    
+    
 
-	x_locator_internal deve então conter o finder para os elementos HTML dentro de x_locator que contenham APENAS o dado que um dado método busca coletar
+## 3.1.1.2 Coletores: métodos e parametros
 
-Observamos que a probabilidade de que estes dois níveis de filtro sejam insuficientes, considerando todas as formas que temos de encontrar elementos no selenium, é pragmaticamente nula
+A seguir, explicitamos os métodos do modulo base_scrapper juntamente com os parametros que devem ser definidos para que um coletor baseado nessa arquitetura proposta possa funcionar. Inicialmente, descreveremos os métodos que seguem uma lógica compartilhada simples e posteriormente aqueles mais complexos feitos "sob medida" 
 
-Uma vez isolados os elementos duas coisas podem acontecer:
-    1 - O método vai extrair o texto .text dos elementos isolados
-    2 - Podemos definir o parametro x_locator_attribute, neste caso, o método vai extrair o valor do atributo x_locator_attribute dos elementos HTML isolados
+---
+### html_file_name(self,url):
+- Parametros de chamada:
+	- `url: link para uma notícia/checagem`
+		
+Retorna o nome do arquivo contendo o código fonte da url recebida como parametro da função. O nome do arquivo é calculado como o sha1 (via hashlib) da url apendado da extensão ".html"
 
+
+---
+### append_article_to_txt(self, features):
+- Parametros de chamada:
+	- `features: objeto JSON retornado por uma chamada à função scrap_article`
+		
+Salva no .txt correto a coleta de um artigo (presente em features) feita através da função scrap_article. Para tal extrai de features['publication_date'] o ano/mes da publicação e de features['source_name'] sua fonte. Então apenda os dados ao arquivo .txt referente ao ano,mes e fonte do artigo.
+Assim, uma notícia publicada em Abril de 2021 no G1, terá sua coleta salva no arquivo G1/COLETA/G1_2021_04.txt
+   
+---
+### scrap_urls_file(self, fileName, taskName):**
+- Parametros de chamada:
+	- `fileName: arquivo .txt contendo em cada linha, uma URL a ser coletada`
+		
+	- `taskName: string contendo um nome para a tarefa de coleta sendo realizada. Este nome é utilizado para criar o arquivo de logging.`
+		
+Efetiva, via scrap_article(), a coleta de multiplos artigos de uma mesma fonte de notícias/checagem
+
+---
+### save_html(self, features):**
+- Parametros de chamada:
+	- `features: objeto JSON retornado por uma chamada à função scrap_article`
+		
+Salva, na pasta correta, o código fonte (.html) de um artigo coletado via scrap_article(). Para tal, extrai de features['source_name'] sua fonte e calcula o nome do arquivo html através da função html_file_name()
+Assim, uma notícia publicada no G1, terá seu código fonte salvo na pasta G1/HTML/ com o nome html_file_name(url_da_noticia)
+
+---
+### scrap_article(self, articleUrl):**
+- Parametros de chamada:
+	- `articleUrl: link para uma notícia/checagem`
+		
+- Parametros definidos via atributos de subclasse:
+	- `undesirables: uma lista de strings na qual cada string é uma substring de URL tal que se articleURL conter alguma delas, uma exceção do tipo UndesirableException é lançada`
+		
+Efetiva a coleta do artigo em articleUrl via chamadas a todas as funções get_x() a menos que a URL contenha alguma substring. Retorna um objeto JSON com as 'features' do artigo (url, fonte, título, subtitulo, data de publicação, texto do artigo, link para imagem principal, link para video principal, autores, cateogiras, data de coleta, nome do arquivo HTML contendo o código fonte da página)
+
+---
+### get_text(self):**
+
+- Parametros definidos via atributos de subclasse:
+	- `text_locator: conforme descrito em 3.1.1.1`
+		
+	- `text_locator_internal: conforme descrito em 3.1.1.1`
+		
+	- `textUndesirables: lista de strings`
+
+	Função de comportamento padrão conforme descrito em 3.1.1.1 Retorna uma string com o texto do artigo, eliminando paragrafos que contenham alguma das substrings listada em textUndesirables (isso permite a eliminação por exemplo, de propagandas anexas no corpo do texto de artigos que são indistinguíveis de um parágrafo qualquer do texto, tal como 'clique aqui para visitar nosso canal no youtube')
+
+
+---
+### get_main_video_url(self):**
+
+- Parametros definidos via atributos de subclasse:
+	- `video_locator`	
+	- `video_locator_internal `
+	- `video_locator_attribute`
+		
+Função de comportamento padrão conforme descrito em 3.1.1.1. Retorna a URL do vídeo principal 'no topo' de um artigo caso esteja presente (do contrário retorna a string "NULL")
+
+---
+### get_main_image_url(self):**
+
+- Parametros definidos via atributos de subclasse:
+	- `image_locator`
+	- `image_locator_internal`
+	- `image_locator_attribute`
+	
+Função de comportamento padrão conforme descrito em 3.1.1.1. Retorna a URL da imagem principal 'no topo' de um artigo caso esteja presente (do contrário retorna a string "NULL")
+
+---
+### get_category(self, articleUrl):**
+- Parametros de chamada:
+
+	- `articleUrl: link para um artigo`
+
+- Parametros definidos via atributos de subclasse:
+ 
+    - `category_locator:`
+		
+    - `category_locator_internal :`
+		
+    - `addUrlCategories: booleano, define se a função deverá buscar por categorias na URL da notícia`
+		
+    - `urlCategoryLowerBounds: subtring de articleUrl que delimita o início da seção da URL contendo a categoria de interesse (i.e em g1.globo.com/bemestar/coronavirus/noticia/2020/09/15/oms.. deve ser '.com/')` 
+		
+    - `urlCategoryUpperBounds: subtring de articleUrl que delimita o início da seção da URL contendo a categoria de interesse (i.e em g1.globo.com/bemestar/coronavirus/noticia/2020/09/15/oms.. deve ser '/noticia')`
+
+    - `addTagsCategories: booleano, define se a função deverá buscar por categorias em tags presentes na página da noticia`
+
+    - `tags_categories_locator: locator para o elementos com as tags`
+		
+    - `tags_categories_locator_internal: locator para as tags dentro de`
+		
+    - `tagsUndesirables`
+    
+		
+Existem três possíveis fonte de extrair categorias de um artigo: um elemento categoria explicito na página do artigo, um coletania de tags (i.e bolsonaro, política, vacina, CPI) ou ainda a própria URL da noticia (tal como 'saúde' em noticias.uol.com.br/saude/...html)
+Essa função permite que todas as três sejam coletadas.
+
+---
+### get_date(self):**
+
+- Parametros definidos via atributos de subclasse:
+	- `date_locator `
+		
+	- `date_locator_internal`
+			
+	- `dateHasTime`
+		
+	- `dateHasDateTimeAttribute`
+		
+	- `dateTimeAttribute `
+		
+	- `dateStartSeparator`
+		
+	- `dateEndingSeparator`
+		
+	- `dateTimeSeparator`
+		
+	- `hourMinuteSeparator `
+		
+	- `dayMonthYearSeparator`
+		
+	- `monthNeedsMapper`
+		
+	- `dateMonthMapper`
+		
+	- `yearNeedsMapper `
+		
+	- `dateYearMapper`
+
+---
+### get_author(self):
+
+- Parametros definidos via atributos de subclasse:
+	- `author_locator`
+	- `author_locator_internal`
+	- `author_locator_attribute`
+
+---
+### treat_text(self, text):
+- Parametros de chamada:
+	- `text: `
+	
+---
+### get_subtitle(self):
+
+-Parametros definidos via atributos de subclasse:
+	- `subtitle_locator `
+	
+---
+### get_title(self):**
+
+- Parametros definidos via atributos de subclasse:
+	- `title_locator `
+		
+	- `title_locator_internal`
+---
+### get_main_wrapper(self, articleUrl):
+- Parametros de chamada:
+	- `articleUrl`
+	
+- Parametros definidos via atributos de subclasse:
+	- `main_wrapper_locator`
+	
+---
+### access_article(self, articleUrl):
+- Parametros de chamada:
+	- `articleUrl`
+	
+---
+### strip_accents(self,text):
+- Parametros de chamada:
+	- `text`
+	
+---
+### __set_chrome_options(self):
+
+---
+### set_selenium_driver(self, browser="chrome_headless"):
+- Parametros de chamada:
+	- `browser`
+
+# Definindo um novo scrapper
 
 ### EXEMPLO PRATICO SIMPLES: 
 
@@ -59,11 +270,7 @@ Preparando um scrapper para extrair o autor do site https://revistaoeste.com/bra
 
     Pronto! Com esse simple processo nosso scrapper está pronto para extrair autores do site https://revistaoeste.com/brasil/
     Basta repetir o mesmo processo com os outros parametros e em cerca de 20 minutos, o scrapper completo estará pronto.
-
-
-
-
-
+    
 ### EXEMPLO PRÁTICO MEDIO: 
 
 preparando um scrapper para extrair o titulo do site https://atrombetanews.com.br/ (USO DE X_LOCATOR + X_LOCATOR_INTERNAL + .TEXT (sem x_locator_attribute))
