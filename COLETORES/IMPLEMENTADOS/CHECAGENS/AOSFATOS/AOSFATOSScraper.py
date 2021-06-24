@@ -1,13 +1,14 @@
 from selenium.webdriver.common.by import By
 from datetime import datetime
 
-from crawler.custom_scraper import CustomScraper
+from COLETORES.IMPLEMENTADOS.CHECAGENS.custom_scraper import CustomScraper
 
 
 class AosFatosScraper(CustomScraper):
 
     def __init__(self):
         super(AosFatosScraper, self).__init__()
+        self.source = 'AOSFATOS'
 
     def get_title(self):
         """
@@ -209,9 +210,11 @@ class AosFatosScraper(CustomScraper):
         return self.driver.page_source
 
     def execute(self, url, category=[]):
+        # Execute scraper
         try_cnt = 0
         last_exception = None
-        while try_cnt < self.try_rate:
+        not_finished = True
+        while try_cnt < self.try_rate and not_finished:
             try:
                 self.driver.get(url)
                 self.wrapper = self.driver.find_element(By.CLASS_NAME, 'ck-article')
@@ -232,8 +235,23 @@ class AosFatosScraper(CustomScraper):
                     'rating': self.get_veredicts(),
                     'raw_file_name': self.get_html_file_value(url)
                     }
-                return date.year, date.month, result, self.get_html()
+                # Insert collected data into database
+                self.insert(
+                    type='checking',
+                    collected_data=result,
+                    html=self.get_html(),
+                    year=date.year,
+                    month=date.month
+                    )
+                not_finished = False
             except Exception as e:
                 try_cnt += 1
                 last_exception = e
-        raise last_exception
+
+            if not_finished:
+                # If a exception is raised during the research, the Exception
+                # is saved with the url as keY.
+                self.insert(
+                    type='error',
+                    collected_data={url: str(last_exception)}
+                    )

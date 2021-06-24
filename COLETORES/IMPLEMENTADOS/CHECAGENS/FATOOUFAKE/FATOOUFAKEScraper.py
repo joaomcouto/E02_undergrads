@@ -2,13 +2,14 @@ from selenium.webdriver.common.by import By
 from datetime import datetime
 import time
 
-from crawler.custom_scraper import CustomScraper
+from COLETORES.IMPLEMENTADOS.CHECAGENS.custom_scraper import CustomScraper
 
 
 class FatoOuFakeScraper(CustomScraper):
 
     def __init__(self):
         super(FatoOuFakeScraper, self).__init__()
+        self.source = 'FATOOUFAKE'
 
     def get_title(self):
         try:
@@ -150,9 +151,11 @@ class FatoOuFakeScraper(CustomScraper):
             raise Exception('Problem on loading HTML to be saved on file.')
 
     def execute(self, url):
+        # Execute scraper
         try_cnt = 0
         last_exception = None
-        while try_cnt < self.try_rate:
+        not_finished = True
+        while try_cnt < self.try_rate and not_finished:
             try:
                 self.driver.get(url)
                 time.sleep(3)
@@ -175,12 +178,27 @@ class FatoOuFakeScraper(CustomScraper):
                     'rating': self.get_veredicts(),
                     'raw_file_name': self.get_html_file_value(url)
                     }
-                return date.year, date.month, result, self.get_html()
+
+                # Insert collected data into database
+                self.insert(
+                    type='checking',
+                    collected_data=result,
+                    html=self.get_html(),
+                    year=date.year,
+                    month=date.month
+                    )
+                not_finished = False
             except Exception as e:
-                # Adds to the count of attempts:
                 try_cnt += 1
                 last_exception = e
-        raise last_exception
+
+            if not_finished:
+                # If a exception is raised during the research, the Exception
+                # is saved with the url as keY.
+                self.insert(
+                    type='error',
+                    collected_data={url: str(last_exception)}
+                    )
 
     def slowly_scroll_down_page(self):
         """
