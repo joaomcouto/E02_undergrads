@@ -3,6 +3,7 @@ import sys
 from COLETORES.COLETORES_URL import fact_check_url_collector as FC_Class
 from COLETORES.COLETORES_URL.fact_check_url_collector import collect_all
 
+"""
 from COLETORES.IMPLEMENTADOS.ADVENTISTAS.ADVENTISTAS_scrapper import ADVENTISTASScrapper
 from COLETORES.IMPLEMENTADOS.ALIADOSBRASIL.ALIADOSBRASIL_scrapper import ALIADOSBRASILScrapper
 from COLETORES.IMPLEMENTADOS.ATROMBETA.ATROMBETA_scrapper import ATROMBETAScrapper
@@ -32,6 +33,7 @@ from COLETORES.IMPLEMENTADOS.TERRABRASIL.TERRABRASIL_scrapper import TERRABRASIL
 from COLETORES.IMPLEMENTADOS.TIERRAPURA.TIERRAPURA_scrapper import TIERRAPURAScrapper
 from COLETORES.IMPLEMENTADOS.TRIBUNANACIONAL.TRIBUNANACIONAL_scrapper import TRIBUNANACIONALScrapper
 from COLETORES.IMPLEMENTADOS.UOL.UOL_scrapper import UOLScrapper
+"""
 
 
 
@@ -86,7 +88,7 @@ def main(argv):
                 print('Erro: ', ex)
 
 
-    elif process_type == '-coletor':
+    elif process_type == '-noticia':
         # Verificando se o número de parâmetros está correto para essa seleção
         if len(argv) < 3:
             print("Por favor entre com um número correto de parametros")
@@ -94,102 +96,211 @@ def main(argv):
 
         # Instanciando coletor implementado
         source = argv[1]
+        url = argv[2]
         if source == 'ADVENTISTAS':
             t = ADVENTISTASScrapper(0)
+            data = t.scrap_article(url)
+            t.append_article_to_txt(data)
+            t.driver.quit()
+
 
         elif source == 'ALIADOSBRASIL':
             t = ALIADOSBRASILScrapper(0)
+            data = t.scrap_article(url)
+            t.append_article_to_txt(data)
+            t.driver.quit()
+
 
         elif source == 'ATROMBETA':
             t = ATROMBETAScrapper(0)
+            data = t.scrap_article(url)
+            t.append_article_to_txt(data)
+            t.driver.quit()
+
 
         elif source == 'BBC':
             t = BBCScrapper(0)
+            data = t.scrap_article(url)
+            t.append_article_to_txt(data)
+            t.driver.quit()
+
 
         elif source == 'CARTAPIAUI':
             t = CARTAPIAUIScrapper(0)
+            data = t.scrap_article(url)
+            t.append_article_to_txt(data)
+            t.driver.quit()
+
 
         elif source == 'CONEXAOAMAZONAS':
             t = CONEXAOAMAZONASScrapper(0)
+            data = t.scrap_article(url)
+            t.append_article_to_txt(data)
+            t.driver.quit()
+
 
         elif source == 'CRITICANACIONAL':
             t = CRITICANACIONALScrapper(0)
+            data = t.scrap_article(url)
+            t.append_article_to_txt(data)
+            t.driver.quit()
+
 
         elif source == 'DIARIODOPODER':
             t = DIARIODOPODERScrapper(0)
+            data = t.scrap_article(url)
+            t.append_article_to_txt(data)
+            t.driver.quit()
+
 
         elif source == 'ESTIBORDO':
             t = ESTIBORDOScrapper(0)
+            data = t.scrap_article(url)
+            t.append_article_to_txt(data)
+            t.driver.quit()
+
 
         elif source == 'ESTUDOSNACIONAIS':
             t = ESTUDOSNACIONAISScrapper(0)
+            data = t.scrap_article(url)
+            t.append_article_to_txt(data)
+            t.driver.quit()
+
 
         elif source == 'FOLHADAPOLITICA':
             t = FOLHADAPOLITICAScrapper(0)
+            data = t.scrap_article(url)
+            t.append_article_to_txt(data)
+            t.driver.quit()
+
 
         elif source == 'FOLHADAREPUBLICA':
             t = FOLHADAREPUBLICAScrapper(0)
+            data = t.scrap_article(url)
+            t.append_article_to_txt(data)
+            t.driver.quit()
+
 
         elif source == 'FOLHAMAX':
             t = FOLHAMAXScrapper(0)
+            data = t.scrap_article(url)
+            t.append_article_to_txt(data)
+            t.driver.quit()
+
 
         elif source == 'G1':
             t = G1Scrapper(0)
+            data = t.scrap_article(url)
+            t.append_article_to_txt(data)
+            t.driver.quit()
+
 
         elif source == 'GAZETABRASIL':
             t = GAZETABRASILScrapper(0)
+            data = t.scrap_article(url)
+            t.append_article_to_txt(data)
+            t.driver.quit()
+
 
         elif source == 'JORNAL21BRASIL':
             t = JORNAL21BRASILScrapper(0)
+            data = t.scrap_article(url)
+            t.append_article_to_txt(data)
+            t.driver.quit()
+
 
         elif source == 'JORNALDACIDADE':
             t = JORNALDACIDADEScrapper(0)
+            data = t.scrap_article(url)
+            t.append_article_to_txt(data)
+            t.driver.quit()
+
 
         elif source == 'LUISCARDOSO':
             t = LUISCARDOSOScrapper(0)
+            data = t.scrap_article(url)
+            t.append_article_to_txt(data)
+            t.driver.quit()
+
 
         elif source == 'OGRITOCENSURADO':
             t = OGRITOCENSURADOScrapper(0)
+            data = t.scrap_article(url)
+            t.append_article_to_txt(data)
+            t.driver.quit()
+
 
         elif source == 'OLHOABERTOPR':
             t = OLHOABERTOPRScrapper(0)
+            data = t.scrap_article(url)
+            t.append_article_to_txt(data)
+            t.driver.quit()
+
 
         elif source == 'QUESTIONESE':
             t = QUESTIONESEScrapper(0)
+            data = t.scrap_article(url)
+            t.append_article_to_txt(data)
+            t.driver.quit()
+
 
         elif source == 'REVISTAAMAZONIA':
             t = REVISTAAMAZONIAScrapper(0)
+            data = t.scrap_article(url)
+            t.append_article_to_txt(data)
+            t.driver.quit()
+
 
         elif source == 'REVISTAOESTE':
             t = REVISTAOESTEScrapper(0)
+            data = t.scrap_article(url)
+            t.append_article_to_txt(data)
+            t.driver.quit()
+
 
         elif source == 'RSAGORA':
             t = RSAGORAScrapper(0)
+            data = t.scrap_article(url)
+            t.append_article_to_txt(data)
+            t.driver.quit()
+
 
         elif source == 'TERCALIVRE':
             t = TERCALIVREScrapper(0)
+            data = t.scrap_article(url)
+            t.append_article_to_txt(data)
+            t.driver.quit()
+
 
         elif source == 'TERRABRASIL':
             t = TERRABRASILScrapper(0)
+            data = t.scrap_article(url)
+            t.append_article_to_txt(data)
+            t.driver.quit()
 
         elif source == 'TIERRAPURA':
             t = TIERRAPURAScrapper(0)
+            data = t.scrap_article(url)
+            t.append_article_to_txt(data)
+            t.driver.quit()
 
         elif source == 'TRIBUNANACIONAL':
             t = TRIBUNANACIONALScrapper(0)
+            data = t.scrap_article(url)
+            t.append_article_to_txt(data)
+            t.driver.quit()
 
         elif source == 'UOL':
             t = UOLScrapper(0)
-
-        # Caso a busca seja por várias URLs vindas de um arquivo
-        if argv[2] == "-busca_em_arquivo":
-            pass
-        # Caso a busca seja por URL única passada como parâmetro
-        else:
-            url = argv[2]
             data = t.scrap_article(url)
             t.append_article_to_txt(data)
-        t.driver.quit()
+            t.driver.quit()
+
+        elif source == 'LUPA':
+            pass
+
+        elif source == 'ESTADAO':
+            pass
 
 
 if __name__ == "__main__":
