@@ -7,5 +7,5 @@ os.environ['CHROME'] = os.getenv('PROJECT_DIR') + '/drivers/chromedriver'
 os.environ['FIREFOX'] = os.getenv('PROJECT_DIR') + '/drivers/geckodriver'
 # --------------------------------------DATA-------------------------------------
 os.environ['COLETORES'] = os.getenv('PROJECT_DIR') + '/COLETORES/IMPLEMENTADOS'
-os.environ['COLLECTED_DIR'] = ''
-os.environ['DATA_DIR'] = ''
+os.environ['CHECAGENS'] = os.getenv('COLETORES') + '/CHECAGENS/'
+os.environ['NOTICIAS'] = os.getenv('COLETORES') + '/NOTICIAS'

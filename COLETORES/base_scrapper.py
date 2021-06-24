@@ -17,10 +17,10 @@ A ideia básica de uso dos métodos aqui presentes é a definição de 3 níveis
     x_locator, obrigatorio
     x_locator_internal, opcional
 
-Com esses parametros/finders definidos, os métodos então buscam dentro de main_wrapper o elemento x_locator e, 
+Com esses parametros/finders definidos, os métodos então buscam dentro de main_wrapper o elemento x_locator e,
     se o x_locator_internal for diferente de "NULL", buscam por x_locator_internal dentro do elemento que foi encontrado por x_locator
 
-Assim temos: 
+Assim temos:
 
 main_wrapper_locator finder para elemento HTML UNICO NA PAGINA mais interno que contém todas a informações que se deseja coletar com o Scrapper.
 
@@ -36,7 +36,7 @@ Uma vez isolados os elementos duas coisas podem acontecer:
     2 - Podemos definir o parametro x_locator_attribute, neste caso, o método vai extrair o valor do atributo x_locator_attribute dos elementos HTML isolados
 
 
-EXEMPLO PRATICO SIMPLES: 
+EXEMPLO PRATICO SIMPLES:
     Preparando um scrapper para extrair o autor do site https://revistaoeste.com/brasil/ (USO DE X_LOCATOR E .TEXT APENAS)
 
     Temos o site de baixa credibilidade https://revistaoeste.com/
@@ -75,7 +75,7 @@ EXEMPLO PRÁTICO MEDIO: preparando um scrapper para extrair o titulo do site htt
         Assim, setamos, na classe de nosso scrapper, o parametro:
             main_wrapper_locator = (By.ID ,'content')
 
-    Para este exemplo vamos extrair apenas o titulo 
+    Para este exemplo vamos extrair apenas o titulo
     Agora vamos fazer o mesmo processo para achar o titulo:
         Clicamos com o botão direito sobre o titulo, e clicamos em "inspect" para ver o código fonte da página
         Vemos que a classe dele é class='entry-title' serve? Não! Clicamos Ctrl+F e pesquisamos por 'entry-title' para ver se ela aparece como classe em algum outro elemento dentro do main_wrapper
@@ -132,8 +132,8 @@ class BaseScrapper(ABC):
     it is created and the arguments are configured.
     """
     textUndesirables = []
-    undesirables = [] 
-    dateEndingSeparator = "A_STRING" 
+    undesirables = []
+    dateEndingSeparator = "A_STRING"
 
     def __init__(self, browser="chrome_headless"):
         self.set_selenium_driver(browser)
@@ -175,7 +175,7 @@ class BaseScrapper(ABC):
     def strip_accents(self,text):
         try:
             text = unicode(text, 'utf-8')
-        except NameError: # unicode is a default on python 3 
+        except NameError: # unicode is a default on python 3
             pass
 
         text = unicodedata.normalize('NFD', text)\
@@ -193,81 +193,81 @@ class BaseScrapper(ABC):
     @classmethod
     @abstractmethod
     def scrapperSource(cls):
-        return NotImplementedError    
+        return NotImplementedError
 
     @property
     @classmethod
     @abstractmethod
     def text_locator(cls):
-        return NotImplementedError 
+        return NotImplementedError
 
     @property
     @classmethod
     @abstractmethod
     def subtitle_locator(cls):
-        return NotImplementedError  
+        return NotImplementedError
 
     @property
     @classmethod
     @abstractmethod
     def title_locator(cls):
-        return NotImplementedError  
+        return NotImplementedError
 
     @property
     @classmethod
     @abstractmethod
     def image_locator(cls):
-        return NotImplementedError  
+        return NotImplementedError
 
     @property
     @classmethod
     @abstractmethod
     def author_locator(cls):
-        return NotImplementedError  
+        return NotImplementedError
 
     @property
     @classmethod
     @abstractmethod
     def category_locator(cls):
-        return NotImplementedError  
+        return NotImplementedError
 
     @property
     @classmethod
     @abstractmethod
     def date_locator(cls):
-        return NotImplementedError  
+        return NotImplementedError
 
     @abstractmethod
     def title_locator_internal(cls):
-        return NotImplementedError 
+        return NotImplementedError
 
     @abstractmethod
     def subtitle_locator(cls):
-        return NotImplementedError   
-    
+        return NotImplementedError
+
     @abstractmethod
     def image_locator(cls):
-        return NotImplementedError  
+        return NotImplementedError
 
     @abstractmethod
     def author_locator(cls):
-        return NotImplementedError  
+        return NotImplementedError
 
     @abstractmethod
     def author_locator_attribute(cls):
-        return NotImplementedError  
+        return NotImplementedError
 
     @abstractmethod
     def category_locator(cls):
-        return NotImplementedError  
+        return NotImplementedError
 
     @abstractmethod
     def video_locator(cls):
-        return NotImplementedError  
+        return NotImplementedError
 
     def access_article(self, articleUrl):
         self.driver.get(articleUrl)
-        
+
     def get_main_wrapper(self, articleUrl):
         self.currentWrapper = self.driver.find_element(*self.main_wrapper_locator)
 
@@ -286,7 +286,7 @@ class BaseScrapper(ABC):
                 return self.currentWrapper.find_element(*self.subtitle_locator).text
             except:
                 return "NULL"
-    
+
     def get_author(self): ##gold standard for non essentials
         if (self.author_locator == "NULL"):
             return "NULL"
@@ -367,17 +367,17 @@ class BaseScrapper(ABC):
 
             if(self.dateHasTime):
                 data_publicacao = datetime( year=int(publicationYear),
-                                        month=int(publicationMonth), 
+                                        month=int(publicationMonth),
                                         day=int(publicationDay),
                                         hour=int(publicationHour),
                                         minute=int(publicationMinute))
             else:
                 data_publicacao = datetime( year=int(publicationYear),
-                                        month=int(publicationMonth), 
+                                        month=int(publicationMonth),
                                         day=int(publicationDay))
 
             publication_date = data_publicacao.strftime('%Y-%m-%d %H:%M:%S')
-            return publication_date 
+            return publication_date
 
     def get_category(self, articleUrl):
         categories = []
@@ -503,12 +503,12 @@ class BaseScrapper(ABC):
         return features
 
     def save_html(self, features):
-        file_path = os.getenv('COLETORES') + "/" + self.scrapperSource + "/HTML/" + features['raw_file_name'] 
+        file_path = os.getenv('NOTICIAS') + "/" + self.scrapperSource + "/HTML/" + features['raw_file_name']
         with open(file_path, mode='w', encoding='utf-8') as f:
             f.write(self.driver.page_source)
-        
+
     def scrap_urls_file(self, fileName, taskName):
-        LOG_FILENAME = os.getenv('COLETORES') + "/" + self.scrapperSource + '/LOG/' + taskName + '.log'
+        LOG_FILENAME = os.getenv('NOTICIAS') + "/" + self.scrapperSource + '/LOG/' + taskName + '.log'
         logging.basicConfig(filename=LOG_FILENAME, filemode ='w',level=logging.WARNING)
         count = 0
         latestTime = time.time()
@@ -519,7 +519,7 @@ class BaseScrapper(ABC):
                 retry = 3
                 while(retry > 0):
                     try:
-                        urlDataPotentialPath = Path(os.getenv('COLETORES') + "/" + self.scrapperSource +"/HTML/" + hashlib.sha1(url.encode()).hexdigest()+ ".html")
+                        urlDataPotentialPath = Path(os.getenv('NOTICIAS') + "/" + self.scrapperSource +"/HTML/" + hashlib.sha1(url.encode()).hexdigest()+ ".html")
                         if(urlDataPotentialPath.is_file()):
                             print("Skipping artigo #", count)
                             count = count + 1
@@ -548,12 +548,9 @@ class BaseScrapper(ABC):
                             logging.exception(url)
 
     def append_article_to_txt(self, features):
-        file_path = os.getenv('COLETORES') +  "/" + self.scrapperSource + "/COLETA/" + features['source_name'].lower() + "_" + '_'.join(features['publication_date'].split('-')[0:2]) + ".txt"
+        file_path = os.getenv('NOTICIAS') +  "/" + self.scrapperSource + "/COLETA/" + features['source_name'].lower() + "_" + '_'.join(features['publication_date'].split('-')[0:2]) + ".txt"
         with open(file_path, mode='a', encoding='utf-8') as f:
             f.write(json.dumps(features, ensure_ascii=False) + '\n')
-    
+
     def html_file_name(self,url):
         return hashlib.sha1(url.encode()).hexdigest()+ ".html"
-
-    
-    
