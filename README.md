@@ -44,79 +44,83 @@ Com o ambiente que contenha o Selenium, o PyTesseract e com todos os parâmetros
 
 Onde os parâmtros dividem qual o tipo de busca será feita com qual fonte. A divisão do tipo se dá entre busca por URLs ou coletores que buscam todos os dados de um site.
 
-**Parâmetros para busca de Urls:**
+* **Parâmetros para busca de Urls:**
  `-url <fonte>`
 
-Possíveis fontes:
-* -all
-* ESTADAOVERIFICA
-* BOATOS
-* COMPROVA
-* AOSFATOS
-* LUPA
-* FATOOUFAKE
-
-Repare que pode ser passado o parâmtro -all para a busca de URL, assim reallizando a busca simultânea de todas as fontes. Então, por exemplo, os comandos:
-`python3 main.py -url LUPA`
-ou
-`python3 main.py -url -all`
-
-<br>
-
-**Parâmetros para busca de coletores:**
- `-coletor <fonte> <url>`
-
-A URL deve ser uma notícia ou checagem pertencente à fonte. As fontes  dos coletores estão dispostas no final do arquivo. Tanto as notícias como as checagens se encaixam nessa categoria e não há diferenciação na chamada.
-Então, por exemplo, teremos as seguintes chamadas de execução:
-
-```python
-python3 main.py -coletor ADVENTISTAS http://www.adventistas.com/2020/04/02/novo-coronavirus-tem-algo-errado-com-esse-virus-da-covid19/
-```
-
-ou
-
-```python
-python3 main.py -coletor AOSFATOS https://www.aosfatos.org/noticias/nao-e-verdade-que-estados-recebem-r-19-mil-por-cada-morte-de-covid-19/
-```
-
-**Fonte de coletores:**
-* Notícias:
-	* ADVENTISTAS
-	* ALIADOSBRASIL
-	* ATROMBETA
-	* BBC
-	* CARTAPIAUI
-	* CONEXAOAMAZONAS
-	* CRITICANACIONAL
-	* DIARIODOPODER
-	* ESTIBORDO
-	* ESTUDOSNACIONAIS
-	* FOLHADAPOLITICA
-	* FOLHADAREPUBLICA
-	* FOLHAMAX
-	* G1
-	* GAZETABRASIL
-	* JORNAL21BRASIL
-	* JORNALDACIDADE
-	* LUISCARDOSO
-	* OGRITOCENSURADO
-	* OLHOABERTOPR
-	* QUESTIONESE
-	* REVISTAAMAZONIA
-	* REVISTAOESTE
-	* RSAGORA
-	* TERCALIVRE
-	* TERRABRASIL
-	* TIERRAPURA
-	* TRIBUNANACIONAL
-	* UOL
-* Checagens:
-	* AOSFATOS
+	Possíveis fontes:
+	* -all
+	* ESTADAOVERIFICA
 	* BOATOS
 	* COMPROVA
-	* ESTADAOVERIFICA
-	* FATOOUFAKE
+	* AOSFATOS
 	* LUPA
+	* FATOOUFAKE
+
+	Repare que pode ser passado o parâmtro -all para a busca de URL, assim reallizando a busca simultânea de todas as fontes. Então, por exemplo, os comandos:
+	```
+	python3 main.py -url LUPA
+	```
+	ou
+	```
+	python3 main.py -url -all
+	```
+<br>
+<br>
+
+* **Parâmetros para busca de coletores:**
+ `-coletor <fonte> <url>`
+
+	A URL deve ser uma notícia ou checagem pertencente à fonte. As fontes  dos coletores estão dispostas no final do arquivo. Tanto as notícias como as checagens se encaixam nessa categoria e não há diferenciação na chamada.
+	Então, por exemplo, teremos as seguintes chamadas de execução:
+
+	```
+	python3 main.py -coletor ADVENTISTAS http://www.adventistas.com/2020/04/02/novo-coronavirus-tem-algo-errado-com-esse-virus-da-covid19/
+	```
+
+	ou
+
+	```
+	python3 main.py -coletor AOSFATOS https://www.aosfatos.org/noticias/nao-e-verdade-que-estados-recebem-r-19-mil-por-cada-morte-de-covid-19/
+	```
+
+	**Fonte de coletores:**
+	* Notícias:
+		* ADVENTISTAS
+		* ALIADOSBRASIL
+		* ATROMBETA
+		* BBC
+		* CARTAPIAUI
+		* CONEXAOAMAZONAS
+		* CRITICANACIONAL
+		* DIARIODOPODER
+		* ESTIBORDO
+		* ESTUDOSNACIONAIS
+		* FOLHADAPOLITICA
+		* FOLHADAREPUBLICA
+		* FOLHAMAX
+		* G1
+		* GAZETABRASIL
+		* JORNAL21BRASIL
+		* JORNALDACIDADE
+		* LUISCARDOSO
+		* OGRITOCENSURADO
+		* OLHOABERTOPR
+		* QUESTIONESE
+		* REVISTAAMAZONIA
+		* REVISTAOESTE
+		* RSAGORA
+		* TERCALIVRE
+		* TERRABRASIL
+		* TIERRAPURA
+		* TRIBUNANACIONAL
+		* UOL
+	* Checagens:
+		* AOSFATOS
+		* BOATOS
+		* COMPROVA
+		* ESTADAOVERIFICA
+		* FATOOUFAKE
+		* LUPA
 
 
 ### Dados coletados:
