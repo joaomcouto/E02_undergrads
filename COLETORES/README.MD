@@ -169,29 +169,44 @@ Essa função permite que todas as três sejam coletadas.
 		
 	- `date_locator_internal`
 			
-	- `dateHasTime`
+	- `dateHasTime, booleano, define se a data presente nos artigos do portal têm a hora da publicaçao ou não (usada tanto para artigos que têm um atributo dateTime quanto para artigos que não)`
 		
-	- `dateHasDateTimeAttribute`
+	- `dateHasDateTimeAttribute, booleano, define se o elemento HTML com a data de publicação tem um atributo com no formato datetime (é o caso para  a grande maioria dos sites)`
 		
-	- `dateTimeAttribute `
+	- `dateTimeAttribute, se o booleano acima for True, define qual o nome do atributo padrão datetime, na grande maioria (mas não todos) os sites, o atributo é apenas 'datetime'  `
+	
+	-Os parametros a seguir servem para o caso em que um determinado site não oferece um atributo na formatação datetime no elemento HTML associado com a data de publicação do artigo. Para facilitar o entendimento, eles utilizarão a string "Domingo, 19 de Abril de 2020, 12h:59 | Atualizado:" como exemplo corrente de .text retorando pelos locators de data 
 		
-	- `dateStartSeparator`
-		
-	- `dateEndingSeparator`
-		
-	- `dateTimeSeparator`
-		
-	- `hourMinuteSeparator `
-		
-	- `dayMonthYearSeparator`
-		
-	- `monthNeedsMapper`
-		
-	- `dateMonthMapper`
-		
-	- `yearNeedsMapper `
-		
-	- `dateYearMapper`
+		- `dateStartSeparator, define qual substring do .text encontrado faz fronteira com o inicio da a string com a data, no exemplo, seria ", " pois assim conseguimos separar a data da substring "Domingo, "`
+			
+		- `dateEndingSeparator, define qual substring do .text encontrado faz fronteira com fim da string com a data, no exemplo, seria " |", pois assim conseguimos separar a data da substring " | Atualizado"`
+			
+		- `dateTimeSeparator, define qual a substring a ser utilizada para separar a data do horário de publicação, no exemplo seria ", " pois assim conseguimos seprar a substring data "19 de Abril de 2020" da substring horario "12h:59"`
+			
+		- `hourMinuteSeparator, define qual a subtring que separar o minuto da hora de publicação, no exemplo, "h:" `
+			
+		- `dayMonthYearSeparator, define qual a substring que separar o dia, mes,ano de publicação, no exemplo " de "`
+			
+		- `monthNeedsMapper, deve ser True se o mês presente no elemento de dada do artigo for escrito de alguma forma que não o número do mês(por exemplo abril ao invés de 04 ou 4). É o caso do exemplo corrente.`
+			
+		- `dateMonthMapper, deve ser um dicionario capaz de traduzir um mês escrito por extenso no formato do site para um número de 1 a 12, no exemplo seria dateMonthMapper = {
+        'Janeiro': 1,
+        'Fevereiro': 2,
+        'Março': 3,
+        'Abril': 4,
+        'Maio': 5,
+        'Junho': 6,
+        'Julho': 7,
+        'Agosto': 8,
+        'Setembro': 9,
+        'Outubro': 10,
+        'Novembro': 11,
+        'Dezembro': 12
+    } `
+			
+		- `yearNeedsMapper, deve ser True se o ano presente no elemento de data do artigo for de alguma forma que não o ano completo (como por exemplo numa data na formatação 01/11/20 ao invés de 01/11/2020) `
+			
+		- `dateYearMapper, deve ser um dicinario capaz de traduzir a formatação de ano presente no site para o ano completo (como por exemplo numa data na formatação 01/11/20 ao invés de 01/11/2020. Neste caso o mapper devera ter uma entrada '20':2020) `
 
 ---
 ### get_author(self):
