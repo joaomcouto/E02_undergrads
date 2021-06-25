@@ -7,7 +7,7 @@ A base de dados corresponde aos arquivos:
 * DATASET_MPMG-FakeNews_matched.txt
 * DATASET_MPMG-TrueNews_selected.txt
 
-Para a leitura da base de dados há um arquivo na raiz do projeto chamado _leitura_dataset.py_ com uma função exemplo que lê toda a base e imprime as três primeiras notícias de cada parte. O código pode ser executado a partir do seguinte comando:
+Para a leitura da base de dados há um arquivo na pasta utils chamado _leitura_dataset.py_ com uma função exemplo que lê toda a base e imprime as três primeiras notícias de cada parte. O código pode ser executado a partir do seguinte comando:
 
 ```
 python3 leitura_dataset.py
@@ -155,10 +155,13 @@ Os dados são divididos da mesma forma que o sistema, há um formato para a busc
 
 <br>
 
-### Explicações do código e seus processos
+### Documentação completa do código e seus processos
 * **Coletores**:
-	Há um README na pasta coletores explicando toda execução das Noticias que é baseada no BaseScraper.<br>
-	[Arquivo com Explicação dos Coletores](COLETORES/README.MD)<br>
+	Na pasta /COLETORES é possível encontrar um README explicando e documentando com mais detalhes todo o funcionamento dos coletores de dados de noticias que foram desenvolvido com base no BaseScraper, o módulo criado para possibilitar o desenvolvimento da grande quantidade de coletores feitos para essa parte do projeto.<br>
+	
+	[Arquivo com explicação/documentação dos Coletores](COLETORES/README.MD)<br>
+	
 	Os coletores de checagens são independentes dos coletores de notícias, onde o COMPROVA e ESTADAOVERIFICA são scripts independentes, enquanto os outros coletores de checagens fazem uso dos aquivos base_crawler e custom_scraper.
+	
 * **Busca URLS**:
 	As buscas são realizadas por scripts independentes presentes dentro da pasta.
