@@ -1,4 +1,4 @@
-#E02
+# E02
 Arcabouço computacional para detecção de notícias falsas.
 
 
@@ -157,8 +157,8 @@ Os dados são divididos da mesma forma que o sistema, há um formato para a busc
 
 ### Explicações do código e seus processos
 * **Coletores**:
-	Há um README na pasta coletores explicando toda execução das Noticias que é baseada no BaseScraper.
-	[Arquivo com Explicação dos Coletores](COLETORES/README.MD)
+	Há um README na pasta coletores explicando toda execução das Noticias que é baseada no BaseScraper.<br>
+	[Arquivo com Explicação dos Coletores](COLETORES/README.MD)<br>
 	Os coletores de checagens são independentes dos coletores de notícias, onde o COMPROVA e ESTADAOVERIFICA são scripts independentes, enquanto os outros coletores de checagens fazem uso dos aquivos base_crawler e custom_scraper.
 * **Busca URLS**:
 	As buscas são realizadas por scripts independentes presentes dentro da pasta.
