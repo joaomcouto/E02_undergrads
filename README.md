@@ -1,4 +1,4 @@
-#E02
+# E02
 Arcabouço computacional para detecção de notícias falsas.
 
 
@@ -12,8 +12,8 @@ Para a leitura da base de dados há um arquivo na raiz do projeto chamado _leitu
 ```
 python3 leitura_dataset.py
 ```
-
 <br>
+
 ### Configurando o sitema:
 * **Versão dos drivers do selenium**:
 	É de suma importância que os drivers que serão selecionados sejão compatíveis com a versão dos browsers instalados nas máquinas que realizarão as coletas. Os drivers se encontram na pasta _/drivers_ e podem ser atualaizados nos seguintes links:
@@ -152,3 +152,13 @@ Os dados são divididos da mesma forma que o sistema, há um formato para a busc
 	```
 
 	Na pasta /HTML ficam salvos os códigos-fontes das páginas coletadas, na pasta /LOG ficam salvos possíveis erros de coleta e a pasta /COLETA guarda os arquivos contendo as coletas. Os arquivos em COLETA são organizados por mês e ano da publicação da notícia, sendo nomeados: nomeveiculo_ano_mes.txt. Internamente esses arquivos são organizados em um json por linha contendo as informações coletadas como título, data de publicação, autor, texto da notícia, etc.
+
+<br>
+
+### Explicações do código e seus processos
+* **Coletores**:
+	Há um README na pasta coletores explicando toda execução das Noticias que é baseada no BaseScraper.<br>
+	[Arquivo com Explicação dos Coletores](COLETORES/README.MD)<br>
+	Os coletores de checagens são independentes dos coletores de notícias, onde o COMPROVA e ESTADAOVERIFICA são scripts independentes, enquanto os outros coletores de checagens fazem uso dos aquivos base_crawler e custom_scraper.
+* **Busca URLS**:
+	As buscas são realizadas por scripts independentes presentes dentro da pasta.
