@@ -7,43 +7,67 @@ class UOLScrapper(BaseScrapper):
             super(UOLScrapper, self).__init__("firefox")
         else:
             super(UOLScrapper, self).__init__()
-
-
-    text_locator = (By.CLASS_NAME,'text')
     scrapperSource = "UOL"
-    title_locator = (By.XPATH, '//i[@ia-title=""]')
+
     main_wrapper_locator = (By.CLASS_NAME, 'article.article-wrapper.scroll-base.clearfix.collection-item.collection-first-item')
-    date_locator = (By.CLASS_NAME, 'p-author.time')
 
-
-    subtitle_locator = "NULL"
-    image_locator = (By.CLASS_NAME,'pinit-wraper')
-    author_locator =  (By.CLASS_NAME , 'p-author-local')
-    author_locator_attribute = "NULL"
-    category_locator = (By.CLASS_NAME,'title-name')
-    video_locator = "NULL"
+    title_locator = (By.XPATH, '//i[@ia-title=""]')
     title_locator_internal = "NULL"
 
-    undesirables = ['/videos','/colunas','/album','/reportagens-especiais', '/amp-stories', 'band.uol','stories','faq']
+    text_locator = (By.CLASS_NAME,'text')
+    text_locator_internal = "NULL" #OBRIGATORIO MAS PODE SER "NULL"/VAZIO
+    textUndesirables = [] #OBRIGATORIO MAS PODE SER "NULL"/VAZIO
 
+    date_locator = (By.CLASS_NAME, 'p-author.time')
+    date_locator_internal = "NULL" #OBRIGATORIO MAS PODE SER "NULL"/VAZIO
+    dateHasTime = True
     dateHasDateTimeAttribute =True
     dateTimeAttribute = 'ia-date-publish'
 
-    dateEndingSeparator = "Atu"
-    dateHasTime = True
-    dateTimeSeparator = " "
-    hourMinuteSeparator = "h"
-    dayMonthYearSeparator = "/"
-    monthNeedsMapper = False
+    ####Parametros abaixo desta linha são referentes a métodos que podem retornar "NULL" no caso de de erro. Acima desta linha, erros em métodos resultam em excessões que devem ser tratadas apenas para logging.
+    ### Isso significa que uma coleta é considerada sucesso mesmo que os campos categories, subtitles, image_url, video_url sejam "NULL" mesmo que por motivo de excessão.
 
+    category_locator = 'NULL'
+    category_locator_internal = 'NULL' #PODE SER APAGADO SE O OBRIGATORIO ACIMA MAIS PROXIMO FOR "NULL"
     addUrlCategories = True
     urlCategoryLowerBounds = [".br/"]
     urlCategoryUpperBounds = ["/2020/","/2021/"]
+    addTagsCategories = False #OBRIGATORIO NÃO NULL
 
-    manualCategories = ['coronavirus']
+    tagsUndesirables = [] #OBRIGATORIO MAS PODE SER "NULL"/VAZIO
 
+    subtitle_locator = "NULL"
+
+    image_locator = (By.CLASS_NAME,'pinit-wraper')
     image_locator_internal = (By.TAG_NAME, 'img')
     image_locator_attribute = 'src'
+
+    author_locator =  (By.CLASS_NAME , 'p-author-local')
+    author_locator_internal = 'NULL' #PODE SER APAGADO SE O OBRIGATORIO ACIMA MAIS PROXIMO FOR "NULL"
+    author_locator_attribute = "NULL"
+
+    video_locator = "NULL"
+    video_locator_internal = 'NULL' #PODE SER APAGADO SE O OBRIGATORIO ACIMA MAIS PROXIMO FOR "NULL"
+    video_locator_attribute = 'NULL'#PODE SER APAGADO SE O OBRIGATORIO ACIMA MAIS PROXIMO FOR "NULL"
+
+    undesirables = ['/videos','/colunas','/album','/reportagens-especiais', '/amp-stories', 'band.uol','stories','faq']
+
+    manualCategories = []
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     def get_text(self):
         ret = ""
