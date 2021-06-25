@@ -175,7 +175,7 @@ Essa função permite que todas as três sejam coletadas.
 		
 	- `dateTimeAttribute, se o booleano acima for True, define qual o nome do atributo padrão datetime, na grande maioria (mas não todos) os sites, o atributo é apenas 'datetime'  `
 	
-	-Os parametros a seguir servem para o caso em que um determinado site não oferece um atributo na formatação datetime no elemento HTML associado com a data de publicação do artigo. Para facilitar o entendimento, eles utilizarão a string "Domingo, 19 de Abril de 2020, 12h:59 | Atualizado:" como exemplo corrente de .text retorando pelos locators de data 
+	- Os parametros a seguir servem para o caso em que um determinado site não oferece um atributo na formatação datetime no elemento HTML associado com a data de publicação do artigo. Para facilitar o entendimento, eles utilizarão a string "Domingo, 19 de Abril de 2020, 12h:59 | Atualizado:" como exemplo corrente de .text retornado pelos locators de data definidos acima
 		
 		- `dateStartSeparator, define qual substring do .text encontrado faz fronteira com o inicio da a string com a data, no exemplo, seria ", " pois assim conseguimos separar a data da substring "Domingo, "`
 			
@@ -208,6 +208,7 @@ Essa função permite que todas as três sejam coletadas.
 			
 		- `dateYearMapper, deve ser um dicinario capaz de traduzir a formatação de ano presente no site para o ano completo (como por exemplo numa data na formatação 01/11/20 ao invés de 01/11/2020. Neste caso o mapper devera ter uma entrada '20':2020) `
 
+Essa função permite a extração da data de publicação de artigos. Existem duas maneiras para isso acontecer: via um atributo datetime do elemento HTML da data ou apartir do texto (node .text) visivel em tela ao acessar a URL do artigo. Ao final, retorna uma string 'Ano-mes-dia hora:minuto:segundo'
 ---
 ### get_author(self):
 
@@ -219,8 +220,8 @@ Essa função permite que todas as três sejam coletadas.
 ---
 ### treat_text(self, text):
 - Parametros de chamada:
-	- `text: `
-	
+	- `text: string `
+Efetiva a troca de aspas duplas por aspas simples
 ---
 ### get_subtitle(self):
 
@@ -240,7 +241,9 @@ Essa função permite que todas as três sejam coletadas.
 	- `articleUrl`
 	
 - Parametros definidos via atributos de subclasse:
-	- `main_wrapper_locator`
+	- `main_wrapper_locator: deve ser um localizador By do selenium que permita isolar no código fonte da página o wrapper principal do artigo que contenha em seus nodes filhos todas as informações que se espera coletar com este scrapper`
+
+Modifica o atributo de instancia "currentWrapper" fazendo com que armazene o elemento HTML associado com o wrapper global do artigo
 	
 ---
 ### access_article(self, articleUrl):
@@ -250,7 +253,8 @@ Essa função permite que todas as três sejam coletadas.
 ---
 ### strip_accents(self,text):
 - Parametros de chamada:
-	- `text`
+	- `text: string`
+Efetiva
 	
 ---
 ### __set_chrome_options(self):
@@ -258,7 +262,8 @@ Essa função permite que todas as três sejam coletadas.
 ---
 ### set_selenium_driver(self, browser="chrome_headless"):
 - Parametros de chamada:
-	- `browser`
+	- `browser: firefox ou chrome_headless`
+Inicializa o driver do selenium sobre o qual os métodos do scraper operam. Se o parametro browser for firefox, o scraper oferece um interface em tempo real que permite a visualização da página atualmente sendo acessada. Do contrário, utiliza o chromedriver para efetivar as operacões em background, sem interface.
 
 # Definindo um novo scrapper
 
