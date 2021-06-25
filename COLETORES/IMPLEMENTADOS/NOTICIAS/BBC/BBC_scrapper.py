@@ -8,34 +8,65 @@ class BBCScrapper(BaseScrapper):
         else:
             super(BBCScrapper, self).__init__()
 
-    text_locator = (By.CLASS_NAME,'bbc-19j92fr.e57qer20')
     scrapperSource = "BBC"
-    title_locator = (By.CLASS_NAME,'bbc-1lsgtu3.e1yj3cbb0')
-    main_wrapper_locator = (By.TAG_NAME, 'main')
-    #date_locator = (By.CLASS_NAME, 'e1j2237y6.bbc-q4ibpr.e57qer20')
+
+    main_wrapper_locator = (By.TAG_NAME, 'main')#OBRIGATORIO NÃO NULL
+
+    title_locator = (By.CLASS_NAME,'bbc-1lsgtu3.e1yj3cbb0') #OBRIGATORIO NÃO NULL
+    title_locator_internal = "NULL" #OBRIGATORIO MAS PODE SER "NULL"/VAZIO
+
+    text_locator = (By.CLASS_NAME,'bbc-19j92fr.e57qer20')
+    text_locator_internal = (By.CLASS_NAME, 'bbc-bm53ic.e1cc2ql70')
+    textUndesirables = ["Inscreva-se no nosso canal!"]
+
     date_locator = (By.CLASS_NAME, 'bbc-14xtggo.e4zesg50')
-
-    subtitle_locator = "NULL"
-    image_locator = (By.CLASS_NAME,'bbc-1qdcvv9.e6bmn90')
-    author_locator =  (By.CLASS_NAME , 'e1j2237y5.bbc-q4ibpr.e57qer20')
-    author_locator_attribute = "NULL"
-    category_locator = "NULL"
-    video_locator = "NULL"
-    title_locator_internal = "NULL"
-
+    date_locator_internal = "NULL" #OBRIGATORIO MAS PODE SER "NULL"/VAZIO
+    dateHasTime = False
     dateHasDateTimeAttribute = True
     dateTimeAttribute = 'datetime'
-
+    dateStartSeparator = "NULL" #PODE SER APAGADO SE O BOOL OBRIGATORIO ACIMA MAIS PROXIMO FOR TRUE
     dateEndingSeparator = "\n"
-    dateHasTime = False
+    dateTimeSeparator = "NULL" #PODE SER APAGADO SE O BOOL OBRIGATORIO ACIMA MAIS PROXIMO FOR TRUE
+    hourMinuteSeparator = "NULL" #PODE SER APAGADO SE O BOOL OBRIGATORIO ACIMA MAIS PROXIMO FOR TRUE
+    dayMonthYearSeparator = "NULL" #PODE SER APAGADO SE O BOOL OBRIGATORIO ACIMA MAIS PROXIMO FOR TRUE
+    monthNeedsMapper = False #PODE SER APAGADO SE O BOOL OBRIGATORIO ACIMA MAIS PROXIMO FOR TRUE
+    dateMonthMapper = {} #PODE SER APAGADO SE O BOOL OBRIGATORIO ACIMA MAIS PROXIMO FOR TRUE
+    yearNeedsMapper = False #PODE SER APAGADO SE O BOOL OBRIGATORIO ACIMA MAIS PROXIMO FOR TRUE
+    dateYearMapper = {} #PODE SER APAGADO SE O BOOL OBRIGATORIO ACIMA MAIS PROXIMO FOR TRUE
 
+    ####Parametros abaixo desta linha são referentes a métodos que podem retornar "NULL" no caso de de erro. Acima desta linha, erros em métodos resultam em excessões que devem ser tratadas apenas para logging.
+    ### Isso significa que uma coleta é considerada sucesso mesmo que os campos categories, subtitles, image_url, video_url sejam "NULL" mesmo que por motivo de excessão.
+
+    category_locator = "NULL"
+    category_locator_internal = 'NULL' #PODE SER APAGADO SE O OBRIGATORIO ACIMA MAIS PROXIMO FOR "NULL"
     addUrlCategories = True
     urlCategoryLowerBounds = ["portuguese/"]
     urlCategoryUpperBounds = ["-"]
     manualCategories = ['coronavirus']
 
-    text_locator_internal = (By.CLASS_NAME, 'bbc-bm53ic.e1cc2ql70')
-    textUndesirables = ["Inscreva-se no nosso canal!"]
+    
+    addTagsCategories = False #OBRIGATORIO NÃO NULL
+    tags_categories_locator = "NULL"#PODE SER APAGADO SE O BOOL OBRIGATORIO ACIMA MAIS PROXIMO FOR FALSE
+    tags_categories_locator_internal = "NULL" #PODE SER APAGADO SE O BOOL OBRIGATORIO ACIMA MAIS PROXIMO FOR FALSE
+    tagsUndesirables = [] #OBRIGATORIO MAS PODE SER "NULL"/VAZIO
+
+    subtitle_locator = "NULL"
+
+    image_locator = (By.CLASS_NAME,'bbc-1qdcvv9.e6bmn90')
+    image_locator_internal = "NULL" #PODE SER APAGADO SE O OBRIGATORIO ACIMA MAIS PROXIMO FOR "NULL"
+    image_locator_attribute = "NULL" #PODE SER APAGADO SE O OBRIGATORIO ACIMA MAIS PROXIMO FOR "NULL"
+
+    author_locator =  (By.CLASS_NAME , 'e1j2237y5.bbc-q4ibpr.e57qer20')
+    author_locator_internal = 'NULL' #PODE SER APAGADO SE O OBRIGATORIO ACIMA MAIS PROXIMO FOR "NULL"
+    author_locator_attribute = "NULL"
+
+    video_locator = "NULL"    
+    title_locator_internal = "NULL"
+    video_locator_attribute = 'NULL'#PODE SER APAGADO SE O OBRIGATORIO ACIMA MAIS PROXIMO FOR "NULL"
+
+    undesirables = [] #OBRIGATORIO MAS PODE SER "NULL"/VAZIO
+
+
 
     def get_main_image_url(self):
         images = self.currentWrapper.find_elements(*self.image_locator)
