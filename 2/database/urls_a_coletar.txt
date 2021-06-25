@@ -1,6 +1,0 @@
-{
-	"urls":[
-		"https://www.boatos.org/saude/previsao-de-vacinacao-sao-paulo-acelerou-calendario-ate-18-anos-divulgado.html",
-		"https://www.boatos.org/saude/relatorio-alerta-brasil-coronavac-nao-ira-controlar-pandemia.html"
-	]
-}
