@@ -29,18 +29,18 @@ class TEMPLATEScrapper(BaseScrapper):
 
     date_locator = (By.CLASS_NAME,'' ) #OBRIGATORIO NÃO NULL
     date_locator_internal = "NULL" #OBRIGATORIO MAS PODE SER "NULL"/VAZIO
-    dateHasTime = True #OBRIGATORIO NÃO NULL
+    dateHasTime = False #OBRIGATORIO NÃO NULL
     dateHasDateTimeAttribute = False #OBRIGATORIO NÃO NULL
-    dateTimeAttribute = "datetime" #PODE SER APAGADO SE O BOOL OBRIGATORIO ACIMA MAIS PROXIMO FOR FALSE
-    dateStartSeparator = "NULL" #PODE SER APAGADO SE O BOOL OBRIGATORIO ACIMA MAIS PROXIMO FOR TRUE
-    dateEndingSeparator = "NULL" #PODE SER APAGADO SE O BOOL OBRIGATORIO ACIMA MAIS PROXIMO FOR TRUE
-    dateTimeSeparator = "NULL" #PODE SER APAGADO SE O BOOL OBRIGATORIO ACIMA MAIS PROXIMO FOR TRUE
-    hourMinuteSeparator = "NULL" #PODE SER APAGADO SE O BOOL OBRIGATORIO ACIMA MAIS PROXIMO FOR TRUE
-    dayMonthYearSeparator = "NULL" #PODE SER APAGADO SE O BOOL OBRIGATORIO ACIMA MAIS PROXIMO FOR TRUE
-    monthNeedsMapper = False #PODE SER APAGADO SE O BOOL OBRIGATORIO ACIMA MAIS PROXIMO FOR TRUE
-    dateMonthMapper = {} #PODE SER APAGADO SE O BOOL OBRIGATORIO ACIMA MAIS PROXIMO FOR TRUE
-    yearNeedsMapper = False #PODE SER APAGADO SE O BOOL OBRIGATORIO ACIMA MAIS PROXIMO FOR TRUE
-    dateYearMapper = {} #PODE SER APAGADO SE O BOOL OBRIGATORIO ACIMA MAIS PROXIMO FOR TRUE
+    dateTimeAttribute = "datetime" #PODE SER APAGADO SE O BOOL !!OBRIGATORIO!! ACIMA MAIS PROXIMO FOR FALSE
+    dateStartSeparator = "NULL" #PODE SER APAGADO SE O BOOL !!OBRIGATORIO!! ACIMA MAIS PROXIMO FOR TRUE
+    dateEndingSeparator = "NULL" #PODE SER APAGADO SE O BOOL !!OBRIGATORIO!! ACIMA MAIS PROXIMO FOR TRUE
+    dateTimeSeparator = "NULL" #PODE SER APAGADO SE O BOOL !!OBRIGATORIO!! ACIMA MAIS PROXIMO FOR TRUE
+    hourMinuteSeparator = "NULL" #PODE SER APAGADO SE O BOOL !!OBRIGATORIO!! ACIMA MAIS PROXIMO FOR TRUE
+    dayMonthYearSeparator = "NULL" #PODE SER APAGADO SE O BOOL !!OBRIGATORIO!! ACIMA MAIS PROXIMO FOR TRUE
+    monthNeedsMapper = False #PODE SER APAGADO SE O BOOL !!OBRIGATORIO!! ACIMA MAIS PROXIMO FOR TRUE
+    dateMonthMapper = {} #PODE SER APAGADO SE O BOOL !!OBRIGATORIO!! ACIMA MAIS PROXIMO FOR TRUE
+    yearNeedsMapper = False #PODE SER APAGADO SE O BOOL !!OBRIGATORIO!! ACIMA MAIS PROXIMO FOR TRUE
+    dateYearMapper = {} #PODE SER APAGADO SE O BOOL !!OBRIGATORIO!! ACIMA MAIS PROXIMO FOR TRUE
 
     ####Parametros abaixo desta linha são referentes a métodos que podem retornar "NULL" no caso de de erro. Acima desta linha, erros em métodos resultam em excessões que devem ser tratadas apenas para logging.
     ### Isso significa que uma coleta é considerada sucesso mesmo que os campos categories, subtitles, image_url, video_url sejam "NULL" mesmo que por motivo de excessão.
@@ -48,11 +48,11 @@ class TEMPLATEScrapper(BaseScrapper):
     category_locator = (By.CLASS_NAME, '') #OBRIGATORIO MAS PODE SER "NULL"/VAZIO
     category_locator_internal = 'NULL' #PODE SER APAGADO SE O OBRIGATORIO ACIMA MAIS PROXIMO FOR "NULL"
     addUrlCategories = False #OBRIGATORIO NÃO NULL
-    urlCategoryLowerBounds = [''] #PODE SER APAGADO SE O BOOL OBRIGATORIO ACIMA MAIS PROXIMO FOR FALSE
-    urlCategoryUpperBounds = [''] #PODE SER APAGADO SE O BOOL OBRIGATORIO ACIMA MAIS PROXIMO FOR FALSE
-    addTagsCategories = True #OBRIGATORIO NÃO NULL
-    tags_categories_locator = (By.CLASS_NAME, '') #PODE SER APAGADO SE O BOOL OBRIGATORIO ACIMA MAIS PROXIMO FOR FALSE
-    tags_categories_locator_internal = (By.TAG_NAME,'') #PODE SER APAGADO SE O BOOL OBRIGATORIO ACIMA MAIS PROXIMO FOR FALSE
+    urlCategoryLowerBounds = [''] #PODE SER APAGADO SE O BOOL !!OBRIGATORIO!! ACIMA MAIS PROXIMO FOR FALSE
+    urlCategoryUpperBounds = [''] #PODE SER APAGADO SE O BOOL !!OBRIGATORIO!! ACIMA MAIS PROXIMO FOR FALSE
+    addTagsCategories = False #OBRIGATORIO NÃO NULL
+    tags_categories_locator = (By.CLASS_NAME, '') #PODE SER APAGADO SE O BOOL !!OBRIGATORIO!! ACIMA MAIS PROXIMO FOR FALSE
+    tags_categories_locator_internal = (By.TAG_NAME,'') #PODE SER APAGADO SE O BOOL !!OBRIGATORIO!! ACIMA MAIS PROXIMO FOR FALSE
     tagsUndesirables = [] #OBRIGATORIO MAS PODE SER "NULL"/VAZIO
 
     subtitle_locator = "NULL" #OBRIGATORIO MAS PODE SER "NULL"/VAZIO
