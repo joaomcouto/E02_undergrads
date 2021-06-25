@@ -302,7 +302,7 @@ class BaseScrapper(ABC):
                 else:
                     return self.treat_text(authorElement.get_attribute(self.author_locator_attribute))
             except Exception as e:
-                print("Problemas no get_author: ", e)
+                #print("Problemas no campo opcional author: ", e)
                 return "NULL"
 
     def treat_text(self, text):
@@ -389,8 +389,7 @@ class BaseScrapper(ABC):
             try:
                 categories.append(self.strip_accents( categoryElement.text.lower() ))
             except Exception as e:
-                print(e)
-                print("Problema temporario na captura de categoria NO ARTIGO, resolucao pendente")
+#                print("Problemas no campo opcional categorias: ", e)
                 pass
 
         if(self.addUrlCategories):
@@ -426,7 +425,7 @@ class BaseScrapper(ABC):
                     imgElement = self.currentWrapper.find_element(*self.image_locator).find_element(*self.image_locator_internal)
                 return imgElement.get_attribute(self.image_locator_attribute)
             except Exception as e:
-                print(e)
+                #print("Problemas no campo opcional imagem: ", e)
                 return "NULL"
 
 
@@ -442,7 +441,7 @@ class BaseScrapper(ABC):
                     vidElement =self.currentWrapper.find_element(*self.video_locator).find_element(*self.video_locator_internal)
                 return vidElement.get_attribute(self.video_locator_attribute)
             except Exception as e:
-                #print(e)
+                #print("Problemas no campo opcional video: ", e)
                 return "NULL"
 
 
@@ -499,7 +498,7 @@ class BaseScrapper(ABC):
         features['obtained_at'] = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
         features['raw_file_name'] = self.html_file_name(articleUrl)
         self.save_html(features)
-        print(features)
+        #print(features)
         return features
 
     def save_html(self, features):
