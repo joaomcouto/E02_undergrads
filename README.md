@@ -1,6 +1,19 @@
-# Sistema de coleta
+#E02
+Arcabouço computacional para detecção de notícias falsas.
 
 
+### Base de dados:
+A base de dados corresponde aos arquivos:
+* DATASET_MPMG-FakeNews_matched.txt
+* DATASET_MPMG-TrueNews_selected.txt
+
+Para a leitura da base de dados há um arquivo na raiz do projeto chamado _leitura_dataset.py_ com uma função exemplo que lê toda a base e imprime as três primeiras notícias de cada parte. O código pode ser executado a partir do seguinte comando:
+
+```
+python3 leitura_dataset.py
+```
+
+<br>
 ### Configurando o sitema:
 * **Versão dos drivers do selenium**:
 	É de suma importância que os drivers que serão selecionados sejão compatíveis com a versão dos browsers instalados nas máquinas que realizarão as coletas. Os drivers se encontram na pasta _/drivers_ e podem ser atualaizados nos seguintes links:
@@ -49,12 +62,12 @@ Onde os parâmtros dividem qual o tipo de busca será feita com qual fonte. A di
 
 	Possíveis fontes:
 	* -all
-	* ESTADAOVERIFICA
+	* AOSFATOS
 	* BOATOS
 	* COMPROVA
-	* AOSFATOS
-	* LUPA
+	* ESTADAOVERIFICA
 	* FATOOUFAKE
+	* LUPA
 
 	Repare que pode ser passado o parâmtro -all para a busca de URL, assim reallizando a busca simultânea de todas as fontes. Então, por exemplo, os comandos:
 	```
