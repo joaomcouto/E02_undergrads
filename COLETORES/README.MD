@@ -1,5 +1,5 @@
 ## DESCRIPTION:
-## 3.1 Coletores
+## 1 Coletores
 - Com o objetivo de permitir a criação em larga escala de coletores, foi desenvolvido o módulo base_scrapper que define a classe base "BaseScrapper" a ser utilizada em todos coletores desenvolvidos para a coleta de notícias e/ou fact-checking neste projeto
 
 - Esta classe semi-abstrata define uma série de métodos "padrão" que buscam ser robustos o suficiente para conseguir coletar os principais dados de interesse de quaisquer sites de notícia ou verificação de fatos
@@ -8,9 +8,9 @@
 
 - Assim, na eventualidade da lógica de um método padrão não conseguir lidar com as características do código fonte de uma página no contexto da coleta de algum dado de interesse do site (i.e título, autor), deve-se implementar e redefinir o respectivo método de coleta desse dado na subclasse que herda baseScrapper. Aqui, vale ressaltar que em várias ocasiões os métodos "padrão" servem como base para a criação de métodos customizados nestes casos, e que, na maioria dos casos, basta trocar uma ou duas linhas sobre como eles funcionam
 
-## 3.1.1 Parâmetros de entrada (Coletores)
+## 1.1 Parâmetros de entrada (Coletores)
 
-### 3.1.1.1 NOÇÕES BÁSICAS: a hierarquia de locators e o parametro attribute (IMPORTANTE!!!)
+### 1.1.1 NOÇÕES BÁSICAS: a hierarquia de locators e o parametro attribute (IMPORTANTE!!!)
 - Para possibilitar o entedimento do parametros de uso dos métodos deste módulo é necessário entender uma noção básica comum entre todos eles: a hierarquia de locators
 
 - A hierarquia de locators constitui a definição de 3 instâncias do mecanismo "By" do framework Selenium. Em todos os métodos neste módulo, a ativação sequencial dessas 3 instâncias deve possibilitar ao BaseScrapper encontrar e isolar o elemento de interesse em cada método. 
@@ -51,7 +51,7 @@
     
     
 
-## 3.1.1.2 Coletores: métodos e parametros
+## 1.1.2 Coletores: métodos e parametros
 
 A seguir, explicitamos os métodos do modulo base_scrapper juntamente com os parametros que devem ser definidos para que um coletor baseado nessa arquitetura proposta possa funcionar. Inicialmente, descreveremos os métodos que seguem uma lógica compartilhada simples e posteriormente aqueles mais complexos feitos "sob medida" 
 
@@ -102,13 +102,13 @@ Efetiva a coleta do artigo em articleUrl via chamadas a todas as funções get_x
 ### get_text(self):**
 
 - Parametros definidos via atributos de subclasse:
-	- `text_locator: conforme descrito em 3.1.1.1`
+	- `text_locator: conforme descrito em 1.1.1`
 		
-	- `text_locator_internal: conforme descrito em 3.1.1.1`
+	- `text_locator_internal: conforme descrito em 1.1.1`
 		
 	- `textUndesirables: lista de strings`
 
-	Função de comportamento padrão conforme descrito em 3.1.1.1 Retorna uma string com o texto do artigo, eliminando paragrafos que contenham alguma das substrings listada em textUndesirables (isso permite a eliminação por exemplo, de propagandas anexas no corpo do texto de artigos que são indistinguíveis de um parágrafo qualquer do texto, tal como 'clique aqui para visitar nosso canal no youtube')
+	Função de comportamento padrão conforme descrito em 1.1.1 Retorna uma string com o texto do artigo, eliminando paragrafos que contenham alguma das substrings listada em textUndesirables (isso permite a eliminação por exemplo, de propagandas anexas no corpo do texto de artigos que são indistinguíveis de um parágrafo qualquer do texto, tal como 'clique aqui para visitar nosso canal no youtube')
 
 
 ---
@@ -119,7 +119,7 @@ Efetiva a coleta do artigo em articleUrl via chamadas a todas as funções get_x
 	- `video_locator_internal `
 	- `video_locator_attribute`
 		
-Função de comportamento padrão conforme descrito em 3.1.1.1. Retorna a URL do vídeo principal 'no topo' de um artigo caso esteja presente (do contrário retorna a string "NULL")
+Função de comportamento padrão conforme descrito em 1.1.1. Retorna a URL do vídeo principal 'no topo' de um artigo caso esteja presente (do contrário retorna a string "NULL")
 
 ---
 ### get_main_image_url(self):**
@@ -129,7 +129,7 @@ Função de comportamento padrão conforme descrito em 3.1.1.1. Retorna a URL do
 	- `image_locator_internal`
 	- `image_locator_attribute`
 	
-Função de comportamento padrão conforme descrito em 3.1.1.1. Retorna a URL da imagem principal 'no topo' de um artigo caso esteja presente (do contrário retorna a string "NULL")
+Função de comportamento padrão conforme descrito em 1.1.1. Retorna a URL da imagem principal 'no topo' de um artigo caso esteja presente (do contrário retorna a string "NULL")
 
 ---
 ### get_category(self, articleUrl):**
