@@ -4,17 +4,17 @@ Arcabouço computacional para detecção de notícias falsas.
 
 ### Base de dados:
 A base de dados corresponde aos arquivos:
-* DATASET_MPMG-FakeNews_matched.txt
-* DATASET_MPMG-TrueNews_selected.txt
+* data/DATASET_MPMG-FakeNews_matched.txt
+* data/DATASET_MPMG-TrueNews_selected.txt
 
 Para a leitura da base de dados há um arquivo na pasta utils chamado _leitura_dataset.py_ com uma função exemplo que lê toda a base e imprime as três primeiras notícias de cada parte. O código pode ser executado a partir do seguinte comando:
 
 ```
-python3 leitura_dataset.py
+python3 utils/leitura_dataset.py
 ```
 <br>
 
-### Configurando o sitema:
+### Configurando o sistema:
 * **Versão dos drivers do selenium**:
 	É de suma importância que os drivers que serão selecionados sejão compatíveis com a versão dos browsers instalados nas máquinas que realizarão as coletas. Os drivers se encontram na pasta _/drivers_ e podem ser atualaizados nos seguintes links:
 	* [chromedriver](https://chromedriver.chromium.org/downloads)
@@ -157,7 +157,7 @@ Os dados são divididos da mesma forma que o sistema, há um formato para a busc
 
 ### Documentação completa do código e seus processos
 * **Coletores**:
-	Na pasta /COLETORES é possível encontrar um README explicando e documentando com mais detalhes todo o funcionamento dos coletores de dados de noticias que foram desenvolvido com base no BaseScraper, o módulo criado para possibilitar o desenvolvimento da grande quantidade de coletores feitos para essa parte do projeto.<br>
+	Na pasta /COLETORES é possível encontrar um README explicando e documentando todo o funcionamento do BaseScrapper, modulo criado para possibilitar o desenvolvolvimento da grande quantidade de coletores criados para essa parte do projeto. <br>
 	
 	[Arquivo com explicação/documentação dos Coletores](COLETORES/README.MD)<br>
 	
